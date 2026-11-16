@@ -793,8 +793,11 @@ html.pt-in .pt .pt-mark path { stroke-dashoffset: 0; }
 
 /* ---------- 30 Jahre: Teaser Startseite ---------- */
 .jubi { display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: var(--gap); align-items: end; }
-.jubi-num { grid-column: 1 / span 5; font-size: clamp(160px, 26vw, 420px); font-weight: 600; letter-spacing: -.07em; line-height: .75; color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,.85); position: relative; }
-.jubi-num span { position: absolute; left: 0; bottom: 0; color: #fff; -webkit-text-stroke: 0; clip-path: inset(var(--fill, 100%) 0 0 0); transition: clip-path .1s linear; }
+.jubi-num {
+  grid-column: 1 / span 5; font-size: clamp(160px, 26vw, 420px); font-weight: 600; letter-spacing: -.07em; line-height: .8; padding: .08em 0;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,.85);
+  background: linear-gradient(to top, var(--ink) var(--p, 0%), transparent var(--p, 0%)); -webkit-background-clip: text; background-clip: text;
+}
 .jubi-txt { grid-column: 7 / -1; }
 .jubi-txt p { color: rgba(255,255,255,.72); margin-top: 20px; max-width: 30em; }
 .bars { position: relative; margin-top: clamp(48px, 6vw, 96px); }

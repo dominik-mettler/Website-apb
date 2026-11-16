@@ -139,7 +139,7 @@ home = f'''
 <section class="section dark" id="jubilaeum">
   <div class="wrap">
     <div class="jubi">
-      <div class="jubi-num" aria-hidden="true">30<span>30</span></div>
+      <div class="jubi-num" aria-hidden="true">30</div>
       <div class="jubi-txt">
         <span class="eyebrow rv">1996 – 2026</span>
         <h2 class="h1" data-split style="margin-top:18px">30 Jahre<br>apb architekten</h2>

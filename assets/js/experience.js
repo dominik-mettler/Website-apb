@@ -116,10 +116,10 @@
       var f = function () {
         var r = num.getBoundingClientRect(), vh = window.innerHeight;
         var k = Math.min(1, Math.max(0, (vh - r.top) / (vh * 0.7)));
-        num.style.setProperty("--fill", (100 - k * 100) + "%");
+        num.style.setProperty("--p", (k * 100) + "%");
       };
       window.addEventListener("scroll", f, { passive: true }); f();
-    } else if (num) num.style.setProperty("--fill", "0%");
+    } else if (num) num.style.setProperty("--p", "100%");
   }
 
   /* ---------- Chronik-Seite ---------- */
