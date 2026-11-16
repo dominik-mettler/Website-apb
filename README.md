@@ -17,6 +17,9 @@ Statische Website ohne Build-Schritt. Alle Inhalte stammen von der bisherigen Se
 ## Seiten bearbeiten
 Die HTML-Seiten werden mit `python3 tools/build.py` aus den Texten in `tools/build.py` erzeugt (Kopf, Navigation und Fusszeile für alle Seiten gleich).
 
+## Startseiten-Varianten
+`HOME_VARIANT=A python3 tools/build.py` (A = Kino/Slider, B = Index/Projektliste, C = Mosaik/Bildraster). Ohne Angabe wird A gebaut.
+
 ## Projekte pflegen
 Alle Projektdaten liegen in `assets/js/data.js` (Name, Ort, Kenndaten, Themen, Koordinaten, Bildmasse).
 Bilder: `assets/img/projects/<id>/01.jpg` (gross, 1600 px) und `01-s.jpg` (klein, 800 px); `01` ist das Titelbild.

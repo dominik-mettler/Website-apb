@@ -80,7 +80,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 {extra_head}
 <script>try{{if(sessionStorage.getItem('apb-pt')){{document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}{'' if not intro else ''}}}catch(e){{}}</script>
 {INTRO_HEAD if intro else ''}
-{'<link rel="preload" as="image" href="assets/img/projects/251-asch/01.jpg" fetchpriority="high">' if intro else ''}
+{'<link rel="preload" as="image" href="assets/img/projects/251-asch/01.jpg" fetchpriority="high">' if intro and HOME_VARIANT == 'A' else ''}
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
 {INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
@@ -112,9 +112,11 @@ def cta(title, label='Kontakt aufnehmen', stone=False):
 
 ticks = lambda items: '<ul class="ticks">' + ''.join(f'<li>{i}</li>' for i in items) + '</ul>'
 
-# ---------------------------------------------------------------- HOME
-home = f'''
-<section class="hero" data-slides="251-asch,319-sag,308-mzu,310-gws,313-gbw,320-ksp" aria-roledescription="Karussell" aria-label="Ausgewählte Projekte">
+
+# ---------------------------------------------------------------- STARTSEITEN-VARIANTEN
+# A = Kino (Vollbild-Slider), B = Index (typografische Projektliste), C = Mosaik (Bildraster)
+HOME_VARIANT = os.environ.get('HOME_VARIANT', 'A')
+HERO_A = """<section class="hero" data-slides="251-asch,319-sag,308-mzu,310-gws,313-gbw,320-ksp" aria-roledescription="Karussell" aria-label="Ausgewählte Projekte">
   <div class="hero-stage"></div>
   <div class="hero-content">
     <div class="wrap">
@@ -126,7 +128,30 @@ home = f'''
     </div>
     <div class="wrap"><div class="hero-bars"></div></div>
   </div>
-</section>
+</section>"""
+HERO_B = """<section class="ix" data-ids="319-sag,333-kff,310-gws,313-gbw,292-mlw,263-piu,308-mzu,270-bsb" aria-label="Ausgewählte Projekte">
+  <div class="ix-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="ix-top"><span class="eyebrow" style="color:rgba(255,255,255,.75)">Architektur · Planung · Beratung · Uster</span><span>Seit 1996</span></div>
+    <h1 class="sr-only">apb architekten ag – Architektur, Planung und Beratung in Uster</h1>
+    <nav class="ix-list" aria-label="Ausgewählte Projekte"></nav>
+    <div class="ix-foot"><p>Über 100 realisierte Projekte für private und öffentliche Bauherren im Kanton Zürich.</p><a class="btn light" href="projekte.html">Alle 39 Projekte<span class="arr"></span></a></div>
+  </div>
+</section>"""
+HERO_C = """<section class="mo" aria-label="Projekte">
+  <div class="mo-grid"></div>
+  <div class="mo-center"><div class="card-box">
+    <img src="assets/img/logo-light.png" alt="apb architekten ag" width="729" height="126">
+    <h1>Architektur. Planung. Beratung.<br>Seit 1996 in Uster.</h1>
+    <p>Wohnbauten, Schulen, Gemeindehäuser, Bahnhöfe und Pflegeeinrichtungen im Kanton Zürich.</p>
+    <div class="acts"><a class="btn light" href="projekte.html">Projekte entdecken<span class="arr"></span></a><a class="btn ghost" href="kontakt.html">Kontakt</a></div>
+  </div></div>
+</section>"""
+HERO = {'A': HERO_A, 'B': HERO_B, 'C': HERO_C}[HOME_VARIANT]
+
+# ---------------------------------------------------------------- HOME
+home = f'''
+{HERO}
 
 <section class="section">
   <div class="wrap">

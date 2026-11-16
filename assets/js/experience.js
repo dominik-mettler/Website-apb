@@ -365,8 +365,64 @@
     });
   }
 
+
+  /* ---------- Variante B: Index-Startseite ---------- */
+  function indexHero() {
+    var ix = $(".ix"); if (!ix) return;
+    var ids = ix.getAttribute("data-ids").split(","), ps = ids.map(function (id) { return D.projects.filter(function (p) { return p.id === id; })[0]; }).filter(Boolean);
+    var bg = $(".ix-bg", ix), list = $(".ix-list", ix);
+    bg.innerHTML = ps.map(function (p, i) { return '<img src="' + img(p, 1) + '" alt=""' + (i ? ' loading="lazy"' : "") + ">"; }).join("");
+    list.innerHTML = ps.map(function (p, i) {
+      return '<a href="' + url(p) + '" data-i="' + i + '" data-cursor="Projekt"><span class="nr">' + String(i + 1).padStart(2, "0") + '</span><span class="nm">' + esc(p.name) + " <em>" + esc(p.ort) + '</em></span><span class="yr">' + (p.year || "") + "</span></a>";
+    }).join("");
+    var imgs = $$("img", bg), links = $$("a", list), cur = -1, timer, hover = false;
+    function show(i) { if (i === cur) return; cur = i; imgs.forEach(function (m, k) { m.classList.toggle("on", k === i); }); links.forEach(function (a, k) { a.classList.toggle("on", k === i); }); }
+    function auto() { clearInterval(timer); if (reduced) return; timer = setInterval(function () { if (!hover && !root.classList.contains("intro")) show((cur + 1) % ps.length); }, 3500); }
+    links.forEach(function (a) {
+      a.addEventListener("mouseenter", function () { hover = true; show(+a.dataset.i); });
+      a.addEventListener("focus", function () { show(+a.dataset.i); });
+    });
+    list.addEventListener("mouseleave", function () { hover = false; auto(); });
+    show(0); auto();
+  }
+
+  /* ---------- Variante C: Mosaik-Startseite ---------- */
+  function mosaic() {
+    var mo = $(".mo"); if (!mo) return;
+    document.body.classList.add("variant-c");
+    var grid = $(".mo-grid", mo);
+    var mobile = window.matchMedia("(max-width: 860px)").matches;
+    var pool = D.projects.filter(function (p) { return p.img.length > 1 && p.id !== "333-kff"; });
+    pool.sort(function () { return Math.random() - 0.5; });
+    var n = mobile ? 13 : 9, big = mobile ? [0, 6] : [0, 5];
+    var shown = pool.slice(0, n), rest = pool.slice(n);
+    grid.innerHTML = shown.map(function (p, i) {
+      return '<a class="mo-tile' + (big.indexOf(i) > -1 ? " big" : "") + '" href="' + url(p) + '" data-cursor="Projekt"><img src="' + img(p, 1, true) + '" alt="' + esc(p.name + ", " + p.ort) + '"><span>' + esc(p.name) + " · " + esc(p.ort) + "</span></a>";
+    }).join("");
+    if (reduced) return;
+    var tiles = $$(".mo-tile", grid);
+    setInterval(function () {
+      if (root.classList.contains("intro") || !rest.length || document.hidden) return;
+      var k = Math.floor(Math.random() * tiles.length), t = tiles[k];
+      if (t.matches(":hover")) return;
+      var next = rest.shift(), old = shown[k];
+      var im = $("img", t), nw = new Image();
+      nw.onload = function () {
+        im.classList.add("out");
+        setTimeout(function () {
+          im.src = nw.src; im.alt = next.name + ", " + next.ort; t.href = url(next); $("span", t).textContent = next.name + " · " + next.ort;
+          requestAnimationFrame(function () { im.classList.remove("out"); });
+        }, 650);
+      };
+      nw.src = img(next, 1, true);
+      shown[k] = next; rest.push(old);
+    }, 1800);
+  }
+
   intro();
   transitions();
+  indexHero();
+  mosaic();
   search();
   finder();
   contactPrefill();
