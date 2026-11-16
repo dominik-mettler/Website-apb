@@ -10,8 +10,12 @@ Statische Website ohne Build-Schritt. Alle Inhalte stammen von der bisherigen Se
 | `projekt.html?p=<id>` | Projektdetail (z. B. `?p=319-sag`), `?p=wettbewerbe` für Wettbewerbe |
 | `leistungen.html` | Planung + Beratung (interaktive SIA-112-Phasen) |
 | `buero.html` | Information: Firmenprofil, Atelier, Team |
+| `chronik.html` | 30 Jahre apb – Chronik 1996–2026 (neu) |
 | `karriere.html` | Offene Stellen + Lehrstelle |
 | `kontakt.html`, `impressum.html` | Kontakt, Impressum & Datenschutz |
+
+## Seiten bearbeiten
+Die HTML-Seiten werden mit `python3 tools/build.py` aus den Texten in `tools/build.py` erzeugt (Kopf, Navigation und Fusszeile für alle Seiten gleich).
 
 ## Projekte pflegen
 Alle Projektdaten liegen in `assets/js/data.js` (Name, Ort, Kenndaten, Themen, Koordinaten, Bildmasse).

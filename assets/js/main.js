@@ -599,7 +599,8 @@
     steps.forEach(function (s) { s.addEventListener("click", function () { show(+s.dataset.i, true); }); s.addEventListener("mouseenter", function () { if (!auto) show(+s.dataset.i); }); });
     $(".sia-prev", root).addEventListener("click", function () { show(cur - 1, true); });
     $(".sia-next", root).addEventListener("click", function () { show(cur + 1, true); });
-    $(".sia-play", root).addEventListener("click", function () {
+    var playBtn = $(".sia-play", root);
+    if (playBtn) playBtn.addEventListener("click", function () {
       if (auto) return stop();
       this.textContent = "Pause"; show(0);
       auto = setInterval(function () { if (cur === P.length - 1) stop(); else show(cur + 1); }, 2600);
