@@ -200,8 +200,177 @@
     if (/^#j\d{4}$/.test(location.hash)) { var t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(function () { t.scrollIntoView(); }, 60); }
   }
 
+
+  /* ---------- Globale Suche ---------- */
+  var PAGES = [
+    ["Projekte", "Alle Projekte – Raster, Liste, Karte, Zeitachse", "projekte.html", "architektur übersicht"],
+    ["Wettbewerbe & Auswahlverfahren", "Projekte", "projekt.html?p=wettbewerbe", "wettbewerb planerwahl rang modell"],
+    ["Planung", "Leistungen", "leistungen.html#planung", "firmenphilosophie planen bauen"],
+    ["SIA-Norm 112 – Phasen", "Leistungen", "leistungen.html#sia-112", "sia phasen vorprojekt bauprojekt ausschreibung bauleitung kosten"],
+    ["Leistungsfinder", "Leistungen – welche Leistung passt?", "leistungen.html#finder", "finder beratung hilfe"],
+    ["Bauherrenberatung", "Leistungen", "leistungen.html#bauherren", "beratung bauherr gemeinde studienauftrag kostenschätzung machbarkeit grundstück"],
+    ["Käuferbetreuung", "Leistungen", "leistungen.html#kaeufer", "käufer stockwerkeigentum eigentumswohnung"],
+    ["Liegenschaftsanalyse", "Leistungen", "leistungen.html#liegenschaft", "liegenschaft zustandsanalyse bestand gebäudezustand schadstoffe erdbeben"],
+    ["Firmenprofil", "Büro", "buero.html#profil", "geschichte gründung 1996 2011 mitgliedschaften sia minergie"],
+    ["Atelier", "Büro – Turicum-Gebäude, Uster", "buero.html#atelier", "büro seestrasse archicad bim"],
+    ["Team", "Büro", "buero.html#team", "mitarbeitende architekten"],
+    ["30 Jahre apb", "Chronik 1996–2026", "chronik.html", "jubiläum chronik geschichte"],
+    ["Karriere", "Stellen & Initiativbewerbung", "karriere.html", "jobs stellen bewerbung"],
+    ["Lehrstelle Zeichner/-in EFZ", "Karriere – Lehrbeginn August 2028", "karriere.html#lehrstelle", "lehre lehrling ausbildung schnupper"],
+    ["Kontakt", "Seestrasse 110a, 8610 Uster", "kontakt.html", "adresse telefon email anfahrt"],
+    ["Impressum & Datenschutz", "Rechtliches", "impressum.html", "datenschutz"]
+  ];
+  [["Projektleiter/-in", "projektleiter-in"], ["Junior Projektleiter/-in", "junior-projektleiter-in"], ["Architekt/-in", "architekt-in"], ["Bauleiter/-in", "bauleiter-in"], ["Techniker/-in", "techniker-in"], ["Zeichner/-in", "zeichner-in"], ["Administration", "administration"]].forEach(function (j) {
+    PAGES.push([j[0], "Karriere – Stellenprofil", "karriere.html#" + j[1], "stelle job bewerbung"]);
+  });
+  [["Pia Kiebel", "Inhaberin – Planung, Bauleitung"], ["Thomas Schinkhof", "Inhaber – Planung, Bauleitung"], ["Andrea Abegg", "Planung"], ["Maike Brasse", "Planung, Bauleitung"], ["Daniel Dammann", "Planung, Bauleitung"], ["Laura Keller", "Planung"], ["Dominik Mettler", "Planung"], ["Claudia Wintsch", "Planung"]].forEach(function (m) {
+    PAGES.push([m[0], "Team – " + m[1], "buero.html#team", "team"]);
+  });
+  function fold(t) { return String(t).toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/é|è/g, "e").replace(/ß/g, "ss"); }
+  function search() {
+    var btns = $$(".search-btn");
+    if (!btns.length) return;
+    var catL = {}; (D.cats || []).forEach(function (c) { catL[c[0]] = c[1]; });
+    var PI = D.projects.map(function (p) {
+      var bh = (p.facts.filter(function (f) { return f[0] === "Bauherr"; })[0] || [])[1] || "";
+      return { p: p, hay: fold([p.name, p.ort, p.sub, p.text, bh, p.nr, p.year, p.status, p.cats.map(function (c) { return catL[c]; }).join(" "), p.facts.map(function (f) { return f[1]; }).join(" ")].join(" ")), nm: fold(p.name + " " + p.ort), bh: bh };
+    });
+    var GI = PAGES.map(function (g) { return { g: g, hay: fold(g.join(" ")), nm: fold(g[0]) }; });
+    var box = document.createElement("div");
+    box.className = "sx"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Suche");
+    box.innerHTML = '<div class="sx-head"><label class="sx-field"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg><span class="sr-only">Suchbegriff</span><input id="sx-q" type="search" autocomplete="off" placeholder="Projekt, Ort, Leistung …"><button type="button" class="sx-close">Esc</button></label>' +
+      '<div class="sx-hint">Zum Beispiel: <button type="button">Schulhaus</button><button type="button">Uster</button><button type="button">MINERGIE</button><button type="button">SBB</button><button type="button">denkmalgeschützt</button><button type="button">Wettbewerb</button></div></div><div class="sx-body" id="sx-res"></div>';
+    document.body.appendChild(box);
+    var q = $("#sx-q", box), res = $("#sx-res", box), sel = 0, items = [], last;
+    function hl(t, words) { var out = esc(t); words.forEach(function (w) { if (w.length < 2) return; out = out.replace(new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig"), "<mark>$1</mark>"); }); return out; }
+    function run() {
+      var raw = q.value.trim(), w = fold(raw).split(/\s+/).filter(Boolean), words = raw.split(/\s+/).filter(Boolean);
+      var pr, gr;
+      if (!w.length) { pr = PI.filter(function (x) { return x.p.sel; }); gr = GI.slice(0, 6); }
+      else {
+        var score = function (x) { var s = 0; w.forEach(function (t) { if (x.nm.indexOf(t) === 0) s += 6; else if (x.nm.indexOf(" " + t) > -1) s += 4; else if (x.nm.indexOf(t) > -1) s += 3; else s += 1; }); return s; };
+        var ok = function (x) { return w.every(function (t) { return x.hay.indexOf(t) > -1; }); };
+        pr = PI.filter(ok).sort(function (a, b) { return score(b) - score(a) || (b.p.year || 0) - (a.p.year || 0); });
+        gr = GI.filter(ok).sort(function (a, b) { return score(b) - score(a); });
+      }
+      var html = "";
+      if (pr.length) html += '<div class="sx-group"><h3>' + (w.length ? pr.length + (pr.length === 1 ? " Projekt" : " Projekte") : "Ausgewählte Projekte") + "</h3>" + pr.slice(0, 12).map(function (x) {
+        return '<a class="sx-item" href="' + url(x.p) + '"><img src="' + img(x.p, 1, true) + '" alt="" loading="lazy"><span><b>' + hl(x.p.name, words) + ' <span style="color:var(--mute);font-weight:400">' + hl(x.p.ort, words) + "</span></b><small>" + hl(x.p.sub, words) + (x.bh ? " · " + hl(x.bh, words) : "") + '</small></span><span class="k">' + (x.p.year || x.p.status) + "</span></a>";
+      }).join("") + "</div>";
+      if (gr.length) html += '<div class="sx-group"><h3>Seiten</h3>' + gr.slice(0, 8).map(function (x) {
+        return '<a class="sx-item page" href="' + x.g[2] + '"><span><b>' + hl(x.g[0], words) + "</b><small>" + esc(x.g[1]) + '</small></span><span class="k">↵</span></a>';
+      }).join("") + "</div>";
+      if (!html) html = '<p class="sx-empty">Keine Treffer für «' + esc(raw) + '». Versuchen Sie einen Ort, eine Nutzung oder einen Bauherrn.</p>';
+      res.innerHTML = html; items = $$(".sx-item", res); sel = 0; mark();
+    }
+    function mark() { items.forEach(function (it, i) { it.classList.toggle("sel", i === sel); }); if (items[sel]) items[sel].scrollIntoView({ block: "nearest" }); }
+    function open() { last = document.activeElement; box.classList.add("on"); document.body.style.overflow = "hidden"; run(); setTimeout(function () { q.focus(); q.select(); }, 30); }
+    function close() { box.classList.remove("on"); document.body.style.overflow = ""; if (last && last.focus) last.focus(); }
+    btns.forEach(function (b) { b.addEventListener("click", open); });
+    $(".sx-close", box).addEventListener("click", close);
+    box.addEventListener("click", function (e) { if (e.target === box || e.target === res) close(); });
+    $$(".sx-hint button", box).forEach(function (b) { b.addEventListener("click", function () { q.value = b.textContent; run(); q.focus(); }); });
+    q.addEventListener("input", run);
+    q.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown") { e.preventDefault(); sel = Math.min(items.length - 1, sel + 1); mark(); }
+      if (e.key === "ArrowUp") { e.preventDefault(); sel = Math.max(0, sel - 1); mark(); }
+      if (e.key === "Enter" && items[sel]) { e.preventDefault(); items[sel].click(); }
+    });
+    res.addEventListener("click", function (e) { var a = e.target.closest("a.sx-item"); if (a && a.getAttribute("href").indexOf("#") > -1 && a.pathname === location.pathname) close(); });
+    document.addEventListener("keydown", function (e) {
+      var typing = /input|textarea|select/i.test((document.activeElement || {}).tagName || "");
+      if (e.key === "Escape" && box.classList.contains("on")) { close(); return; }
+      if ((e.key === "/" && !typing) || (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey))) { e.preventDefault(); open(); }
+    });
+  }
+
+  /* ---------- Leistungsfinder ---------- */
+  var RES = {
+    oeff: { t: "Bauherrenberatung für öffentliche Bauherren", d: "Die Interessen und Anforderungen öffentlicher Auftraggeber unterscheiden sich von denen der privaten Bauherren. Wir unterstützen Gemeinden, Schul- und Kirchgemeinden von der ersten Kostenschätzung bis zur Auswahl der Planer.", l: ["Erstellung von Studienaufträgen und Kostenschätzungen für öffentliche Bauvorhaben", "Erarbeiten von Projektablaufplänen", "Erstellung von Projektierungs- und Baukreditgenehmigungs-Dossiers", "Erstellen von Ausschreibungsunterlagen für Planerwahlverfahren"], a: "#bauherren", k: "beratung", p: "313-gbw" },
+    priv: { t: "Bauherrenberatung für private Bauherren", d: "Von der Suche nach dem geeigneten Grundstück bis zur Machbarkeitsstudie: Wir klären, was auf Ihrem Grundstück möglich ist und was es kostet.", l: ["Hilfe bei der Suche geeigneter Grundstücke", "Machbarkeitsstudien für Neubauten und Umbauten", "Beratung betreffend der baugesetzlichen Vorgaben", "Kostenschätzungen"], a: "#bauherren", k: "beratung", p: "318-epu" },
+    plan: { t: "Planung und Realisierung nach SIA 112", d: "Ob Neubau oder Umbau, ob Modernisierung oder Sanierung: Wir planen und realisieren Ihr Vorhaben termin- und kostengerecht – von der Vorstudie bis zur Schlussabrechnung, aus einer Hand.", l: ["Vorprojekt und Kostenschätzung ±15%", "Bewilligungsfähiges Bauprojekt und Kostenvoranschlag ±10%", "Ausschreibung, Offertvergleich, Vergabe", "Bauleitung und Kostenkontrolle"], a: "#sia-112", k: "neubau", p: "319-sag" },
+    umbau: { t: "Umbau und Sanierung", d: "Denkmalschutz-Objekte, energetische Sanierungen, Umbauten unter Betrieb und in Etappen gehören zu unseren Kernkompetenzen.", l: ["Analysen zum Gebäudezustand und Beratung zu energetischen Förderungen", "Planung nach SIA 112 von der Vorstudie bis zum Abschluss", "Bauleitung und Kostenkontrolle", "MINERGIE- und MINERGIE-P-Gebäude"], a: "#sia-112", k: "umbau", p: "300-bswae" },
+    lieg: { t: "Liegenschaftsanalyse", d: "Die Bestandsanalyse einer Liegenschaft bildet die Grundlage für langfristige Planungen und aktuelle Bauvorhaben. Wir führen alle erforderlichen Schritte für Sie durch.", l: ["Begehung und Massaufnahmen vor Ort", "Dokumentation und Einschätzung des Gebäudezustandes anhand von Einzelbauteilen", "Einschätzung der kurz-, mittel- und langfristigen Massnahmen inkl. Budgets", "Massnahmenbericht"], a: "#liegenschaft", k: "liegenschaft", p: "309-mpg" },
+    kauf: { t: "Käuferbetreuung", d: "Bauträger, die Projekte mit Stockwerkeigentum verkaufen, delegieren die Käuferbetreuung in der Regel an den Architekten des Gebäudes. Wir begleiten die Käufer Schritt für Schritt.", l: ["Besprechung von Käuferwünschen und Überprüfung der Machbarkeit", "Beratung bei der Farb- und Materialwahl", "Ermittlung der Mehr- und/oder Minderkosten", "Kontrolle der Bauausführung und Begleitung der Bauabnahme"], a: "#kaeufer", k: "kaeufer", p: "292-mlw" }
+  };
+  var TREE = {
+    q: "Wer sind Sie?", o: [
+      ["Öffentliche Hand", "Gemeinde, Schulpflege, Kirchgemeinde", { q: "Wo stehen Sie mit Ihrem Vorhaben?", o: [["Am Anfang", "Bedarf, Kosten und Ablauf klären", "oeff"], ["Planerwahl vorbereiten", "Studienauftrag, Ausschreibung, Bewertung", "oeff"], ["Bereit zur Umsetzung", "Neubau, Erweiterung oder Sanierung", "plan"], ["Bestehendes Gebäude", "Zustand und Massnahmen beurteilen", "lieg"]] }],
+      ["Private Bauherrschaft", "Einfamilienhaus, Stadtvilla, Umbau", { q: "Was haben Sie vor?", o: [["Grundstück & Machbarkeit", "Was ist möglich, was kostet es?", "priv"], ["Neubau", "Planen und bauen aus einer Hand", "plan"], ["Umbau oder Sanierung", "Bestehendes weiterentwickeln", "umbau"], ["Gebäudezustand prüfen", "Analyse und Massnahmenbericht", "lieg"]] }],
+      ["Investor oder Bauträger", "Mehrfamilienhäuser, Überbauungen", { q: "Wobei können wir helfen?", o: [["Überbauung realisieren", "Bis 50 Wohneinheiten, Planung und Bauleitung", "plan"], ["Käufer betreuen lassen", "Stockwerkeigentum verkaufen", "kauf"], ["Liegenschaft analysieren", "Bestand bewerten und planen", "lieg"]] }],
+      ["Käufer:in einer Eigentumswohnung", "Ausbauwünsche, Begleitung", "kauf"]
+    ]
+  };
+  function finder() {
+    var root = $("#finder-app"); if (!root) return;
+    var path = [];
+    function node() { var n = TREE; path.forEach(function (i) { n = n.o[i][2]; }); return n; }
+    function render() {
+      var n = node();
+      var steps = '<div class="finder-steps" aria-hidden="true"><i class="on"></i><i class="' + (path.length >= 1 ? "on" : "") + '"></i><i class="' + (typeof n === "string" ? "on" : "") + '"></i></div>';
+      $(".finder-progress", root.parentNode).innerHTML = steps;
+      if (typeof n === "string") {
+        var r = RES[n], p = D.projects.filter(function (x) { return x.id === r.p; })[0];
+        root.innerHTML = '<div class="finder-res"><span class="eyebrow">Unsere Empfehlung</span><h3>' + r.t + "</h3><p>" + r.d + '</p><ul class="ticks">' + r.l.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
+          '<div class="acts"><a class="btn" href="kontakt.html#' + r.k + '">Anfrage stellen<span class="arr"></span></a><a class="btn ghost" href="' + r.a + '">Mehr dazu</a>' + (p ? '<a class="btn ghost" href="' + url(p) + '">Referenz: ' + esc(p.name) + "</a>" : "") + "</div>" +
+          '<button type="button" class="finder-back">Nochmals von vorne</button></div>';
+        $(".finder-back", root).addEventListener("click", function () { path = []; render(); });
+        return;
+      }
+      root.innerHTML = '<p class="finder-q">' + n.q + '</p><div class="finder-opts">' + n.o.map(function (o, i) {
+        return '<button type="button" data-i="' + i + '"><span>' + o[0] + "<small>" + o[1] + '</small></span><span class="arr"></span></button>';
+      }).join("") + "</div>" + (path.length ? '<button type="button" class="finder-back">Zurück</button>' : "");
+      $$(".finder-opts button", root).forEach(function (b) { b.addEventListener("click", function () { path.push(+b.dataset.i); render(); var f = root.querySelector("button, a"); if (f) f.focus({ preventScroll: true }); }); });
+      var bk = $(".finder-back", root); if (bk) bk.addEventListener("click", function () { path.pop(); render(); });
+    }
+    render();
+  }
+
+  /* ---------- Kontaktformular vorausfüllen ---------- */
+  function contactPrefill() {
+    var f = $("#contact-form"); if (!f) return;
+    var map = { neubau: ["Neubau", "Wir planen einen Neubau und würden gerne ein erstes Gespräch vereinbaren."], umbau: ["Umbau / Sanierung", "Wir planen einen Umbau bzw. eine Sanierung und würden gerne ein erstes Gespräch vereinbaren."], beratung: ["Bauherrenberatung", "Wir interessieren uns für eine Bauherrenberatung."], liegenschaft: ["Liegenschaftsanalyse", "Wir interessieren uns für eine Analyse unserer Liegenschaft."], kaeufer: ["Käuferbetreuung", "Wir interessieren uns für die Käuferbetreuung."], bewerbung: ["Bewerbung", ""] };
+    var k = location.hash.slice(1), m = map[k]; if (!m) return;
+    var r = f.querySelector('input[name="anliegen"][value="' + m[0] + '"]'); if (r) r.checked = true;
+    var t = $("#f-msg"); if (t && !t.value && m[1]) t.value = m[1] + "\n\n";
+    setTimeout(function () { f.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }); var n = $("#f-name"); if (n) n.focus({ preventScroll: true }); }, 400);
+  }
+
+  /* ---------- Projekt: Referenzblatt & Link ---------- */
+  function projectTools() {
+    var cats = $(".p-cats"); if (!cats || !D.projects.length) return;
+    var id = new URLSearchParams(location.search).get("p");
+    var p = D.projects.filter(function (x) { return x.id === id; })[0]; if (!p) return;
+    var tools = document.createElement("div"); tools.className = "p-tools rv in";
+    tools.innerHTML = '<button type="button" class="pt-print"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 6V1.5h8V6M4 12H2.5V6.5h11V12H12M4 9.5h8v5H4z"/></svg>Referenzblatt (PDF)</button>' +
+      '<button type="button" class="pt-link"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.6 3.6L10.5 8M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.6-3.6L5.5 8"/></svg><span>Link kopieren</span></button>';
+    cats.parentNode.appendChild(tools);
+    var host = document.createElement("div"); host.className = "print-host";
+    var facts = p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("");
+    var extra = [2, 3].filter(function (i) { return i <= p.img.length; });
+    host.innerHTML = '<div class="print-sheet"><div class="ps-head"><img src="assets/img/logo-dark.png" alt="apb architekten ag"><span>Referenzprojekt · Nr. ' + p.nr + "<br>apb architekten ag · Seestrasse 110a · 8610 Uster</span></div>" +
+      '<div class="ps-title">' + esc(p.name) + " <em>" + esc(p.ort) + '</em></div><div class="ps-sub">' + esc(p.sub) + "</div>" +
+      '<img class="ps-hero" src="' + img(p, 1) + '" alt="">' +
+      '<div class="ps-grid"><div><p>' + esc(p.text) + "</p>" + (extra.length ? '<div class="ps-imgs">' + extra.map(function (i) { return '<img src="' + img(p, i, true) + '" alt="">'; }).join("") + "</div>" : "") + '</div><dl class="ps-facts">' + facts + "</dl></div>" +
+      '<div class="ps-foot"><span>+41 (0)44 944 60 80 · info@apb-architekten.ch · www.apb-architekten.ch</span><span>Mitglied SIA · MINERGIE®-Fachpartner</span></div></div>';
+    $("main").appendChild(host);
+    $(".pt-print", tools).addEventListener("click", function () {
+      var ims = $$("img", host), n = ims.length, done = 0, go = function () { if (++done >= n) window.print(); };
+      ims.forEach(function (im) { var pre = new Image(); pre.onload = pre.onerror = go; pre.src = im.src; });
+    });
+    $(".pt-link", tools).addEventListener("click", function () {
+      var sp = $(".pt-link span", tools);
+      var ok = function () { sp.textContent = "Kopiert"; setTimeout(function () { sp.textContent = "Link kopieren"; }, 1600); };
+      if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(ok, function () { prompt("Link", location.href); }); else ok();
+    });
+  }
+
   intro();
   transitions();
+  search();
+  finder();
+  contactPrefill();
+  projectTools();
   jubiTeaser();
   chronik();
 })();

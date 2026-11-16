@@ -13,7 +13,8 @@ def header(cur):
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="index.html" aria-label="apb architekten ag – Startseite"><img class="logo-img" src="assets/img/logo-light.png" alt="apb architekten ag" width="729" height="126"></a>
-    <nav class="nav" aria-label="Hauptnavigation">{links}<a class="nav-cta" href="kontakt.html"{" aria-current=page" if cur == "kontakt.html" else ""}>Kontakt</a></nav>
+    <nav class="nav" aria-label="Hauptnavigation"><button type="button" class="search-btn" aria-label="Suche öffnen" title="Suche (Taste /)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>{links}<a class="nav-cta" href="kontakt.html"{" aria-current=page" if cur == "kontakt.html" else ""}>Kontakt</a></nav>
+    <button type="button" class="search-btn mobile-only" aria-label="Suche öffnen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>
     <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
   </div>
 </header>
@@ -49,6 +50,10 @@ INTRO_HEAD = "<script>try{if(!sessionStorage.getItem('apb-intro')&&!matchMedia('
 INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inner"><div class="intro-logo"><img class="intro-png" src="assets/img/logo-light.png" alt="" width="729" height="126"><div class="intro-mark">' + mark('mk-intro') + '</div></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
 
 import hashlib
+# Vorschau auf GitHub Pages: nicht von Google indexieren lassen (vor Go-live auf False setzen)
+PREVIEW = True
+BASE_URL = 'https://dominik-mettler.github.io/Website-apb/'
+JSONLD = '''<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"apb architekten ag","description":"Architektur, Planung, Bauleitung und Beratung in Uster und im Kanton Zürich","foundingDate":"1996","url":"https://www.apb-architekten.ch","telephone":"+41 44 944 60 80","faxNumber":"+41 44 944 60 81","email":"info@apb-architekten.ch","address":{"@type":"PostalAddress","streetAddress":"Seestrasse 110a","postalCode":"8610","addressLocality":"Uster","addressRegion":"ZH","addressCountry":"CH"},"geo":{"@type":"GeoCoordinates","latitude":47.348162,"longitude":8.695723},"founder":{"@type":"Person","name":"Peter Brader"},"employee":[{"@type":"Person","name":"Pia Kiebel","jobTitle":"Inhaberin"},{"@type":"Person","name":"Thomas Schinkhof","jobTitle":"Inhaber"}],"memberOf":[{"@type":"Organization","name":"SIA – Schweizerischer Ingenieur- und Architektenverein"}]}</script>'''
 def V(path):
     return path + '?v=' + hashlib.md5(open(os.path.join(OUT, path), 'rb').read()).hexdigest()[:8]
 
@@ -67,7 +72,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:type" content="website">
-<meta property="og:image" content="assets/img/projects/319-sag/01.jpg">
+<meta property="og:image" content="{BASE_URL}assets/img/projects/319-sag/01.jpg">\n{'<meta name="robots" content="noindex, nofollow">' if PREVIEW else ''}\n{JSONLD if pg == 'home' or pg == 'kontakt' else ''}
 <link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
 {lf}
@@ -75,6 +80,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 {extra_head}
 <script>try{{if(sessionStorage.getItem('apb-pt')){{document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}{'' if not intro else ''}}}catch(e){{}}</script>
 {INTRO_HEAD if intro else ''}
+{'<link rel="preload" as="image" href="assets/img/projects/251-asch/01.jpg" fetchpriority="high">' if intro else ''}
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
 {INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
@@ -254,7 +260,7 @@ proj = f'''
   <div id="v-karte" hidden><div class="map" id="pmap" aria-label="Projektkarte"><div class="map-legend"><span><i></i>Projekt</span><span><i class="o"></i>Atelier Uster</span></div></div></div>
   <div id="v-zeitachse" hidden>
     <div class="tl-wrap" style="margin:0 calc(-1 * var(--pad))"><div class="timeline" id="timeline"><div class="tl-inner"></div></div></div>
-    <div class="tl-open" id="tl-open" hidden><h3 class="h3">Ohne Fertigstellungsjahr</h3><div class="pgrid"></div></div>
+    <div class="tl-open" id="tl-open" hidden><h3 class="h3">Ohne Fertigstellungsjahr</h3><div class="pgrid even"></div></div>
   </div>
   <p class="empty">Keine Projekte gefunden. <button type="button" class="link" onclick="document.getElementById('q').value='';document.getElementById('q').dispatchEvent(new Event('input'));document.querySelector('.chip').click()">Filter zurücksetzen</button></p>
   <div style="height:clamp(80px,10vw,160px)"></div>
@@ -276,9 +282,17 @@ leist = f'''
     <h1 class="display" data-split>Planen.<br>Bauen. Beraten.</h1>
     <div class="page-hero-grid">
       <p class="lead rv">Ob Neubau oder Umbau, ob Modernisierung oder Sanierung: Entscheidend für die termin- und budgetgerechte Realisierung eines architektonischen Vorhabens ist dessen sorgfältige Planung. Aus diesem Grund überlassen wir von apb architekten nichts dem Zufall.</p>
-      <div class="aside rv anchor-nav"><a class="chip" href="#planung">Planung</a><a class="chip" href="#sia-112">SIA 112</a><a class="chip" href="#beratung">Bauherrenberatung</a><a class="chip" href="#kaeufer">Käuferbetreuung</a><a class="chip" href="#liegenschaft">Liegenschaftsanalyse</a></div>
+      <div class="aside rv anchor-nav"><a class="chip" href="#finder">Leistungsfinder</a><a class="chip" href="#planung">Planung</a><a class="chip" href="#sia-112">SIA 112</a><a class="chip" href="#beratung">Bauherrenberatung</a><a class="chip" href="#kaeufer">Käuferbetreuung</a><a class="chip" href="#liegenschaft">Liegenschaftsanalyse</a></div>
     </div>
   </div>
+</section>
+
+<section class="section tight" id="finder" style="padding-top:0">
+  <div class="wrap"><div class="finder rv">
+    <div class="finder-l"><span class="eyebrow">Leistungsfinder</span><h2 class="h2" data-split style="margin-top:16px">Welche Leistung<br>brauchen Sie?</h2>
+      <p class="muted" style="margin-top:16px;max-width:24em">Zwei, drei Klicks zur passenden Leistung – mit Referenzprojekt und vorausgefüllter Anfrage.</p><div class="finder-progress"></div></div>
+    <div class="finder-r" id="finder-app" aria-live="polite"></div>
+  </div></div>
 </section>
 
 <section class="section stone" id="planung">

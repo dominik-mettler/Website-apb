@@ -123,7 +123,7 @@
   function card(p, i) {
     var tag = p.status === "Realisierung" ? '<span class="tag">In Realisierung</span>' : p.status === "Nicht realisiert" ? '<span class="tag">Projekt</span>' : "";
     return '<a class="card" href="' + url(p) + '" data-cursor="Ansehen" data-id="' + p.id + '" style="--d:' + Math.min(i || 0, 8) * 0.05 + 's">' +
-      '<div class="media">' + tag + '<img src="' + img(p, 1, true) + '" alt="' + esc(p.name + ", " + p.ort) + '" loading="lazy" decoding="async"></div>' +
+      '<div class="media">' + tag + '<img src="' + img(p, 1, true) + '" alt="' + esc(p.name + ", " + p.ort) + '" loading="lazy" decoding="async" width="800" height="600"></div>' +
       '<div class="card-meta"><h3>' + esc(p.name) + ' <span class="ort">' + esc(p.ort) + "</span></h3>" +
       '<span class="yr">' + esc(yearOf(p)) + "</span></div>" +
       '<p class="card-sub">' + esc(p.sub) + "</p></a>";
@@ -396,12 +396,13 @@
       var tl = $("#timeline .tl-inner"), open = $("#tl-open");
       var dated = list.filter(function (p) { return p.year; });
       var undated = list.filter(function (p) { return !p.year; });
-      var y0 = 2001, y1 = 2026, html = "";
+      var y0 = 2002, y1 = 2026, html = "";
       for (var y = y0; y <= y1; y++) {
         var ps = dated.filter(function (p) { return p.year === y; });
-        html += '<div class="tl-year' + (ps.length ? " has" : " gap") + '" data-y="' + y + '"' + (ps.length ? "" : ' title="' + y + '"') + '>' + ps.map(function (p) {
-          return '<a class="tl-item" href="' + url(p) + '"><img src="' + img(p, 1, true) + '" alt="" loading="lazy"><span>' + esc(p.name) + " <em>" + esc(p.ort) + "</em></span></a>";
-        }).join("") + "</div>";
+        if (!ps.length) { html += '<div class="tl-year gap" aria-hidden="true"><span class="yl">' + String(y).slice(2) + "</span></div>"; continue; }
+        html += '<div class="tl-year"><span class="yl">' + y + '</span><div class="row">' + ps.map(function (p) {
+          return '<a class="tl-item" href="' + url(p) + '" data-cursor="Ansehen"><img src="' + img(p, 1, true) + '" alt="" loading="lazy" width="800" height="600"><span>' + esc(p.name) + " <em>" + esc(p.ort) + "</em></span></a>";
+        }).join("") + "</div></div>";
       }
       tl.innerHTML = html;
       open.hidden = !undated.length;
