@@ -25,3 +25,11 @@ python3 -m http.server 8000   # dann http://localhost:8000
 ## Technik
 - Schrift Inter (selbst gehostet), Leaflet (lokal) mit swisstopo-Karten (kein API-Key nötig)
 - Keine Cookies, kein Tracking, keine externen CDNs
+
+## Versionen
+Jede freigegebene Version ist ein Git-Tag (`v1`, `v2`, …) und bleibt dauerhaft online:
+
+| Version | Link |
+|---|---|
+| neuester Stand | https://dominik-mettler.github.io/Website-apb/ |
+| v1 – erstes Redesign | https://dominik-mettler.github.io/Website-apb/v1/ |
