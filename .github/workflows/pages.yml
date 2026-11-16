@@ -1,12 +1,11 @@
 name: Website veröffentlichen
 
 # Hauptadresse = neuester Stand des Branches.
-# Jede Version (Git-Tag v1, v2, …) bleibt dauerhaft unter /v1/, /v2/, … erreichbar.
+# Jede Version aus versions.txt (v1, v2, …) bleibt dauerhaft unter /v1/, /v2/, … erreichbar.
 
 on:
   push:
     branches: [claude/apb-website-redesign-jmiwyv]
-    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -33,12 +32,13 @@ jobs:
         run: |
           mkdir -p _site
           git archive HEAD | tar -x -C _site
-          for t in $(git tag -l 'v*'); do
-            mkdir -p "_site/$t"
-            git archive "$t" | tar -x -C "_site/$t"
-            rm -rf "_site/$t/.github"
+          grep -v '^#' versions.txt | while read -r v sha rest; do
+            [ -z "$v" ] && continue
+            mkdir -p "_site/$v"
+            git archive "$sha" | tar -x -C "_site/$v"
+            rm -rf "_site/$v/.github"
           done
-          rm -rf _site/.github
+          rm -rf _site/.github _site/versions.txt
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

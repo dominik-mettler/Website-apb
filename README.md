@@ -27,7 +27,7 @@ python3 -m http.server 8000   # dann http://localhost:8000
 - Keine Cookies, kein Tracking, keine externen CDNs
 
 ## Versionen
-Jede freigegebene Version ist ein Git-Tag (`v1`, `v2`, …) und bleibt dauerhaft online:
+Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dauerhaft online:
 
 | Version | Link |
 |---|---|

@@ -1,0 +1,2 @@
+# Version  Commit   Beschreibung
+v1         ff648ff  Erstes Redesign (Inhalte der alten Website, neue Gestaltung)
