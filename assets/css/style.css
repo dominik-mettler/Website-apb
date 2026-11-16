@@ -762,6 +762,7 @@ html.intro body { overflow: hidden; }
 html.intro .intro-png { animation: logoWipe 1.3s var(--ease-io) 1.05s forwards; }
 @keyframes logoWipe { 0% { clip-path: inset(0 100% 0 34.5%); } 70% { clip-path: inset(0 0 0 34.5%); } 100% { clip-path: inset(0 0 0 0); } }
 .intro-mark { position: absolute; left: -.69%; top: -.8%; width: 34.57%; }
+.intro-mark path, .pt-mark path { stroke: #fff; }
 html.intro .intro-mark { animation: fadeOut .35s ease 2.05s forwards; }
 @keyframes fadeOut { to { opacity: 0; } }
 .intro-mark svg, .pt-mark svg { width: 100%; height: auto; display: block; }

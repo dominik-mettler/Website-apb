@@ -4,7 +4,7 @@ S = os.path.join(os.path.dirname(os.path.abspath(__file__)), '')
 jobs = json.load(open(S + 'jobs.json'))
 
 NAV = [('projekte.html', 'Projekte'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere')]
-MARK = '''<svg width="126" height="65" viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
+MARK_OLD = '''<svg width="126" height="65" viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
 
 def header(cur):
     links = ''.join(f'<a href="{h}"{" aria-current=page" if h == cur else ""}>{t}</a>' for h, t in NAV)
@@ -37,8 +37,16 @@ FOOTER = '''<footer class="site-footer">
 </footer>
 '''
 
+_paths = re.findall(r'd="([^"]+)"', open(os.path.join(OUT,'assets/img/logo-mark.svg')).read())
+def mark(mid):
+    ps = ''.join(f'<path pathLength="1" style="--i:{i+1}" d="{d}"/>' for i, d in enumerate(_paths))
+    return (f'<svg width="126" height="68" viewBox="0 0 252 135" aria-hidden="true"><defs><mask id="{mid}" maskUnits="userSpaceOnUse" x="0" y="0" width="252" height="135">'
+            f'<g fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round">{ps}</g></mask></defs>'
+            f'<image href="assets/img/logo-mark-light.png" width="252" height="135" mask="url(#{mid})"/></svg>')
+MARK = mark('mk-pt')
+
 INTRO_HEAD = "<script>try{if(!sessionStorage.getItem('apb-intro')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro')}catch(e){}</script>"
-INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inner"><div class="intro-logo"><img class="intro-png" src="assets/img/logo-light.png" alt="" width="729" height="126"><div class="intro-mark">' + MARK + '</div></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
+INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inner"><div class="intro-logo"><img class="intro-png" src="assets/img/logo-light.png" alt="" width="729" height="126"><div class="intro-mark">' + mark('mk-intro') + '</div></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
 
 import hashlib
 def V(path):
