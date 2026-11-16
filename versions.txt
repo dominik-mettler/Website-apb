@@ -1,2 +1,3 @@
 # Version  Commit   Beschreibung
 v1         ff648ff  Erstes Redesign (Inhalte der alten Website, neue Gestaltung)
+v2         80d65a2  Schwarz, apb-Orange, Original-Logo, Intro, Übergänge, 30 Jahre
