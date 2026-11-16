@@ -4,7 +4,7 @@ S = os.path.join(os.path.dirname(os.path.abspath(__file__)), '')
 jobs = json.load(open(S + 'jobs.json'))
 
 NAV = [('projekte.html', 'Projekte'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere')]
-MARK = '''<svg viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
+MARK = '''<svg width="126" height="65" viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
 
 def header(cur):
     links = ''.join(f'<a href="{h}"{" aria-current=page" if h == cur else ""}>{t}</a>' for h, t in NAV)
@@ -38,7 +38,11 @@ FOOTER = '''<footer class="site-footer">
 '''
 
 INTRO_HEAD = "<script>try{if(!sessionStorage.getItem('apb-intro')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro')}catch(e){}</script>"
-INTRO = '<div class="intro-ov" role="presentation"><div class="intro-inner"><div class="intro-mark">' + MARK + '</div><div class="intro-word"><span>apb architekten ag</span></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
+INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inner"><div class="intro-logo"><img class="intro-png" src="assets/img/logo-light.png" alt="" width="729" height="126"><div class="intro-mark">' + MARK + '</div></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
+
+import hashlib
+def V(path):
+    return path + '?v=' + hashlib.md5(open(os.path.join(OUT, path), 'rb').read()).hexdigest()[:8]
 
 def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='', intro=False):
     lf = '<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">' if leaflet else ''
@@ -59,22 +63,22 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 <link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
 {lf}
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="{V('assets/css/style.css')}">
 {extra_head}
 <script>try{{if(sessionStorage.getItem('apb-pt')){{document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}{'' if not intro else ''}}}catch(e){{}}</script>
 {INTRO_HEAD if intro else ''}
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
-{INTRO if intro else ''}<div class="pt" aria-hidden="true"><div class="pt-mark">{MARK}</div></div>
+{INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
 {header(cur)}
 <main id="main">
 {body}
 </main>
 {FOOTER}
 {ls}
-<script src="assets/js/data.js" defer></script>
-<script src="assets/js/main.js" defer></script>
-<script src="assets/js/experience.js" defer></script>
+<script src="{V('assets/js/data.js')}" defer></script>
+<script src="{V('assets/js/main.js')}" defer></script>
+<script src="{V('assets/js/experience.js')}" defer></script>
 </body>
 </html>
 '''

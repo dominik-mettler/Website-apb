@@ -32,6 +32,7 @@
   function intro() {
     var box = $(".intro-ov");
     if (!box || !root.classList.contains("intro")) return;
+    if (getComputedStyle(box).position !== "fixed") { root.classList.remove("intro"); return; }
     var yr = $(".intro-year b", box), t0 = null, done = false;
     function count(t) {
       if (!t0) t0 = t;

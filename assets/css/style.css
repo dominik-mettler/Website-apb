@@ -751,17 +751,24 @@ body.head-hidden .toolbar { top: 0; }
 
 /* ---------- Intro (Startseite, einmal pro Sitzung) ---------- */
 .intro-ov { display: none; }
-html.intro .intro-ov {
+html.intro .intro-ov[hidden], html.intro .intro-ov {
   display: grid; place-items: center; position: fixed; inset: 0; z-index: 400; background: var(--paper); color: var(--ink);
   clip-path: inset(0 0 0 0); transition: clip-path 1s var(--ease-io);
 }
 html.intro body { overflow: hidden; }
 .intro-inner { display: grid; justify-items: center; gap: 22px; }
-.intro-mark { width: min(56vw, 300px); }
+.intro-logo { position: relative; width: min(84vw, 620px); }
+.intro-png { width: 100%; height: auto; display: block; clip-path: inset(0 100% 0 34.5%); }
+html.intro .intro-png { animation: logoWipe 1.3s var(--ease-io) 1.05s forwards; }
+@keyframes logoWipe { 0% { clip-path: inset(0 100% 0 34.5%); } 70% { clip-path: inset(0 0 0 34.5%); } 100% { clip-path: inset(0 0 0 0); } }
+.intro-mark { position: absolute; left: -.69%; top: -.8%; width: 34.57%; }
+html.intro .intro-mark { animation: fadeOut .35s ease 2.05s forwards; }
+@keyframes fadeOut { to { opacity: 0; } }
+.intro-mark svg, .pt-mark svg { width: 100%; height: auto; display: block; }
 .intro-mark path, .pt-mark path { stroke-dasharray: 1; stroke-dashoffset: 1; }
-html.intro .intro-mark path { animation: draw .55s var(--ease) forwards; animation-delay: calc(var(--i) * .07s + .15s); }
+html.intro .intro-mark path { animation: draw .5s var(--ease) forwards; animation-delay: calc(var(--i) * .055s + .15s); }
 @keyframes draw { to { stroke-dashoffset: 0; } }
-.intro-word { font-size: clamp(26px, 4vw, 44px); font-weight: 600; letter-spacing: -.035em; overflow: hidden; padding: .2em 0 .24em; margin: -.2em 0 -.24em; }
+.intro-word-unused { font-size: clamp(26px, 4vw, 44px); font-weight: 600; letter-spacing: -.035em; overflow: hidden; padding: .2em 0 .24em; margin: -.2em 0 -.24em; }
 .intro-word span { display: inline-block; transform: translateY(110%); animation: heroIn .9s var(--ease) 1.15s forwards; }
 .intro-year { font-size: 14px; letter-spacing: .14em; color: var(--mute); font-variant-numeric: tabular-nums; opacity: 0; animation: fadeIn .6s 1.3s forwards; }
 .intro-year b { color: var(--ink); font-weight: 600; }
@@ -771,6 +778,7 @@ html.intro .intro-mark path { animation: draw .55s var(--ease) forwards; animati
 html.intro .hero-title .swap > *, html.intro .hero-slide img { animation-play-state: paused; }
 
 /* ---------- Seitenübergang ---------- */
+.pt[hidden] { display: grid; }
 .pt {
   position: fixed; inset: 0; z-index: 350; background: var(--stone-2); color: var(--ink); display: grid; place-items: center;
   transform: translateY(100%); pointer-events: none;
