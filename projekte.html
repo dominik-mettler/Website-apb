@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projekte – apb architekten ag</title>
+<meta name="description" content="Projekte von apb architekten ag: Wohnbauten, Schulen, Gemeindehäuser, Kirchgemeindehäuser, Pflegezentren und SBB-Bahnhöfe im Kanton Zürich.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="Projekte – apb architekten ag">
+<meta property="og:description" content="Projekte von apb architekten ag: Wohnbauten, Schulen, Gemeindehäuser, Kirchgemeindehäuser, Pflegezentren und SBB-Bahnhöfe im Kanton Zürich.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/projects/319-sag/01.jpg">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body data-page="projekte">
+<a class="skip" href="#main">Zum Inhalt springen</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="apb architekten ag – Startseite"><img class="logo-mark" src="assets/img/logo-mark-dark.png" alt="" width="252" height="135">apb architekten<small>ag</small></a>
+    <nav class="nav" aria-label="Hauptnavigation"><a href="projekte.html" aria-current=page>Projekte</a><a href="leistungen.html">Leistungen</a><a href="buero.html">Büro</a><a href="karriere.html">Karriere</a><a class="nav-cta" href="kontakt.html">Kontakt</a></nav>
+    <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+  </div>
+</header>
+<div class="menu" id="menu">
+  <ol><li><a href="projekte.html">Projekte</a></li><li><a href="leistungen.html">Leistungen</a></li><li><a href="buero.html">Büro</a></li><li><a href="karriere.html">Karriere</a></li><li><a href="kontakt.html">Kontakt</a></li></ol>
+  <div class="menu-foot"><a href="tel:+41449446080">+41 44 944 60 80</a><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a><span>Seestrasse 110a, 8610 Uster</span></div>
+</div>
+
+<main id="main">
+
+<section class="page-hero" style="padding-bottom:clamp(40px,5vw,72px)">
+  <div class="wrap">
+    <span class="eyebrow">Architektur</span>
+    <h1 class="display" data-split>Projekte</h1>
+    <div class="page-hero-grid">
+      <p class="lead rv">Mehr als 100 realisierte Bauten seit 1996 – vom denkmalgeschützten Bahnhof bis zum ersten Kinderhospiz der Schweiz. Filtern Sie nach Thema, suchen Sie nach Ort oder Bauherr, oder entdecken Sie unsere Arbeiten auf Karte und Zeitachse.</p>
+      <div class="aside rv"><a class="link" href="projekt.html?p=wettbewerbe">Wettbewerbe &amp; Auswahlverfahren<span class="arr"></span></a></div>
+    </div>
+  </div>
+</section>
+<div class="toolbar">
+  <div class="wrap">
+    <div class="chips" id="chips" role="group" aria-label="Nach Thema filtern"></div>
+    <div class="tools-right">
+      <label class="search"><span class="sr-only">Projekte durchsuchen</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg><input id="q" type="search" placeholder="Ort, Bauherr, Stichwort …" autocomplete="off"></label>
+      <div class="views" role="group" aria-label="Ansicht"><button type="button" data-view="raster" aria-pressed="false"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg><span>Raster</span></button><button type="button" data-view="liste" aria-pressed="false"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="1.6"/><rect x="1" y="7.2" width="14" height="1.6"/><rect x="1" y="12.4" width="14" height="1.6"/></svg><span>Liste</span></button><button type="button" data-view="karte" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z"/><circle cx="8" cy="6.5" r="1.8"/></svg><span>Karte</span></button><button type="button" data-view="zeitachse" aria-pressed="false"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="12" width="14" height="1.6"/><rect x="2" y="7" width="3" height="4"/><rect x="6.5" y="3" width="3" height="8"/><rect x="11" y="5" width="3" height="6"/></svg><span>Zeitachse</span></button></div>
+    </div>
+  </div>
+</div>
+<div class="wrap">
+  <div class="result-line"><span id="count" aria-live="polite"></span><span class="small">Klicken für Details</span></div>
+  <div id="v-raster"><div class="pgrid" id="pgrid"></div></div>
+  <div id="v-liste" hidden>
+    <table class="plist" id="plist">
+      <thead><tr><th class="nr"><button type="button" data-sort="nr">Nr.</button></th><th><button type="button" data-sort="name">Projekt</button></th><th><button type="button" data-sort="ort">Ort</button></th><th class="cat">Thema</th><th class="st"><button type="button" data-sort="status">Status</button></th><th class="yr"><button type="button" data-sort="year">Jahr</button></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div id="v-karte" hidden><div class="map" id="pmap" aria-label="Projektkarte"><div class="map-legend"><span><i></i>Projekt</span><span><i class="o"></i>Atelier Uster</span></div></div></div>
+  <div id="v-zeitachse" hidden>
+    <div class="tl-wrap" style="margin:0 calc(-1 * var(--pad))"><div class="timeline" id="timeline"><div class="tl-inner"></div></div></div>
+    <div class="tl-open" id="tl-open" hidden><h3 class="h3">Ohne Fertigstellungsjahr</h3><div class="pgrid"></div></div>
+  </div>
+  <p class="empty">Keine Projekte gefunden. <button type="button" class="link" onclick="document.getElementById('q').value='';document.getElementById('q').dispatchEvent(new Event('input'));document.querySelector('.chip').click()">Filter zurücksetzen</button></p>
+  <div style="height:clamp(80px,10vw,160px)"></div>
+</div>
+<div class="hover-preview" aria-hidden="true"><img alt=""></div>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="top">
+      <p class="claim">Präzision.<br>Flexibilität.<br>Professionalität.</p>
+      <div class="col"><h4>Atelier</h4>apb architekten ag<br>Seestrasse 110a<br>8610 Uster</div>
+      <div class="col"><h4>Kontakt</h4><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
+      <div class="col"><h4>Navigation</h4><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a></div>
+    </div>
+    <div class="giant" aria-hidden="true"><img src="assets/img/logo-mark-dark.png" alt="">apb architekten</div>
+    <div class="bottom"><span>© <span data-year>2026</span> apb architekten ag · Mitglied SIA · MINERGIE®-Fachpartner</span><span><a href="impressum.html">Impressum &amp; Datenschutz</a></span></div>
+  </div>
+</footer>
+
+<script src="assets/vendor/leaflet/leaflet.js" defer></script>
+<script src="assets/js/data.js" defer></script>
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>
