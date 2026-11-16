@@ -43,3 +43,6 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v2 – Schwarz, Orange, Intro, 30 Jahre | https://dominik-mettler.github.io/Website-apb/v2/ |
 | v3 – Intro mit Original-Logo | https://dominik-mettler.github.io/Website-apb/v3/ |
 | v4 – 30 füllt sich sauber | https://dominik-mettler.github.io/Website-apb/v4/ |
+| v5 – Variante A «Kino» | https://dominik-mettler.github.io/Website-apb/v5/ |
+| v6 – Variante B «Index» | https://dominik-mettler.github.io/Website-apb/v6/ |
+| v7 – Variante C «Mosaik» | https://dominik-mettler.github.io/Website-apb/v7/ |

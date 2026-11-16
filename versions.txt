@@ -3,3 +3,6 @@ v1         ff648ff  Erstes Redesign (Inhalte der alten Website, neue Gestaltung)
 v2         80d65a2  Schwarz, apb-Orange, Original-Logo, Intro, Übergänge, 30 Jahre
 v3         f362e91  Intro zeichnet das Original-Logo, zuverlässiges Laden
 v4         50b0282  30-Jahre-Zahl füllt sich deckungsgleich
+v5         f9d5988  Variante A «Kino»: Suche, Leistungsfinder, Referenzblatt, Optimierungen
+v6         20107ee  Variante B «Index»: Startseite als typografische Projektliste
+v7         695bbbe  Variante C «Mosaik»: Startseite als wechselndes Bildraster
