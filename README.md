@@ -50,3 +50,6 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v5 – Variante A «Kino» | https://dominik-mettler.github.io/Website-apb/v5/ |
 | v6 – Variante B «Index» | https://dominik-mettler.github.io/Website-apb/v6/ |
 | v7 – Variante C «Mosaik» | https://dominik-mettler.github.io/Website-apb/v7/ |
+| v8 – Variante A + Präsentation, Weiterleitungen, Tempo | https://dominik-mettler.github.io/Website-apb/v8/ |
+| v9 – Variante B + Präsentation, Weiterleitungen, Tempo | https://dominik-mettler.github.io/Website-apb/v9/ |
+| v10 – Variante C + Präsentation, Weiterleitungen, Tempo | https://dominik-mettler.github.io/Website-apb/v10/ |
