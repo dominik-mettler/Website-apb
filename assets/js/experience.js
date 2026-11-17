@@ -11,7 +11,7 @@
   var root = document.documentElement;
   var Y0 = 1996, Y1 = 2026;
 
-  function img(p, i, s) { return "assets/img/projects/" + p.id + "/" + String(i || 1).padStart(2, "0") + (s ? "-s" : "") + ".jpg"; }
+  function img(p, i, small) { var n = i || 1, b = "assets/img/projects/" + p.id + "/" + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
   function url(p) { return "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
@@ -419,8 +419,26 @@
     }, 1800);
   }
 
+
+  /* ---------- Präsentation: Vorher/Nachher-Regler ---------- */
+  function compare() {
+    $$("[data-cmp]").forEach(function (f) {
+      var r = $("input", f);
+      var set = function () { f.style.setProperty("--p", r.value + "%"); };
+      r.addEventListener("input", set); set();
+      if (!reduced && "IntersectionObserver" in window) {
+        var o = new IntersectionObserver(function (es) {
+          if (!es[0].isIntersecting) return; o.disconnect();
+          var t0 = null; (function a(t) { if (!t0) t0 = t; var k = Math.min(1, (t - t0) / 1600); r.value = 50 + Math.sin(k * Math.PI * 2) * 22 * (1 - k); set(); if (k < 1) requestAnimationFrame(a); })(performance.now());
+        }, { threshold: .5 });
+        o.observe(f);
+      }
+    });
+  }
+
   intro();
   transitions();
+  compare();
   indexHero();
   mosaic();
   search();

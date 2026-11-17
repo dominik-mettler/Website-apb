@@ -16,7 +16,7 @@
   D.projects.forEach(function (p) { byId[p.id] = p; });
 
   /* ---------- helpers ---------- */
-  function img(p, i, small) { return "assets/img/projects/" + p.id + "/" + String(i || 1).padStart(2, "0") + (small ? "-s" : "") + ".jpg"; }
+  function img(p, i, small) { var n = i || 1, b = "assets/img/projects/" + p.id + "/" + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
   function url(p) { return "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function yearOf(p) { return p.year || (p.status === "Nicht realisiert" ? "Projekt" : "–"); }
@@ -131,6 +131,16 @@
 
   /* ---------- map ---------- */
   var OFFICE = [47.348162, 8.695723];
+  var leafletQ = null;
+  function withLeaflet(cb) {
+    if (window.L) return cb();
+    if (leafletQ) return leafletQ.push(cb);
+    leafletQ = [cb];
+    var css = document.createElement("link"); css.rel = "stylesheet"; css.href = "assets/vendor/leaflet/leaflet.css"; document.head.appendChild(css);
+    var s = document.createElement("script"); s.src = "assets/vendor/leaflet/leaflet.js";
+    s.onload = function () { var q = leafletQ; leafletQ = []; q.forEach(function (f) { f(); }); };
+    document.head.appendChild(s);
+  }
   function makeMap(node, opts) {
     if (!window.L || !node) return null;
     opts = opts || {};
@@ -182,7 +192,8 @@
       var stage = $(".hero-stage", hero), titleBox = $(".hero-title", hero), bars = $(".hero-bars", hero), count = $(".hero-count", hero);
       var DUR = 7000, cur = -1, timer = null;
       stage.innerHTML = slides.map(function (p, i) {
-        return '<div class="hero-slide" aria-hidden="true"><img src="' + img(p, 1) + '" alt="' + esc(p.name + ", " + p.ort) + '"' + (i ? ' loading="lazy"' : ' fetchpriority="high"') + "></div>";
+        var s = img(p, 1, window.innerWidth < 900);
+        return '<div class="hero-slide" aria-hidden="true"><img ' + (i ? 'data-src="' : 'fetchpriority="high" src="') + s + '" alt="' + esc(p.name + ", " + p.ort) + '"></div>';
       }).join("");
       bars.innerHTML = slides.map(function (p, i) { return '<button type="button" aria-label="Projekt ' + (i + 1) + ": " + esc(p.name) + '"><i></i>' + esc(p.name) + "</button>"; }).join("");
       bars.style.setProperty("--dur", DUR + "ms");
@@ -193,6 +204,7 @@
         if (cur >= 0) { slideEls[cur].classList.remove("is-active"); barEls[cur].classList.remove("is-active"); }
         cur = n;
         var p = slides[n];
+        [n, (n + 1) % slides.length].forEach(function (k) { var im = slideEls[k].querySelector("img[data-src]"); if (im) { im.src = im.getAttribute("data-src"); im.removeAttribute("data-src"); } });
         slideEls[n].classList.add("is-active");
         void barEls[n].offsetWidth;
         barEls[n].classList.add("is-active");
@@ -258,7 +270,7 @@
       rail.innerHTML = sel.map(function (p) {
         return '<div class="rail-item">' + card(p) + "</div>";
       }).join("");
-      $$(".card", rail).forEach(function (c) { c.setAttribute("data-cursor", "Ziehen"); c.querySelector("img").src = img(byId[c.dataset.id], 1); });
+      $$(".card", rail).forEach(function (c) { c.setAttribute("data-cursor", "Ziehen"); var im = c.querySelector("img"), q = byId[c.dataset.id]; im.srcset = img(q, 1, true) + " 800w, " + img(q, 1) + " 1600w"; im.sizes = "(max-width: 860px) 80vw, 36vw"; });
       dragScroll(rail);
       var bar = $(".rail-progress i");
       var upd = function () {
@@ -298,12 +310,13 @@
       var mapStarted = false;
       var start = function () {
         if (mapStarted) return; mapStarted = true;
-        var map = makeMap(hm, { center: [47.34, 8.66], zoom: 10 });
-        if (map) {
-          var mk = projectMarkers(map, D.projects);
-          var b = L.latLngBounds(D.projects.map(function (p) { return p.geo; }));
-          map.fitBounds(b, { padding: [40, 40] });
-        }
+        withLeaflet(function () {
+          var map = makeMap(hm, { center: [47.34, 8.66], zoom: 10 });
+          if (map) {
+            projectMarkers(map, D.projects);
+            map.fitBounds(L.latLngBounds(D.projects.map(function (p) { return p.geo; })), { padding: [40, 40] });
+          }
+        });
       };
       if (io) new IntersectionObserver(function (e, o) { if (e[0].isIntersecting) { start(); o.disconnect(); } }, { rootMargin: "300px" }).observe(hm); else start();
     }
@@ -377,14 +390,14 @@
         }).join("");
         $$("#plist th button").forEach(function (b) { b.setAttribute("data-dir", b.dataset.sort === state.sort ? state.dir : ""); });
       }
-      if (state.view === "karte") {
+      if (state.view === "karte") withLeaflet(function () {
         if (!map) { map = makeMap($("#pmap"), {}); }
         if (map) {
           if (mk) map.removeLayer(mk.layer);
           mk = projectMarkers(map, list);
           setTimeout(function () { map.invalidateSize(); if (list.length) map.fitBounds(L.latLngBounds(list.map(function (p) { return p.geo; }).concat([OFFICE])), { padding: [50, 50], maxZoom: 13 }); }, 30);
         }
-      }
+      });
       if (state.view === "zeitachse") renderTimeline(list);
       var hs = new URLSearchParams();
       if (state.cat !== "alle") hs.set("thema", state.cat);
@@ -502,11 +515,13 @@
       if (e.key === "ArrowLeft" && e.altKey) location.href = url(prevP);
     });
 
-    var mm = makeMap($("#mini-map"), { center: p.geo, zoom: 12 });
-    if (mm) {
-      projectMarkers(mm, [p]);
-      mm.fitBounds(L.latLngBounds([p.geo, OFFICE]), { padding: [30, 30], maxZoom: 13 });
-    }
+    withLeaflet(function () {
+      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: 12 });
+      if (mm) {
+        projectMarkers(mm, [p]);
+        mm.fitBounds(L.latLngBounds([p.geo, OFFICE]), { padding: [30, 30], maxZoom: 13 });
+      }
+    });
     observe(root);
   }
 
@@ -514,7 +529,7 @@
     document.title = "Wettbewerbe und Architekten-Auswahlverfahren – apb architekten ag";
     document.body.classList.remove("on-dark");
     var C = D.competitions;
-    var src = function (c, s) { return "assets/img/projects/wettbewerbe/" + String(c.i).padStart(2, "0") + (s ? "-s" : "") + ".jpg"; };
+    var src = function (c, s) { return "assets/img/projects/wettbewerbe/" + String(c.i).padStart(2, "0") + (s ? "-s.webp" : ".jpg"); };
     root.innerHTML =
       '<section class="page-hero"><div class="wrap"><span class="eyebrow">Projekte</span><h1 class="display" data-split>Wettbewerbe<br>&amp; Auswahl&shy;verfahren</h1>' +
       '<div class="page-hero-grid"><p class="lead rv">Teilnahme an zahlreichen öffentlichen Wettbewerben und Architekten-Auswahlverfahren.</p>' +
@@ -660,7 +675,7 @@
       location.href = "mailto:info@apb-architekten.ch?subject=" + encodeURIComponent(topic + " – " + (d.get("name") || "Website")) + "&body=" + encodeURIComponent(body);
     });
     var cm = $("#contact-map");
-    if (cm) { var m = makeMap(cm, { center: OFFICE, zoom: 14 }); if (m) m.setView([OFFICE[0], OFFICE[1] - 0.004], 15); }
+    if (cm) withLeaflet(function () { var m = makeMap(cm, { center: OFFICE, zoom: 14 }); if (m) m.setView([OFFICE[0], OFFICE[1] - 0.004], 15); });
   }
 
   /* ---------- boot ---------- */

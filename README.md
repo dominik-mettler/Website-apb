@@ -12,6 +12,7 @@ Statische Website ohne Build-Schritt. Alle Inhalte stammen von der bisherigen Se
 | `buero.html` | Information: Firmenprofil, Atelier, Team |
 | `chronik.html` | 30 Jahre apb – Chronik 1996–2026 (neu) |
 | `karriere.html` | Offene Stellen + Lehrstelle |
+| `praesentation.html` | Vorschlag für die Geschäftsleitung (nicht verlinkt) |
 | `kontakt.html`, `impressum.html` | Kontakt, Impressum & Datenschutz |
 
 ## Seiten bearbeiten
@@ -20,9 +21,12 @@ Die HTML-Seiten werden mit `python3 tools/build.py` aus den Texten in `tools/bui
 ## Startseiten-Varianten
 `HOME_VARIANT=A python3 tools/build.py` (A = Kino/Slider, B = Index/Projektliste, C = Mosaik/Bildraster). Ohne Angabe wird A gebaut.
 
+## Alte Adressen
+`tools/build.py` erzeugt Weiterleitungen für alle Adressen der bisherigen Website (z. B. `/architektur/projekte/319-sag/`, `/planung/`, `/offene-stellen/...`).
+
 ## Projekte pflegen
 Alle Projektdaten liegen in `assets/js/data.js` (Name, Ort, Kenndaten, Themen, Koordinaten, Bildmasse).
-Bilder: `assets/img/projects/<id>/01.jpg` (gross, 1600 px) und `01-s.jpg` (klein, 800 px); `01` ist das Titelbild.
+Bilder: `assets/img/projects/<id>/01.jpg` (gross, 1600 px) und `01-s.jpg` (klein, 800 px); `01` ist das Titelbild. Für Titel- und Vorschaubilder zusätzlich `.webp` (wird auf der Seite verwendet).
 
 ## Lokal ansehen
 ```

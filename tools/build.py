@@ -58,8 +58,8 @@ def V(path):
     return path + '?v=' + hashlib.md5(open(os.path.join(OUT, path), 'rb').read()).hexdigest()[:8]
 
 def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='', intro=False):
-    lf = '<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">' if leaflet else ''
-    ls = '<script src="assets/vendor/leaflet/leaflet.js" defer></script>' if leaflet else ''
+    lf = ''  # Leaflet wird bei Bedarf per JS nachgeladen
+    ls = ''
     doc = f'''<!doctype html>
 <html lang="de-CH">
 <head>
@@ -80,7 +80,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 {extra_head}
 <script>try{{if(sessionStorage.getItem('apb-pt')){{document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}{'' if not intro else ''}}}catch(e){{}}</script>
 {INTRO_HEAD if intro else ''}
-{'<link rel="preload" as="image" href="assets/img/projects/251-asch/01.jpg" fetchpriority="high">' if intro and HOME_VARIANT == 'A' else ''}
+{'<link rel="preload" as="image" href="assets/img/projects/251-asch/01.webp" media="(min-width: 900px)" fetchpriority="high"><link rel="preload" as="image" href="assets/img/projects/251-asch/01-s.webp" media="(max-width: 899px)" fetchpriority="high">' if intro and HOME_VARIANT == 'A' else ''}
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
 {INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
@@ -388,7 +388,7 @@ leist = f'''
             <div data-tabs><div class="tabs" role="tablist" aria-label="Bauherrenberatung"><button type="button" role="tab" id="tb-oe" aria-controls="pb-oe">Öffentliche Bauherren</button><button type="button" role="tab" id="tb-pr" aria-controls="pb-pr">Private Bauherren</button></div>
               <div class="tab-panel" id="pb-oe" role="tabpanel" aria-labelledby="tb-oe">{ticks(["Erstellung von Studienaufträgen und Kostenschätzungen für öffentliche Bauvorhaben","Beratung betreffend der baugesetzlichen Vorgaben","Erarbeiten von Projektablaufplänen","Erstellung von Projektierungs- und Baukreditgenehmigungs-Dossiers","Erstellen von Ausschreibungsunterlagen für allfällige weitere Planerwahlverfahren","Bewertung und Auswahl der Bewerber"])}</div>
               <div class="tab-panel" id="pb-pr" role="tabpanel" aria-labelledby="tb-pr">{ticks(["Hilfe bei der Suche geeigneter Grundstücke","Machbarkeitsstudien für Neubauten und Umbauten bestehender Liegenschaften","Analysen zum Gebäudezustand und Beratung zu energetischen Förderungen","Beratung betreffend der baugesetzlichen Vorgaben","Kostenschätzungen"])}</div></div></div>
-          <div class="b"><div class="media" style="aspect-ratio:4/5"><img src="assets/img/projects/306-gzm/01-s.jpg" alt="Gemeindehaus Maur" loading="lazy"></div><p class="small muted" style="margin-top:10px">Gemeindehaus Maur – Planerwahl, 1. Rang</p></div>
+          <div class="b"><div class="media" style="aspect-ratio:4/5"><img src="assets/img/projects/306-gzm/01-s.webp" alt="Gemeindehaus Maur" loading="lazy"></div><p class="small muted" style="margin-top:10px">Gemeindehaus Maur – Planerwahl, 1. Rang</p></div>
         </div></div></div>
       </div>
       <div class="acc-item" id="kaeufer">
@@ -397,7 +397,7 @@ leist = f'''
           <div class="a"><p style="color:var(--ink-2);margin-bottom:28px;max-width:34em">Bauträger, die Projekte mit Stockwerkeigentum verkaufen möchten, delegieren in der Regel die Käuferbetreuung an den Architekten des Gebäudes. apb architekten bietet an, die potentiellen Käufer Schritt für Schritt für Sie zu begleiten.</p>
             <h3 class="eyebrow plain" style="margin-bottom:14px">Interessenten- &amp; Käufer-Betreuung</h3>
             <ol class="process" style="border-color:var(--ink)">{''.join(f'<li style="border-color:var(--line)">{x}</li>' for x in ["Besprechung von Käuferwünschen","Überprüfung der Machbarkeit","Beratung bei der Farb- und Materialwahl","Begleitung von Ausstellungsbesuchen","Ermittlung der Mehr- und/oder Minderkosten","Koordination mit Behörden, Fachplanern, Unternehmern und weiteren am Bau Beteiligten","Kontrolle der Bauausführung","Begleitung der Bauabnahme"])}</ol></div>
-          <div class="b"><div class="media" style="aspect-ratio:4/5"><img src="assets/img/projects/292-mlw/01-s.jpg" alt="MFH Lediweg, Uster" loading="lazy"></div><p class="small muted" style="margin-top:10px">MFH Lediweg, Uster – 7 Eigentumswohnungen</p></div>
+          <div class="b"><div class="media" style="aspect-ratio:4/5"><img src="assets/img/projects/292-mlw/01-s.webp" alt="MFH Lediweg, Uster" loading="lazy"></div><p class="small muted" style="margin-top:10px">MFH Lediweg, Uster – 7 Eigentumswohnungen</p></div>
         </div></div></div>
       </div>
       <div class="acc-item" id="liegenschaft">
@@ -407,7 +407,7 @@ leist = f'''
             <div data-tabs><div class="tabs" role="tablist" aria-label="Liegenschaftsanalyse"><button type="button" role="tab" id="tl-g" aria-controls="pl-g">Grundlagen</button><button type="button" role="tab" id="tl-z" aria-controls="pl-z">Zustandsanalyse</button></div>
               <div class="tab-panel" id="pl-g" role="tabpanel" aria-labelledby="tl-g">{ticks(["Bestandspläne (Grundrisse, Schnitte, Fassaden)","Grundbuchauszug","Letzte Schätzung der kantonalen Gebäudeversicherung"])}</div>
               <div class="tab-panel" id="pl-z" role="tabpanel" aria-labelledby="tl-z">{ticks(["Begehung vor Ort","Massaufnahmen vor Ort (sofern keine Bestandspläne vorhanden sind)","Übertragen und Darstellen von Plänen in CAD-System","Dokumentation und Einschätzung des Gebäudezustandes anhand von Einzelbauteilen","Einschätzung der kurz-, mittel- und langfristigen Massnahmen inkl. Abschätzen der nötigen Budgets","Massnahmenbericht","Koordination weitergehender Zustandsanalysen (Erdbebensicherheit, Schadstoffe, Bauphysik etc.)"])}</div></div></div>
-          <div class="b"><div class="media" style="aspect-ratio:4/5"><img src="assets/img/projects/309-mpg/01-s.jpg" alt="MFH Pfisterhölzli, Greifensee" loading="lazy"></div><p class="small muted" style="margin-top:10px">MFH Pfisterhölzli, Greifensee – Fassadensanierung mit Photovoltaik</p></div>
+          <div class="b"><div class="media" style="aspect-ratio:4/5"><img src="assets/img/projects/309-mpg/01-s.webp" alt="MFH Pfisterhölzli, Greifensee" loading="lazy"></div><p class="small muted" style="margin-top:10px">MFH Pfisterhölzli, Greifensee – Fassadensanierung mit Photovoltaik</p></div>
         </div></div></div>
       </div>
     </div>
@@ -677,3 +677,42 @@ page('404.html', '', 'Seite nicht gefunden – apb architekten ag', 'Seite nicht
 <section class="page-hero"><div class="wrap"><span class="eyebrow">404</span><h1 class="display" data-split>Diese Seite<br>gibt es nicht.</h1>
 <div class="page-hero-grid"><p class="lead rv">Vielleicht finden Sie, was Sie suchen, in unseren Projekten.</p><div class="aside rv"><a class="btn" href="projekte.html">Zu den Projekten<span class="arr"></span></a></div></div></div></section>''', '404')
 print('ok')
+
+# ---------------------------------------------------------------- PRÄSENTATION (nicht verlinkt)
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'praesentation.py')).read())
+page('praesentation.html', '', 'Neue Website – Vorschlag für apb architekten ag', 'Vorschlag für die neue Website der apb architekten ag: Vergleich, Varianten, Funktionen und Fakten.', PRAES, 'praesentation')
+
+# ---------------------------------------------------------------- WEITERLEITUNGEN ALTE ADRESSEN
+# Alte URLs von apb-architekten.ch (Concrete5) -> neue Seiten. Relativ verlinkt, funktioniert auch in /vN/.
+import json as _json
+_ids = [p['id'] for p in _json.loads(open(os.path.join(OUT, 'assets/js/data.js')).read().split('window.APB = ', 1)[1].rstrip().rstrip(';'))['projects']]
+REDIRECTS = {
+    'architektur': 'projekte.html',
+    'architektur/projekte': 'projekte.html#ansicht=liste',
+    'architektur/projekte/wettbewerbe': 'projekt.html?p=wettbewerbe',
+    'planung': 'leistungen.html#planung',
+    'beratung': 'leistungen.html#beratung',
+    'information': 'buero.html',
+    'offene-stellen': 'karriere.html',
+    'offene-stellen/stellen-besetzt/lehrlinge': 'karriere.html#lehrstelle',
+    'offene-stellen/stellen-besetzt/administration': 'karriere.html#administration',
+    'kontakt': 'kontakt.html',
+    'impressum': 'impressum.html',
+}
+for _pid in _ids:
+    REDIRECTS['architektur/projekte/' + _pid] = 'projekt.html?p=' + _pid
+for _j in ['projektleiter-in', 'junior-projektleiter-in', 'architekt-in', 'bauleiter-in', 'techniker-in', 'zeichner-in']:
+    REDIRECTS['offene-stellen/stellen-offen/' + _j] = 'karriere.html#' + _j
+for _n, _t in [(6, 'wohnen'), (7, 'arbeiten'), (8, 'reisen'), (9, 'kaufen'), (10, 'pflegen'), (11, 'leiten'), (12, 'glauben'), (16, 'turnen'), (18, 'beleuchten'), (19, 'lernen'), (22, 'auswahl')]:
+    REDIRECTS['architektur/projekte/topic/%d/%s' % (_n, _t)] = 'projekte.html#thema=' + _t
+for _path, _target in REDIRECTS.items():
+    _up = '../' * (_path.count('/') + 1)
+    _dst = os.path.join(OUT, _path, 'index.html')
+    os.makedirs(os.path.dirname(_dst), exist_ok=True)
+    open(_dst, 'w').write(f'''<!doctype html><html lang="de-CH"><head><meta charset="utf-8"><title>Weiterleitung – apb architekten ag</title>
+<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={_up}{_target}">
+<script>location.replace("{_up}{_target}");</script>
+<style>body{{background:#0c0c0b;color:#edebe6;font:16px/1.5 Helvetica,Arial,sans-serif;padding:40px}}a{{color:#f15d30}}</style></head>
+<body><p>Diese Seite ist umgezogen: <a href="{_up}{_target}">weiter zur neuen Seite</a>.</p></body></html>
+''')
+print('redirects', len(REDIRECTS))
