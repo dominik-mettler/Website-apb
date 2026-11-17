@@ -36,9 +36,14 @@ jobs:
             [ -z "$v" ] && continue
             mkdir -p "_site/$v"
             git archive "$sha" | tar -x -C "_site/$v"
-            rm -rf "_site/$v/.github"
+            rm -rf "_site/$v/.github" "_site/$v/tools"
+            # Projektbilder nicht pro Version kopieren (GitHub-Pages-Limit 1 GB):
+            # Versionen verwenden die Bilder der Hauptversion, die alle Dateien (JPG + WebP) enthält.
+            rm -rf "_site/$v/assets/img/projects"
+            grep -rlZ 'assets/img/projects/' "_site/$v" --include='*.html' --include='*.js' | xargs -0 -r sed -i 's#assets/img/projects/#../assets/img/projects/#g'
+
           done
-          rm -rf _site/.github _site/versions.txt
+          rm -rf _site/.github _site/versions.txt _site/tools
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
