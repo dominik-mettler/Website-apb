@@ -338,64 +338,18 @@
     setTimeout(function () { f.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }); var n = $("#f-name"); if (n) n.focus({ preventScroll: true }); }, 400);
   }
 
-  /* ---------- Referenzblatt (A4, 1–2 Seiten) ---------- */
-  function sheet(p) {
-    var dl = function (rows) { return rows.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join(""); };
-    var land = [];
-    for (var i = 2; i <= p.img.length && land.length < 3; i++) { var d = p.img[i - 1]; if (d && d[0] >= d[1]) land.push(i); }
-    var pb = function (k) { return (p.base || "") + "plan-" + String(k).padStart(2, "0") + ".webp"; };
-    var plans = [];
-    var lang = (p.desc || []).reduce(function (n, d) { return n + d[1].length; }, 0) > 1300;
-    if (p.plans && p.plans.length) {
-      var pick = function (re) { for (var j = 0; j < p.plans.length; j++) if (re.test(p.plans[j]) && plans.indexOf(j) < 0) return j; return -1; };
-      var maxP = lang ? 2 : 3;
-      [/situation/i, /grundriss/i, /schnitt/i, /ansicht/i].forEach(function (re) { var j = pick(re); if (j > -1 && plans.length < maxP) plans.push(j); });
-      for (var j = 0; j < p.plans.length && plans.length < maxP; j++) if (plans.indexOf(j) < 0) plans.push(j);
-    }
-    /* Medienfläche Seite 2: Pläne, bei Bedarf mit weiteren Fotos aufgefüllt */
-    var media = plans.map(function (j) { return '<figure class="pl"><img src="' + pb(j + 1) + '" alt=""><figcaption>' + esc(p.plans[j]) + "</figcaption></figure>"; });
-    var ziel = plans.length ? (lang ? 2 : 3) : (lang ? 2 : 4);
-    for (var k = 2; k <= p.img.length && media.length < ziel; k++) {
-      var dk = p.img[k - 1]; if (land.indexOf(k) > -1 || !dk || dk[0] < dk[1]) continue;
-      media.push('<figure class="ph"><img src="' + img(p, k, true) + '" alt="">' + (p.cap && p.cap[k] ? "<figcaption>" + esc(p.cap[k]) + "</figcaption>" : "") + "</figure>");
-    }
-    var head = function (nr) {
-      return '<header class="ps-head"><img src="assets/img/logo-dark.svg" alt="apb architekten ag"><div><b>Referenzprojekt ' + esc(p.nr) + "</b><span>" + nr + "</span></div></header>";
-    };
-    var foot = '<footer class="ps-foot"><span>apb architekten ag · Seestrasse 110a · 8610 Uster</span><span>+41 44 944 60 80 · info@apb-architekten.ch · apb-architekten.ch</span></footer>';
-    var zwei = (p.desc && p.desc.length) || media.length || (p.team && p.team.length);
-    var tot = zwei ? 2 : 1;
-    var meta = [p.ort, p.year, p.status !== "Realisiert" ? p.status : ""].filter(Boolean).join(" · ");
-    var s1 = '<section class="ps-page">' + head("Seite 1 / " + tot) +
-      '<div class="ps-titel"><p class="ps-eye">/// ' + esc(meta) + '</p><h1>' + esc(p.name) + "</h1><p>" + esc(p.sub) + "</p></div>" +
-      '<div class="ps-hero"><img src="' + img(p, 1) + '" alt=""></div>' +
-      (land.length ? '<div class="ps-row">' + land.map(function (i) { return '<img src="' + img(p, i, true) + '" alt="">'; }).join("") + "</div>" : "") +
-      '<div class="ps-bottom"><div><h2>Projekt</h2><p>' + esc(p.text) + "</p></div><div><h2>Kenndaten</h2><dl class=\"ps-facts\">" + dl(p.facts) + "</dl></div></div>" + foot + "</section>";
-    if (!zwei) return s1;
-    var s2 = '<section class="ps-page">' + head("Seite 2 / 2") +
-      '<div class="ps-titel ps-titel-k"><h1>' + esc(p.name) + " <em>" + esc(p.ort) + "</em></h1></div>" +
-      (p.desc && p.desc.length ? '<div class="ps-desc">' + p.desc.map(function (d) { return "<div>" + (d[0] ? "<h3>" + esc(d[0]) + "</h3>" : "") + "<p>" + esc(d[1]) + "</p></div>"; }).join("") + "</div>" : "") +
-      (media.length ? '<div class="ps-plans n' + media.length + '">' + media.join("") + "</div>" : "") +
-      (p.team && p.team.length ? '<div class="ps-team"><h2>Projektteam</h2><dl>' + dl(p.team) + "</dl></div>" : "") + foot + "</section>";
-    return s1 + s2;
-  }
-
   /* ---------- Projekt: Referenzblatt & Link ---------- */
   function projectTools() {
     var cats = $(".p-cats"); if (!cats || !D.projects.length) return;
     var id = new URLSearchParams(location.search).get("p");
     var p = D.projects.filter(function (x) { return x.id === id; })[0]; if (!p) return;
     var tools = document.createElement("div"); tools.className = "p-tools rv in";
-    tools.innerHTML = '<button type="button" class="pt-print"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 6V1.5h8V6M4 12H2.5V6.5h11V12H12M4 9.5h8v5H4z"/></svg>Referenzblatt (PDF)</button>' +
+    var fname = "apb-Referenz-" + p.nr + "-" + p.name.replace(/[^A-Za-z0-9äöüÄÖÜ]+/g, "-").replace(/-+$/, "") + ".pdf";
+    tools.innerHTML = (p.ref
+        ? '<a class="pt-ref" href="' + p.ref + '" download="' + fname + '" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 1.5v9M4.5 7L8 10.5 11.5 7M2.5 13.5h11"/></svg>Referenzblatt (PDF)</a>'
+        : '<span class="pt-ref is-wip" title="Das Referenzblatt zu diesem Projekt wird zurzeit erstellt."><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 1.5v9M4.5 7L8 10.5 11.5 7M2.5 13.5h11"/></svg>Referenzblatt in Bearbeitung</span>') +
       '<button type="button" class="pt-link"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.6 2.6 0 013.6 3.6L10.5 8M9 11.5l-1.2 1.2a2.6 2.6 0 01-3.6-3.6L5.5 8"/></svg><span>Link kopieren</span></button>';
     cats.parentNode.appendChild(tools);
-    var host = document.createElement("div"); host.className = "print-host";
-    host.innerHTML = '<div class="print-sheet">' + sheet(p) + "</div>";
-    $("main").appendChild(host);
-    $(".pt-print", tools).addEventListener("click", function () {
-      var ims = $$("img", host), n = ims.length, done = 0, go = function () { if (++done >= n) window.print(); };
-      ims.forEach(function (im) { var pre = new Image(); pre.onload = pre.onerror = go; pre.src = im.src; });
-    });
     $(".pt-link", tools).addEventListener("click", function () {
       var sp = $(".pt-link span", tools);
       var ok = function () { sp.textContent = "Kopiert"; setTimeout(function () { sp.textContent = "Link kopieren"; }, 1600); };

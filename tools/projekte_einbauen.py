@@ -138,6 +138,8 @@ for p in D['projects']:
     if v: p['mio'] = v
     if p.get('year') is None: p['year'] = jahr(dict(p['facts']).get('Fertigstellung'))
 
+for p in D['projects']:   # Original-Referenzblatt (tools/referenzblaetter.py)
+    if os.path.exists(os.path.join(R, 'assets/ref', p['id'] + '.pdf')): p['ref'] = 'assets/ref/' + p['id'] + '.pdf'
 D['projects'].sort(key=lambda p: p['id'], reverse=True)
 D['projects'] = [p for p in D['projects'] if p.get('img')]   # ohne Bilder nicht veröffentlichen
 head = '/* Projektdaten – generiert von tools/projekte_einbauen.py */\n'

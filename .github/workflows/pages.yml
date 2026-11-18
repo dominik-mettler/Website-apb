@@ -39,8 +39,8 @@ jobs:
             rm -rf "_site/$v/.github" "_site/$v/tools"
             # Projektbilder nicht pro Version kopieren (GitHub-Pages-Limit 1 GB):
             # Versionen verwenden die Bilder der Hauptversion, die alle Dateien (JPG + WebP) enthält.
-            rm -rf "_site/$v/assets/img/projects" "_site/$v/assets/img/p2" "_site/$v/assets/video" "_site/$v/content" "_site/$v/assets/vendor/cesium"
-            grep -rlZ -e 'assets/img/p' -e 'assets/video/' -e 'assets/vendor/cesium/' "_site/$v" --include='*.html' --include='*.js' | xargs -0 -r sed -i -e 's#assets/img/projects/#../assets/img/projects/#g' -e 's#assets/img/p2/#../assets/img/p2/#g' -e 's#assets/video/#../assets/video/#g' -e 's#assets/vendor/cesium/#../assets/vendor/cesium/#g'
+            rm -rf "_site/$v/assets/img/projects" "_site/$v/assets/img/p2" "_site/$v/assets/video" "_site/$v/content" "_site/$v/assets/vendor/cesium" "_site/$v/assets/ref"
+            grep -rlZ -e 'assets/img/p' -e 'assets/video/' -e 'assets/vendor/cesium/' -e 'assets/ref/' "_site/$v" --include='*.html' --include='*.js' | xargs -0 -r sed -i -e 's#assets/img/projects/#../assets/img/projects/#g' -e 's#assets/img/p2/#../assets/img/p2/#g' -e 's#assets/video/#../assets/video/#g' -e 's#assets/vendor/cesium/#../assets/vendor/cesium/#g' -e 's#assets/ref/#../assets/ref/#g'
 
           done
           rm -rf _site/.github _site/versions.txt _site/tools _site/content
