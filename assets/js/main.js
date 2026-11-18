@@ -503,7 +503,7 @@
         p.plans.map(function (pl, k) { return '<figure class="plan rv" data-k="' + k + '" data-cursor="Vergrössern"><div class="plan-img"><img src="' + plan(p, k + 1, true) + '" alt="' + esc(pl) + '" loading="lazy" width="1200" height="800"></div><figcaption>' + esc(pl) + "</figcaption></figure>"; }).join("") + "</div></div></section>" : "") +
       (p.team && p.team.length ? '<section class="section tight p-team"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Beteiligte</h2></div><dl class="team-list rv">' +
         p.team.map(function (t) { return "<div><dt>" + esc(t[0]) + "</dt><dd>" + esc(t[1]) + "</dd></div>"; }).join("") + "</dl></div></section>" : "") +
-      (related.length ? '<section class="section tight related"><div class="wrap"><div class="section-head"><h2 class="h2">Verwandte Projekte</h2><a class="link" href="projekte.html#thema=' + p.cats[0] + '">Alle ' + catLabel[p.cats[0]] + '<span class="arr"></span></a></div><div class="pgrid">' + related.map(card).join("") + "</div></div></section>" : "") +
+      (related.length ? '<section class="section tight related"><div class="wrap"><div class="section-head"><h2 class="h2">Verwandte Projekte</h2><a class="link" href="projekte.html#thema=' + p.cats[0] + '">Alle Projekte «' + catLabel[p.cats[0]] + '»<span class="arr"></span></a></div><div class="pgrid">' + related.map(card).join("") + "</div></div></section>" : "") +
       '<a class="next-project" href="' + url(nextP) + '" data-cursor="Weiter"><img src="' + img(nextP, 1) + '" alt="" loading="lazy"><div class="wrap"><span class="eyebrow">Nächstes Projekt</span><h2 class="display">' + esc(nextP.name) + "</h2></div></a>";
 
     /* lightbox */
