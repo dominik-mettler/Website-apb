@@ -47,3 +47,8 @@ Wenn erstellt, immer in dieser Auswahl:
 - Zuordnung Seite → Projekt und neue Projekte: `tools/datenblaetter.py`
 - Nicht übernommen: Platzhalter (Lorem ipsum, XX), Kontakt-/Referenzpersonen, Telefonnummern, Namen privater Bauherrschaften
 - Entwürfe ohne Inhalt (339 Pfungen, Rooswis, Doppel-EFH Fuchsgasse) noch nicht veröffentlicht
+
+## Text in Grafiken (Logo usw.) – gilt immer
+- Text nie aus Pixelbildern nachzeichnen. Zuerst die Schrift bestimmen und den Text mit der echten Schrift setzen (Konturen aus der Schriftdatei).
+- Nur nicht-typografische Teile (z. B. der skizzierte Würfel im Logo) dürfen vektorisiert werden.
+- Logo-Wortmarke «apb architekten ag»: Arial/Helvetica Bold → gesetzt mit Liberation Sans Bold (gleiche Masse wie Arial).
