@@ -58,3 +58,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v13 – Datenblätter, Karte, Filter, Aktuell, Zeitraffer | https://dominik-mettler.github.io/Website-apb/v13/ |
 | v14 – SVG-Logo, Vermessung S/W, 3D-Ansicht | https://dominik-mettler.github.io/Website-apb/v14/ |
 | v15 – Logo-Schrift sauber gesetzt | https://dominik-mettler.github.io/Website-apb/v15/ |
+| v16 – Karte = Vermessung S/W, Luftbild, 3D | https://dominik-mettler.github.io/Website-apb/v16/ |
