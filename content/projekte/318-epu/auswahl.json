@@ -1,0 +1,169 @@
+{
+ "id": "318-epu",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "318-EPU-00-Aussen-Nord-West.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "318-EPU-00-Aussen-Ost.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "",
+   "original": "318-EPU-00-Aussen-Süd-West-DSC04679.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Eingang",
+   "original": "318-EPU-00-Aussen-Eingang-Detail-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Treppe",
+   "original": "318-EPU-02-Korridor-leer-bew-StorenAuf-LichtAn1-DSC02728.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Wohnen und Essen",
+   "original": "318-EPU-04-Essen-Wohnen-leer-bew-StorenAuf-LichtAn1-DSC02873.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Küche",
+   "original": "318-EPU-05-Küche-leer-Sonne-StorenAuf-LichtAn1-DSC03498.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Zimmer",
+   "original": "318-EPU-12-Zimmer1-leer-Sonne-StorenAuf-LichtAus-DSC03518.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Bad",
+   "original": "318-EPU-16-BadWC-LichtAn1-DSC03121.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Korridor",
+   "original": "318-EPU-21-Korridor-leer-Sonne-StorenAb-LichtAus-DSC03603.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Studio",
+   "original": "318-EPU-22-Studio-leer-Sonne-StorenAb-LichtAus-DSC03538.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/12.jpg",
+   "unterschrift": "Dachterrasse",
+   "original": "318-EPU-24-DachterrasseSO-leer-Sonne-StorenAuf-DSC03578.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "318-EPU-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "318-EPU-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Grundriss Dachgeschoss",
+   "original": "318-EPU-GR-DG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Längsschnitt",
+   "original": "318-EPU-LS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Ansicht Süd",
+   "original": "318-EPU-FA-Sued.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht West",
+   "original": "318-EPU-FA-West.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

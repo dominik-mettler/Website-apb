@@ -16,7 +16,8 @@
   D.projects.forEach(function (p) { byId[p.id] = p; });
 
   /* ---------- helpers ---------- */
-  function img(p, i, small) { var n = i || 1, b = "assets/img/projects/" + p.id + "/" + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
+  function img(p, i, small) { var n = i || 1, b = (p.base || "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
+  function plan(p, k, small) { return (p.base || "") + "plan-" + String(k).padStart(2, "0") + (small ? "-s" : "") + ".webp"; }
   function url(p) { return "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function yearOf(p) { return p.year || (p.status === "Nicht realisiert" ? "Projekt" : "–"); }
@@ -496,6 +497,12 @@
       '<aside class="facts rv"><dl>' + p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" +
       '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div></aside></div>' +
       (gal ? '<div class="gallery' + (n > 4 ? " lead-wide" : "") + '">' + gal + "</div>" : "") + "</div>" +
+      (p.desc && p.desc.length ? '<section class="section tight p-desc"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Projektbeschrieb</h2></div><div class="p-desc-grid">' +
+        p.desc.map(function (d) { return '<div class="rv"><h3>' + esc(d[0]) + "</h3><p>" + esc(d[1]) + "</p></div>"; }).join("") + "</div></div></section>" : "") +
+      (p.plans && p.plans.length ? '<section class="section tight p-plans"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Pläne</h2><span class="muted small rv">Zum Vergrössern anklicken</span></div><div class="plan-grid">' +
+        p.plans.map(function (pl, k) { return '<figure class="plan rv" data-k="' + k + '" data-cursor="Vergrössern"><div class="plan-img"><img src="' + plan(p, k + 1, true) + '" alt="' + esc(pl) + '" loading="lazy" width="1200" height="800"></div><figcaption>' + esc(pl) + "</figcaption></figure>"; }).join("") + "</div></div></section>" : "") +
+      (p.team && p.team.length ? '<section class="section tight p-team"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Beteiligte</h2></div><dl class="team-list rv">' +
+        p.team.map(function (t) { return "<div><dt>" + esc(t[0]) + "</dt><dd>" + esc(t[1]) + "</dd></div>"; }).join("") + "</dl></div></section>" : "") +
       (related.length ? '<section class="section tight related"><div class="wrap"><div class="section-head"><h2 class="h2">Verwandte Projekte</h2><a class="link" href="projekte.html#thema=' + p.cats[0] + '">Alle ' + catLabel[p.cats[0]] + '<span class="arr"></span></a></div><div class="pgrid">' + related.map(card).join("") + "</div></div></section>" : "") +
       '<a class="next-project" href="' + url(nextP) + '" data-cursor="Weiter"><img src="' + img(nextP, 1) + '" alt="" loading="lazy"><div class="wrap"><span class="eyebrow">Nächstes Projekt</span><h2 class="display">' + esc(nextP.name) + "</h2></div></a>";
 
@@ -504,6 +511,10 @@
     var lb = lightbox(lbImgs, p.name + ", " + p.ort);
     $$(".gallery figure", root).forEach(function (f) { f.addEventListener("click", function () { lb.open(+f.dataset.i - 1); }); });
     $(".p-hero", root).addEventListener("click", function (e) { if (!e.target.closest("a")) lb.open(0); });
+    if (p.plans && p.plans.length) {
+      var lbp = lightbox(p.plans.map(function (pl, k) { return { src: plan(p, k + 1), th: plan(p, k + 1, true), cap: pl }; }), p.name + " – Pläne", "plans");
+      $$(".plan", root).forEach(function (f) { f.addEventListener("click", function () { lbp.open(+f.dataset.k); }); });
+    }
 
     /* parallax hero */
     var hi = $(".p-hero img", root);
@@ -547,10 +558,11 @@
   }
 
   /* ---------- lightbox ---------- */
-  function lightbox(items, title) {
+  function lightbox(items, title, kind) {
     var box = el('<div class="lightbox" role="dialog" aria-modal="true" aria-label="Bildergalerie"><div class="lb-top"><span class="lb-cap"></span><button type="button" class="lb-close" aria-label="Schliessen">×</button></div>' +
       '<div class="lb-stage"><button type="button" class="nav-btn prev" aria-label="Vorheriges Bild"><span class="arr"></span></button><img alt=""><button type="button" class="nav-btn next" aria-label="Nächstes Bild"><span class="arr"></span></button></div>' +
       '<div class="lb-thumbs">' + items.map(function (it, i) { return '<button type="button" aria-label="Bild ' + (i + 1) + '"><img src="' + it.th + '" alt="" loading="lazy"></button>'; }).join("") + "</div></div>");
+    if (kind) box.classList.add("lb-" + kind);
     document.body.appendChild(box);
     var im = $(".lb-stage img", box), cap = $(".lb-cap", box), th = $$(".lb-thumbs button", box), cur = 0, open = false, lastFocus;
     function show(i) {

@@ -1,0 +1,142 @@
+{
+ "id": "326-shu",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "326-SHU-000-Aussen-SO-Sonne-StorenAb-FEAuf-DSC08569.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "326-SHU-101-Treppenhaus-Sonne-DSC08549.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Halle",
+   "original": "326-SHU-08-250212-Florian-Fuelscher-104867_01.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Halle",
+   "original": "326-SHU-09-250212-Florian-Fuelscher-104867_02.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Garderobe",
+   "original": "326-SHU-12-250212-Florian-Fuelscher-104867_05.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Lehrerzimmer",
+   "original": "326-SHU-003a-Lehrerzimmer3-leer-Sonne-LichtAn1-DSC08381.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Lehrerzimmer mit Küche",
+   "original": "326-SHU-003a-Lehrerzimmer4-leer-Sonne-LichtAn1-DSC08439.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Lehrerzimmer",
+   "original": "326-SHU-003b-Lehrerzimmer-leer-Sonne-LichtAn1-DSC08361.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Gruppenraum",
+   "original": "326-SHU-102c-Gruppenraum-mM-Sonne-LichtAus-DSC08499.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Gruppenraum",
+   "original": "326-SHU-205-Gruppenraum-mM-LichtAn1-DSC08524.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "326-SHU Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "326-SHU-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Grundriss 1. Obergeschoss",
+   "original": "326-SHU-GR-1.OG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Längsschnitt",
+   "original": "326-SHU-LS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Querschnitt",
+   "original": "326-SHU-QS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

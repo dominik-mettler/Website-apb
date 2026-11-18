@@ -80,7 +80,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 {extra_head}
 <script>try{{if(sessionStorage.getItem('apb-pt')){{document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}{'' if not intro else ''}}}catch(e){{}}</script>
 {INTRO_HEAD if intro else ''}
-{'<link rel="preload" as="image" href="assets/img/projects/251-asch/01.webp" media="(min-width: 900px)" fetchpriority="high"><link rel="preload" as="image" href="assets/img/projects/251-asch/01-s.webp" media="(max-width: 899px)" fetchpriority="high">' if intro and HOME_VARIANT == 'A' else ''}
+{'<link rel="preload" as="image" href="assets/img/p2/333-kff/01.webp" media="(min-width: 900px)" fetchpriority="high"><link rel="preload" as="image" href="assets/img/p2/333-kff/01-s.webp" media="(max-width: 899px)" fetchpriority="high">' if intro and HOME_VARIANT == 'A' else ''}
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
 {INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
@@ -116,7 +116,7 @@ ticks = lambda items: '<ul class="ticks">' + ''.join(f'<li>{i}</li>' for i in it
 # ---------------------------------------------------------------- STARTSEITEN-VARIANTEN
 # A = Kino (Vollbild-Slider), B = Index (typografische Projektliste), C = Mosaik (Bildraster)
 HOME_VARIANT = os.environ.get('HOME_VARIANT', 'A')
-HERO_A = """<section class="hero" data-slides="251-asch,319-sag,308-mzu,310-gws,313-gbw,320-ksp" aria-roledescription="Karussell" aria-label="Ausgewählte Projekte">
+HERO_A = """<section class="hero" data-slides="333-kff,319-sag,308-mzu,310-gws,313-gbw,327-sdu" aria-roledescription="Karussell" aria-label="Ausgewählte Projekte">
   <div class="hero-stage"></div>
   <div class="hero-content">
     <div class="wrap">
@@ -129,7 +129,7 @@ HERO_A = """<section class="hero" data-slides="251-asch,319-sag,308-mzu,310-gws,
     <div class="wrap"><div class="hero-bars"></div></div>
   </div>
 </section>"""
-HERO_B = """<section class="ix" data-ids="319-sag,333-kff,310-gws,313-gbw,292-mlw,263-piu,308-mzu,270-bsb" aria-label="Ausgewählte Projekte">
+HERO_B = """<section class="ix" data-ids="333-kff,319-sag,310-gws,313-gbw,292-mlw,263-piu,308-mzu,270-bsb" aria-label="Ausgewählte Projekte">
   <div class="ix-bg" aria-hidden="true"></div>
   <div class="wrap">
     <div class="ix-top"><span class="eyebrow" style="color:rgba(255,255,255,.75)">Architektur · Planung · Beratung · Uster</span><span>Seit 1996</span></div>

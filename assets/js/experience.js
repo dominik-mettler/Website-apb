@@ -11,7 +11,7 @@
   var root = document.documentElement;
   var Y0 = 1996, Y1 = 2026;
 
-  function img(p, i, small) { var n = i || 1, b = "assets/img/projects/" + p.id + "/" + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
+  function img(p, i, small) { var n = i || 1, b = (p.base || "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
   function url(p) { return "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
@@ -137,7 +137,7 @@
       if (cap) cap.innerHTML = "Im «30»: <br>" + esc(p.name) + ", " + esc(p.ort);
       hi++;
     }
-    heroIds = heroIds.filter(function (id) { return id !== "333-kff"; });
+
     swap();
     if (!reduced) setInterval(swap, 4000);
 
@@ -392,7 +392,7 @@
     document.body.classList.add("variant-c");
     var grid = $(".mo-grid", mo);
     var mobile = window.matchMedia("(max-width: 860px)").matches;
-    var pool = D.projects.filter(function (p) { return p.img.length > 1 && p.id !== "333-kff"; });
+    var pool = D.projects.filter(function (p) { return p.img.length > 1; });
     pool.sort(function () { return Math.random() - 0.5; });
     var n = mobile ? 13 : 9, big = mobile ? [0, 6] : [0, 5];
     var shown = pool.slice(0, n), rest = pool.slice(n);

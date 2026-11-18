@@ -1,0 +1,151 @@
+{
+ "id": "327-sdu",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "327-SDU-000-Aussen-O-Sonne-DSC02385.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "327-SDU-000-Aussen-SO-Sonne-DSC02380.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Pausenhalle",
+   "original": "327-SDU-002-Pausenhalle1-leer-Sonne-TürenAuf-LichtAn-DSC02321.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Unterrichtszimmer",
+   "original": "327-SDU-004c-Unterrichtszimmer-leer-Sonne-TürenZu-LichtAn-DSC01873.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "327-SDU-102-Treppenhaus-leer-Sonne-TürenAuf-LichtAn-DSC01988.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Einspielzimmer",
+   "original": "327-SDU-106d-Einspielzimmer-leer-Sonne-TürenAuf-LichtAn-DSC01925.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "327-SDU-201-Treppenhaus-leer-TürenZu-LichtAn-DSC02045.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Ensembleraum",
+   "original": "327-SDU-208-Ensemble3-leer-Sonne-LichtAn-DSC02115.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Lehrerzimmer im Dachgeschoss",
+   "original": "327-SDU-302a-Lehrerzimmer1-leer-Sonne-TürenZu-LichtAn-DSC02236.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Lehrerzimmer im Dachgeschoss",
+   "original": "327-SDU-302a-Lehrerzimmer2-leer-Sonne-TürenZu-LichtAn-DSC02246.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "327-SDU-401-Treppenhaus-leer-bew-TürenZu-DSC02311.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "327-SDU-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "327-SDU-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Grundriss Dachgeschoss",
+   "original": "327-SDU-GR-DG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Längsschnitt",
+   "original": "327-SDU-LS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Querschnitt",
+   "original": "327-SDU-QS02.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

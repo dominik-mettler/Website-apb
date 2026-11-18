@@ -1,0 +1,160 @@
+{
+ "id": "324-kbg",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "324-KBG-00-Aussen-O1-Sonne-StorenAuf-DSC11009.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "324-KBG-00-Aussen-W-Sonne-StorenAuf-DSC11194.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Spielplatz",
+   "original": "324-KBG-00-Aussen-Spielplatz-Sonne-StorenAuf-DSC11126.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Eingang",
+   "original": "324-KBG-00-Aussen-NW-Tür-Sonne-StorenAuf-DSC09485.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Eingang mit Garderobe",
+   "original": "324-KBG-01-Treppenahaus1-EG-DSC09364b.JPG",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Kindergartenraum",
+   "original": "324-KBG-02-Kindergartenhauptraum1-mM-Sonne-StorenAuf-LichtAn-DSC11232.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Kindergartenraum",
+   "original": "324-KBG-02-Kindergartenhauptraum2-leer-Sonne-StorenAuf-LichtAn-DSC09126.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Gruppenraum im Anbau",
+   "original": "324-KBG-03-Gruppenraum2-leer-Sonne-StorenAb-LichtAn-DSC08806.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Garderobe",
+   "original": "324-KBG-11b-Garderobe1-Sonne-LichtAn-DSC09031.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "324-KBG-21-Treppenhaus1-LichtAn-DSC09333.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Gruppenraum im Dachgeschoss",
+   "original": "324-KBG-22-Gruppenraum1-leer-Sonne-LichtAus-DSC09297.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "324-KBG-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "324-KBG-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Längsschnitt",
+   "original": "324-KBG-LS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Querschnitt",
+   "original": "324-KBG-QS-03.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Ansicht Südost",
+   "original": "324-KBG-FA-Sued-Ost.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht Nordwest",
+   "original": "324-KBG-FA-Nord-West.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

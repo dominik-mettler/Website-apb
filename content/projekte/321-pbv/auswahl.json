@@ -1,0 +1,169 @@
+{
+ "id": "321-pbv",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "321-PBV-000-Aussen-SW-UiA-Sonne-StorenAuf-DSC00134.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "321-PBV-000-Luftbild-0803_foto26_20210616.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Aussenfoyer",
+   "original": "321-PBV-001-Aussenfoyer2-Sonne-LichtAn1-DSC00162.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Saal",
+   "original": "321-PBV-002b-Saal1-leer-Sonne-StorenAuf-LichtAn1-DSC00219.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Saal",
+   "original": "321-PBV-002b-Saal3-leer-Sonne-LichtAn2-DSC00326.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Sitzungszimmer",
+   "original": "321-PBV-007-Sitzungszimmer-leer-Sonne-StorenAuf-LichtAn1-DSC00411.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "321-PBV-101-Treppenhaus-LichtAn1-DSC00203.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Kaffeeküche",
+   "original": "321-PBV-104-Kaffeeküche-bew-StorenAuf-LichtAn1-DSC00480.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Mehrzweckraum",
+   "original": "321-PBV-105-Mehrzweckraum-leer-Sonne-StorenAuf-LichtAn1-DSC00461.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Korridor",
+   "original": "321-PBV-109-Korridor2-Sonne-StorenAuf-LichtAn1-DSC00564.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Büro",
+   "original": "321-PBV-111-Büro-leer-Sonne-StorenAuf-LichtAn1-DSC00663.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "321-PBV-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "321-PBV-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Grundriss 1. Obergeschoss (Aufstockung)",
+   "original": "321-PBV-GR-1.OG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Längsschnitt",
+   "original": "321-PBV-LS02.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Querschnitt",
+   "original": "321-PBV-QS03.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht Südwest",
+   "original": "321-PBV-FA-Sued-West.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/07.png",
+   "unterschrift": "Ansicht Nordwest",
+   "original": "321-PBV-FA-Nord-West.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

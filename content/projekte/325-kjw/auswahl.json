@@ -1,0 +1,160 @@
+{
+ "id": "325-kjw",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "325-KJW-00-Aussen-SO-DSC04102.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "325-KJW-00-Aussen-S-DSC10878.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Eingang",
+   "original": "325-KJW-01-Eingang1-LichtAn-DSC09749.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Kindergartenraum",
+   "original": "325-KJW-03-Kindergartenraum1-leer-LichtAn-DSC09873.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Kindergartenraum",
+   "original": "325-KJW-04-Kindergartenraum1-mM-LichtAn-DSC10958.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Kindergartenraum",
+   "original": "325-KJW-04-Kindergartenraum4-mM-LichtAn-DSC11004.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Kindergartenraum mit Küche",
+   "original": "325-KJW-03-Kindergartenraum5-leer-LichtAn-DSC09890.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Sanitärraum",
+   "original": "325-KJW-05-WC1-LichtAn-DSC09796.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "325-KJW-11a-Treppenhaus2-LichtAn-DSC09624.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Gruppenraum im Dachgeschoss",
+   "original": "325-KJW-12-Gruppenraum1-leer-LichtAn-DSC09629.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Büro",
+   "original": "325-KJW-13-Büro-mM-LichtAn-DSC10099.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "325-KJW-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "325-KJW-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Querschnitt",
+   "original": "325-KJW-QS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Querschnitt",
+   "original": "325-KJW-QS02.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Ansicht Süd",
+   "original": "325-KJW-FA-Sued.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht West",
+   "original": "325-KJW-FA-West.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

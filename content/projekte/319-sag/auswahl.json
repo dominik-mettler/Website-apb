@@ -1,0 +1,178 @@
+{
+ "id": "319-sag",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "319-SAG-Aussen-SO-Ecke-DSC08116.JPG",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "319-SAG-Aussen-Nord-Ost-DSC08016.JPG",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "",
+   "original": "319-10-SAG-Aussen-S-Sonne-StorenAb-DSC06987.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Holzfassade",
+   "original": "319-SAG-Aussen-Holzfassade-DSC08106.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "319-SAG-Innen-Treppenhaus-Justin-Hession-005-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Luftraum",
+   "original": "319-SAG-Innen-Luftraum-Justin-Hession-020-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Klassenzimmer",
+   "original": "319-SAG-Innen-Klassenzimmer-Justin-Hession-044-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Hort",
+   "original": "319-SAG-Innen-Hort-Frontal-DSC03827-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Küche",
+   "original": "319-SAG-Innen-Küche-Frontal-DSC03788-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Sekretariat",
+   "original": "319-SAG-Innen-Sekretariat-DSC03902-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Sitzungszimmer Verwaltung",
+   "original": "319-SAG-Innen-Verwaltung-Sitzung-Justin-Hession-026-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/12.jpg",
+   "unterschrift": "Wettbewerbsmodell",
+   "original": "319-SAG-Modellfoto-DSC01424b-Ausschnitt.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "319-SAG-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss",
+   "original": "319-SAG-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Grundriss 2. Obergeschoss (Aufstockung)",
+   "original": "319-SAG-GR-2.OG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Längsschnitt",
+   "original": "319-SAG-LS01-Aufstockung-200.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Querschnitt",
+   "original": "319-SAG-QS01-Aufstockung-200.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht Südost",
+   "original": "319-SAG-FA-Sued-Ost-200.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/07.png",
+   "unterschrift": "Ansicht Südwest",
+   "original": "319-SAG-FA-Sued-West-200.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}
