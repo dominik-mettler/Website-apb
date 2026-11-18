@@ -350,7 +350,7 @@
     var host = document.createElement("div"); host.className = "print-host";
     var facts = p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("");
     var extra = [2, 3].filter(function (i) { return i <= p.img.length; });
-    host.innerHTML = '<div class="print-sheet"><div class="ps-head"><img src="assets/img/logo-dark.png" alt="apb architekten ag"><span>Referenzprojekt · Nr. ' + p.nr + "<br>apb architekten ag · Seestrasse 110a · 8610 Uster</span></div>" +
+    host.innerHTML = '<div class="print-sheet"><div class="ps-head"><img src="assets/img/logo-dark.svg" alt="apb architekten ag"><span>Referenzprojekt · Nr. ' + p.nr + "<br>apb architekten ag · Seestrasse 110a · 8610 Uster</span></div>" +
       '<div class="ps-title">' + esc(p.name) + " <em>" + esc(p.ort) + '</em></div><div class="ps-sub">' + esc(p.sub) + "</div>" +
       '<img class="ps-hero" src="' + img(p, 1) + '" alt="">' +
       '<div class="ps-grid"><div><p>' + esc(p.text) + "</p>" + (extra.length ? '<div class="ps-imgs">' + extra.map(function (i) { return '<img src="' + img(p, i, true) + '" alt="">'; }).join("") + "</div>" : "") + '</div><dl class="ps-facts">' + facts + "</dl></div>" +

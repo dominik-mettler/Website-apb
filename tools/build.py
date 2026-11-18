@@ -12,7 +12,7 @@ def header(cur):
     return f'''<a class="skip" href="#main">Zum Inhalt springen</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="index.html" aria-label="apb architekten ag – Startseite"><img class="logo-img" src="assets/img/logo-light.png" alt="apb architekten ag" width="729" height="126"></a>
+    <a class="logo" href="index.html" aria-label="apb architekten ag – Startseite"><img class="logo-img" src="assets/img/logo-light.svg" alt="apb architekten ag" width="729" height="126"></a>
     <nav class="nav" aria-label="Hauptnavigation"><button type="button" class="search-btn" aria-label="Suche öffnen" title="Suche (Taste /)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>{links}<a class="nav-cta" href="kontakt.html"{" aria-current=page" if cur == "kontakt.html" else ""}>Kontakt</a></nav>
     <button type="button" class="search-btn mobile-only" aria-label="Suche öffnen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>
     <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
@@ -32,7 +32,7 @@ FOOTER = '''<footer class="site-footer">
       <div class="col"><h4>Kontakt</h4><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
       <div class="col"><h4>Navigation</h4><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a></div>
     </div>
-    <div class="giant" aria-hidden="true"><img src="assets/img/logo-light.png" alt="" width="729" height="126" loading="lazy"></div>
+    <div class="giant" aria-hidden="true"><img src="assets/img/logo-light.svg" alt="" width="729" height="126" loading="lazy"></div>
     <div class="bottom"><span>© <span data-year>2026</span> apb architekten ag · Mitglied SIA · MINERGIE®-Fachpartner</span><span><a href="impressum.html">Impressum &amp; Datenschutz</a></span></div>
   </div>
 </footer>
@@ -42,12 +42,12 @@ _paths = re.findall(r'd="([^"]+)"', open(os.path.join(OUT,'assets/img/logo-mark.
 def mark(mid):
     ps = ''.join(f'<path pathLength="1" style="--i:{i+1}" d="{d}"/>' for i, d in enumerate(_paths))
     return (f'<svg width="126" height="68" viewBox="0 0 252 135" aria-hidden="true"><defs><mask id="{mid}" maskUnits="userSpaceOnUse" x="0" y="0" width="252" height="135">'
-            f'<g fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round">{ps}</g></mask></defs>'
+            f'<g fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">{ps}</g></mask></defs>'
             f'<image href="assets/img/logo-mark-light.png" width="252" height="135" mask="url(#{mid})"/></svg>')
 MARK = mark('mk-pt')
 
 INTRO_HEAD = "<script>try{if(!sessionStorage.getItem('apb-intro')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro')}catch(e){}</script>"
-INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inner"><div class="intro-logo"><img class="intro-png" src="assets/img/logo-light.png" alt="" width="729" height="126"><div class="intro-mark">' + mark('mk-intro') + '</div></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
+INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inner"><div class="intro-logo"><img class="intro-png" src="assets/img/logo-light.svg" alt="" width="729" height="126"><div class="intro-mark">' + mark('mk-intro') + '</div></div><div class="intro-year"><b>1996</b> &nbsp;—&nbsp; 2026</div></div><button type="button" class="intro-skip">Überspringen</button></div>\n'
 
 import hashlib
 # Vorschau auf GitHub Pages: nicht von Google indexieren lassen (vor Go-live auf False setzen)
@@ -91,6 +91,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 {FOOTER}
 {ls}
 <script src="{V('assets/js/data.js')}" defer></script>
+<script>window.APB_3D="{V('assets/js/map3d.js')}";</script>
 <script src="{V('assets/js/main.js')}" defer></script>
 <script src="{V('assets/js/experience.js')}" defer></script>
 </body>
@@ -141,7 +142,7 @@ HERO_B = """<section class="ix" data-ids="333-kff,319-sag,310-gws,313-gbw,292-ml
 HERO_C = """<section class="mo" aria-label="Projekte">
   <div class="mo-grid"></div>
   <div class="mo-center"><div class="card-box">
-    <img src="assets/img/logo-light.png" alt="apb architekten ag" width="729" height="126">
+    <img src="assets/img/logo-light.svg" alt="apb architekten ag" width="729" height="126">
     <h1>Architektur. Planung. Beratung.<br>Seit 1996 in Uster.</h1>
     <p>Wohnbauten, Schulen, Gemeindehäuser, Bahnhöfe und Pflegeeinrichtungen im Kanton Zürich.</p>
     <div class="acts"><a class="btn light" href="projekte.html">Projekte entdecken<span class="arr"></span></a><a class="btn ghost" href="kontakt.html">Kontakt</a></div>

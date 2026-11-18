@@ -142,6 +142,13 @@
     s.onload = function () { var q = leafletQ; leafletQ = []; q.forEach(function (f) { f(); }); };
     document.head.appendChild(s);
   }
+  var m3dQ = null;
+  function open3d(o) {
+    if (window.APB3D) return window.APB3D.open(o);
+    if (!m3dQ) { m3dQ = document.createElement("script"); m3dQ.src = window.APB_3D || "assets/js/map3d.js"; document.head.appendChild(m3dQ); }
+    m3dQ.addEventListener("load", function () { window.APB3D.open(o); }, { once: true });
+  }
+  window.apbOpen3d = open3d;
   function makeMap(node, opts) {
     if (!window.L || !node) return null;
     opts = opts || {};
@@ -149,15 +156,34 @@
     var attr = '&copy; <a href="https://www.swisstopo.admin.ch/" target="_blank" rel="noopener">swisstopo</a>';
     var base = function (layer, ext) { return L.tileLayer("https://wmts.geo.admin.ch/1.0.0/" + layer + "/default/current/3857/{z}/{x}/{y}." + ext, { maxZoom: 19, maxNativeZoom: 18, attribution: attr }); };
     var grau = base("ch.swisstopo.pixelkarte-grau", "jpeg").addTo(map), luft = base("ch.swisstopo.swissimage", "jpeg");
+    var av = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.kantone.cadastralwebmap-farbe/default/current/3857/{z}/{x}/{y}.png", { maxZoom: 20, maxNativeZoom: 20, minZoom: 12, attribution: attr + " · Amtliche Vermessung" });
+    var LAY = { karte: grau, luft: luft, av: av }, CLS = { karte: "is-grau", luft: "", av: "is-av" };
     node.classList.add("is-grau");
     var sw = L.control({ position: "topright" });
     sw.onAdd = function () {
-      var d = L.DomUtil.create("div", "map-switch");
-      d.innerHTML = '<button type="button" aria-pressed="true">Karte</button><button type="button" aria-pressed="false">Luftbild</button>';
+      var d = L.DomUtil.create("div", "map-tools");
+      d.innerHTML = '<div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="karte" aria-pressed="true">Karte</button><button type="button" data-l="luft" aria-pressed="false">Luftbild</button><button type="button" data-l="av" aria-pressed="false" title="Amtliche Vermessung (schwarz-weiss)">Vermessung</button></div>' +
+        (opts.threeD !== false ? '<button type="button" class="map-3d" title="In die 3D-Ansicht wechseln">3D</button>' : "");
       L.DomEvent.disableClickPropagation(d);
-      var b = d.querySelectorAll("button");
-      b[0].onclick = function () { map.removeLayer(luft); grau.addTo(map); node.classList.add("is-grau"); b[0].setAttribute("aria-pressed", true); b[1].setAttribute("aria-pressed", false); };
-      b[1].onclick = function () { map.removeLayer(grau); luft.addTo(map); node.classList.remove("is-grau"); b[1].setAttribute("aria-pressed", true); b[0].setAttribute("aria-pressed", false); };
+      L.DomEvent.disableScrollPropagation(d);
+      var b = d.querySelectorAll(".map-switch button");
+      Array.prototype.forEach.call(b, function (btn) {
+        btn.onclick = function () {
+          var k = btn.dataset.l;
+          Object.keys(LAY).forEach(function (n) { if (n !== k && map.hasLayer(LAY[n])) map.removeLayer(LAY[n]); });
+          LAY[k].addTo(map);
+          node.classList.remove("is-grau", "is-av"); if (CLS[k]) node.classList.add(CLS[k]);
+          Array.prototype.forEach.call(b, function (x) { x.setAttribute("aria-pressed", x === btn); });
+          if (k === "av" && map.getZoom() < 16) map.setZoom(16);
+        };
+      });
+      var t = d.querySelector(".map-3d");
+      if (t) t.onclick = function () {
+        var o = typeof opts.threeD === "function" ? opts.threeD() : {};
+        o.center = o.center || [map.getCenter().lat, map.getCenter().lng];
+        o.zoom = o.zoom || map.getZoom();
+        open3d(o);
+      };
       return d;
     };
     sw.addTo(map);
@@ -415,7 +441,7 @@
         $$("#plist th button").forEach(function (b) { b.setAttribute("data-dir", b.dataset.sort === state.sort ? state.dir : ""); });
       }
       if (state.view === "karte") withLeaflet(function () {
-        if (!map) { map = makeMap($("#pmap"), {}); }
+        if (!map) { map = makeMap($("#pmap"), { threeD: function () { return { projects: sorted(all.filter(match)) }; } }); }
         if (map) {
           if (mk) map.removeLayer(mk.layer);
           mk = projectMarkers(map, list);
@@ -531,7 +557,7 @@
       '<div class="p-body"><div class="p-intro"><p class="sub rv">' + esc(p.sub) + '</p><p class="lead rv" style="--d:.1s">' + esc(p.text) + "</p>" +
       '<div class="p-cats rv" style="--d:.2s">' + p.cats.map(function (c) { return '<a class="chip" href="projekte.html#thema=' + c + '">' + catLabel[c] + "</a>"; }).join("") + "</div></div>" +
       '<aside class="facts rv"><dl>' + p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" +
-      '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div></aside></div>' +
+      '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div><button type="button" class="btn-3d" id="p3d"><span>3D</span>Umgebung in 3D ansehen</button></aside></div>' +
       (gal ? '<div class="gallery' + (n > 4 ? " lead-wide" : "") + '">' + gal + "</div>" : "") + "</div>" +
       (p.desc && p.desc.length ? '<section class="section tight p-desc"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Projektbeschrieb</h2></div><div class="p-desc-grid">' +
         p.desc.map(function (d) { return '<div class="rv">' + (d[0] ? "<h3>" + esc(d[0]) + "</h3>" : "") + "<p>" + esc(d[1]) + "</p></div>"; }).join("") + "</div></div></section>" : "") +
@@ -565,12 +591,13 @@
 
     if (window.apbTimelapse) window.apbTimelapse(root); else setTimeout(function () { if (window.apbTimelapse) window.apbTimelapse(root); }, 300);
     withLeaflet(function () {
-      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: p.geoExakt ? 15 : 13 });
+      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: p.geoExakt ? 15 : 13, threeD: function () { return { focus: p }; } });
       if (mm) {
         projectMarkers(mm, [p]);
         mm.setView(p.geo, p.geoExakt ? 15 : 13);
       }
     });
+    var b3 = $("#p3d"); if (b3) b3.addEventListener("click", function () { open3d({ focus: p }); });
     observe(root);
   }
 

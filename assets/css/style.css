@@ -318,9 +318,57 @@ body.menu-open .menu li a { transform: none; }
 .map { position: relative; height: clamp(420px, 70vh, 760px); background: var(--stone); z-index: 0; }
 .map .leaflet-container { background: var(--stone); font-family: var(--f); }
 .map.is-grau .leaflet-tile-pane { opacity: .5; filter: invert(1) grayscale(1); }
+.map.is-av .leaflet-tile-pane { filter: grayscale(1) contrast(1.35); }
+.map.is-av { background: #f4f4f2; }
+.map-tools { display: flex; gap: 6px; align-items: center; }
+.map-3d { font-size: 13px; font-weight: 600; padding: 9px 13px; border-radius: 999px; background: var(--accent); color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.2); letter-spacing: .02em; }
+.map-3d:hover { filter: brightness(1.08); }
+.btn-3d { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; font-size: 14px; font-weight: 500; color: var(--ink); text-align: left; transition: border-color .2s, background .2s; }
+.btn-3d span { display: inline-grid; place-items: center; width: 30px; height: 22px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; }
+.btn-3d:hover { border-color: var(--accent); background: rgba(241,93,48,.06); }
+/* 3D-Ansicht */
+.m3d { position: fixed; inset: 0; z-index: 9000; background: #0c0c0b; display: flex; flex-direction: column; opacity: 0; transition: opacity .35s; }
+.m3d.on { opacity: 1; }
+.m3d-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,.08); color: #edebe6; }
+.m3d-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.m3d-title b { font-size: 17px; font-weight: 500; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m3d-ctrl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.m3d-b { font-size: 13px; font-weight: 500; padding: 8px 13px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); color: #edebe6; }
+.m3d-b[aria-pressed="true"] { background: #edebe6; color: #0c0c0b; border-color: #edebe6; }
+.m3d-close { width: 40px; height: 40px; border-radius: 50%; font-size: 24px; line-height: 1; color: #edebe6; border: 1px solid rgba(255,255,255,.18); }
+.m3d-close:hover { border-color: var(--accent); color: var(--accent); }
+.m3d-stage { position: relative; flex: 1; min-height: 0; }
+.m3d-cesium { position: absolute; inset: 0; }
+.m3d-cesium .cesium-widget-credits { font-size: 10px; opacity: .7; }
+.m3d-cesium .cesium-credit-logoContainer { display: none !important; }
+.m3d-cesium .cesium-viewer-bottom { left: 10px; bottom: 6px; }
+.m3d-load { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 999px; background: rgba(12,12,11,.8); color: #edebe6; font-size: 14px; transition: opacity .5s; pointer-events: none; }
+.m3d-load span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--accent); animation: m3dspin 1s linear infinite; }
+.m3d-load.done { opacity: 0; }
+@keyframes m3dspin { to { transform: rotate(360deg); } }
+.m3d-card { position: absolute; left: 20px; bottom: 40px; width: 300px; max-width: calc(100% - 40px); background: #161615; border: 1px solid rgba(255,255,255,.1); border-radius: 6px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+.m3d-card a { display: block; color: #edebe6; text-decoration: none; }
+.m3d-card img { display: block; width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+.m3d-card a > span { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px 14px; line-height: 1.4; }
+.m3d-card small { color: #9a978f; font-size: 13px; }
+.m3d-card em { font-style: normal; color: var(--accent); font-size: 13px; margin-top: 4px; }
+.m3d-card button { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; background: rgba(12,12,11,.7); color: #fff; font-size: 18px; line-height: 1; }
+.m3d-help { position: absolute; right: 16px; bottom: 10px; margin: 0; font-size: 12px; color: rgba(237,235,230,.7); background: rgba(12,12,11,.6); padding: 5px 10px; border-radius: 4px; pointer-events: none; }
+@media (max-width: 700px) {
+  .m3d-top { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
+  .m3d-title { flex: 1 1 calc(100% - 56px); }
+  .m3d-close { position: absolute; top: 10px; right: 16px; }
+  .m3d-ctrl { width: 100%; }
+  .m3d-help { display: none; }
+  .m3d-card { left: 12px; bottom: 26px; width: auto; right: 12px; }
+  .m3d-card a { display: flex; }
+  .m3d-card img { width: 112px; aspect-ratio: auto; flex-shrink: 0; }
+  .m3d-card a > span { padding: 10px 40px 10px 12px; }
+}
 .map-switch { display: flex; background: var(--stone-2); padding: 3px; border-radius: 999px; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
 .map-switch button { font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; color: var(--mute); }
 .map-switch button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+@media (max-width: 700px) { .map-switch button { padding: 6px 8px; font-size: 12px; } .map-3d { padding: 8px 10px; font-size: 12px; } }
 .pin { width: 14px; height: 14px; background: var(--ink); border: 2px solid var(--paper); box-shadow: 0 1px 6px rgba(0,0,0,.35); transition: transform .25s var(--ease), background .25s; }
 .pin:hover, .pin.on { transform: scale(1.5); background: var(--accent); }
 .pin.office { width: 22px; height: 22px; background: var(--accent); border-radius: 50%; border-width: 3px; }
@@ -770,11 +818,11 @@ html.intro body { overflow: hidden; }
 .intro-inner { display: grid; justify-items: center; gap: 22px; }
 .intro-logo { position: relative; width: min(84vw, 620px); }
 .intro-png { width: 100%; height: auto; display: block; clip-path: inset(0 100% 0 34.5%); }
-html.intro .intro-png { animation: logoWipe 1.3s var(--ease-io) 1.05s forwards; }
-@keyframes logoWipe { 0% { clip-path: inset(0 100% 0 34.5%); } 70% { clip-path: inset(0 0 0 34.5%); } 100% { clip-path: inset(0 0 0 0); } }
+html.intro .intro-png { animation: logoWipe 1s var(--ease-io) 1.05s forwards; }
+@keyframes logoWipe { from { clip-path: inset(0 100% 0 34.5%); } to { clip-path: inset(0 0 0 34.5%); } }
 .intro-mark { position: absolute; left: -.69%; top: -.8%; width: 34.57%; }
 .intro-mark path, .pt-mark path { stroke: #fff; }
-html.intro .intro-mark { animation: fadeOut .35s ease 2.05s forwards; }
+
 @keyframes fadeOut { to { opacity: 0; } }
 .intro-mark svg, .pt-mark svg { width: 100%; height: auto; display: block; }
 .intro-mark path, .pt-mark path { stroke-dasharray: 1; stroke-dashoffset: 1; }
