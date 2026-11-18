@@ -56,3 +56,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v11 – neue Fotos, Pläne, Projektdaten | https://dominik-mettler.github.io/Website-apb/v11/ |
 | v12 – überarbeitete Abstände | https://dominik-mettler.github.io/Website-apb/v12/ |
 | v13 – Datenblätter, Karte, Filter, Aktuell, Zeitraffer | https://dominik-mettler.github.io/Website-apb/v13/ |
+| v14 – SVG-Logo, Vermessung S/W, 3D-Ansicht | https://dominik-mettler.github.io/Website-apb/v14/ |

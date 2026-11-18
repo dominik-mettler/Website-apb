@@ -12,3 +12,4 @@ v10        5ce2334  Variante C «Mosaik» + Präsentation, Weiterleitungen, schn
 v11        f58ca32  Variante A + neue Fotos, Pläne und Projektdaten (Pakete 1+2), Startbild Kinderhospiz
 v12        0226e13  Variante A + überarbeitete Abstände
 v13        9b91f93  Variante A + Datenblätter, neue Projekte, genauere Karte, Filter, Aktuell, Zeitraffer
+v14        df6f53a  Variante A + SVG-Logo, ruhiges Intro, Vermessungskarte S/W, 3D-Ansicht
