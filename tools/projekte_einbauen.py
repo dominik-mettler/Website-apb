@@ -141,6 +141,19 @@ for p in D['projects']:
 D['projects'].sort(key=lambda p: p['id'], reverse=True)
 D['projects'] = [p for p in D['projects'] if p.get('img')]   # ohne Bilder nicht veröffentlichen
 head = '/* Projektdaten – generiert von tools/projekte_einbauen.py */\n'
+# Trennstriche aus dem Zeilenumbruch der alten Website entfernen (bewusst explizite Liste)
+TRENN = ['drin-genden', 'Aussen-hülle', 'über-hohen', 'wel-ches', 'unter-streicht', 'unter-irdische', 'son-dern',
+         'hochrecht-eckigen', 'grundle-gend', 'be-stückt', 'Strassen-fassade', 'Photovoltaikan-lage', 'Naturschutzge-biet',
+         'Morä-nenwalls', 'Massiv-bau', 'Lochble-che', 'Lehrer-zimmers', 'Fassa-denkonstruktion', 'Far-bimpulse',
+         'Beleuchtungsstär-ke', 'Bau-körper', 'Bastel-raum', 'Aluminiumpa-neel']
+def _ent(o):
+    if isinstance(o, str):
+        for w in TRENN: o = o.replace(w, w.replace('-', ''))
+        return o
+    if isinstance(o, list): return [_ent(x) for x in o]
+    if isinstance(o, dict): return {k: _ent(v) for k, v in o.items()}
+    return o
+D = _ent(D)
 open(os.path.join(R, 'assets/js/data.js'), 'w').write(head + 'window.APB = ' + json.dumps(D, ensure_ascii=False, separators=(',', ':')) + ';\n')
 print(len(D['projects']), 'Projekte |', sum(1 for p in D['projects'] if p.get('desc')), 'mit Beschrieb |',
       sum(1 for p in D['projects'] if p.get('mio')), 'mit Kosten |', sum(1 for p in D['projects'] if p.get('neu')), 'neu')

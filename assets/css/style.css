@@ -1013,22 +1013,54 @@ html.pt-in .pt .pt-mark path { stroke-dashoffset: 0; }
   html, body { background: #fff !important; color: #111 !important; }
   body > *:not(main), .pt, .intro-ov, .cursor, .lightbox, .sx { display: none !important; }
   main > *:not(.print-host) { display: none !important; }
-  .print-sheet { display: block !important; font-family: "Inter", Helvetica, Arial, sans-serif; color: #111; font-size: 10.5pt; line-height: 1.45; }
-  .print-sheet * { color: #111; }
-  .ps-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5pt solid #f15d30; padding-bottom: 5mm; margin-bottom: 6mm; }
-  .ps-head img { height: 13mm; width: auto; }
-  .ps-head span { font-size: 8.5pt; color: #666 !important; text-align: right; }
-  .ps-title { font-size: 26pt; font-weight: 600; letter-spacing: -.03em; line-height: 1.05; }
-  .ps-title em { font-style: normal; color: #f15d30 !important; }
-  .ps-sub { font-size: 12.5pt; margin: 2mm 0 5mm; color: #444 !important; }
-  .ps-hero { width: 100%; height: 88mm; object-fit: cover; }
-  .ps-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 8mm; margin-top: 6mm; }
-  .ps-facts { border-top: 1pt solid #111; }
-  .ps-facts div { display: grid; grid-template-columns: 30mm 1fr; gap: 3mm; padding: 1.6mm 0; border-bottom: .5pt solid #ccc; font-size: 9.5pt; }
-  .ps-facts dt { color: #666 !important; } .ps-facts dd { margin: 0; font-weight: 600; }
-  .ps-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-top: 5mm; }
-  .ps-imgs img { width: 100%; height: 40mm; object-fit: cover; }
-  .ps-foot { margin-top: 8mm; padding-top: 3mm; border-top: .5pt solid #ccc; font-size: 8.5pt; color: #666 !important; display: flex; justify-content: space-between; }
+  .print-sheet { display: block !important; font-family: "Inter", Helvetica, Arial, sans-serif; color: #111; font-size: 9pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-sheet * { color: #111; box-sizing: border-box; }
+  .ps-page { height: 268mm; display: flex; flex-direction: column; break-after: page; page-break-after: always; overflow: hidden; }
+  .ps-page:last-child { break-after: auto; page-break-after: auto; }
+  .ps-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4mm; border-bottom: .6pt solid #111; flex: none; }
+  .ps-head img { height: 10mm; width: auto; }
+  .ps-head div { text-align: right; font-size: 7.5pt; line-height: 1.4; }
+  .ps-head b { display: block; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .ps-head span { color: #777 !important; }
+  .ps-titel { padding: 7mm 0 6mm; flex: none; }
+  .ps-eye { margin: 0 0 2.5mm; font-size: 7.5pt; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #f15d30 !important; }
+  .ps-titel h1 { margin: 0; font-size: 25pt; font-weight: 600; letter-spacing: -.025em; line-height: 1.08; }
+  .ps-titel h1 em { font-style: normal; font-weight: 400; color: #777 !important; }
+  .ps-titel p:last-child { margin: 2mm 0 0; font-size: 11pt; color: #555 !important; }
+  .ps-titel-k { padding: 6mm 0 5mm; }
+  .ps-titel-k h1 { font-size: 15pt; }
+  .ps-hero { flex: 1 1 auto; min-height: 70mm; position: relative; }
+  .ps-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .ps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin-top: 3mm; flex: none; }
+  .ps-row img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+  .print-sheet h2 { margin: 0 0 2.5mm; font-size: 7.5pt; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #777 !important; }
+  .ps-bottom { display: grid; grid-template-columns: 1fr 1.25fr; gap: 9mm; padding-top: 6mm; flex: none; }
+  .ps-bottom p { margin: 0; font-size: 10pt; line-height: 1.5; }
+  .print-sheet dl { margin: 0; }
+  .print-sheet dl div { display: grid; grid-template-columns: 34mm 1fr; gap: 3mm; padding: 1.4mm 0; border-top: .4pt solid #d4d4d4; font-size: 8.5pt; line-height: 1.35; break-inside: avoid; }
+  .print-sheet dl div:last-child { border-bottom: .4pt solid #d4d4d4; }
+  .print-sheet dt { color: #777 !important; } .print-sheet dd { margin: 0; font-weight: 500; }
+  .ps-desc { column-count: 2; column-gap: 9mm; flex: none; font-size: 8.6pt; line-height: 1.5; }
+  .ps-desc div { break-inside: avoid; margin-bottom: 3.2mm; }
+  .ps-desc h3 { margin: 0 0 .8mm; font-size: 8.6pt; font-weight: 600; }
+  .ps-desc p { margin: 0; }
+  .ps-plans { flex: 1 1 0; min-height: 38mm; display: grid; gap: 4mm; margin: 4mm 0 5mm; border-top: .6pt solid #111; padding-top: 4mm; grid-auto-rows: minmax(0, 1fr); }
+  .ps-plans.n1 { grid-template-columns: 1fr; }
+  .ps-plans.n2 { grid-template-columns: 1fr 1fr; }
+  .ps-plans.n3 { grid-template-columns: 1.35fr 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .ps-plans.n3 figure:first-child { grid-row: 1 / 3; }
+  .ps-plans.n4 { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .ps-plans figure { margin: 0; position: relative; min-height: 0; overflow: hidden; }
+  .ps-plans img { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - 5mm); object-fit: contain; object-position: left top; }
+  .ps-plans .ph img { object-fit: cover; object-position: center; }
+  .ps-plans .pl img { filter: grayscale(1) contrast(1.9) brightness(.92); }
+  .ps-plans figcaption { position: absolute; left: 0; bottom: 0; font-size: 7pt; line-height: 1.2; color: #777 !important; }
+  .ps-fill { flex: 1 1 auto; }
+  .ps-team { flex: none; }
+  .ps-desc + .ps-team { margin-top: 3mm; border-top: .6pt solid #111; padding-top: 4mm; }
+  .ps-team dl { column-count: 2; column-gap: 9mm; }
+  .ps-team dl div:last-child { border-bottom: 0; }
+  .ps-foot { margin-top: auto; padding-top: 3mm; border-top: .4pt solid #d4d4d4; font-size: 7pt; color: #777 !important; display: flex; justify-content: space-between; flex: none; }
 }
 
 input[type=search]::-webkit-search-cancel-button, input[type=search]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
