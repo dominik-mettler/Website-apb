@@ -10,3 +10,4 @@ v8         0d513aa  Variante A «Kino» + Präsentation, Weiterleitungen, schnel
 v9         5fdbdbb  Variante B «Index» + Präsentation, Weiterleitungen, schnellere Ladezeit
 v10        5ce2334  Variante C «Mosaik» + Präsentation, Weiterleitungen, schnellere Ladezeit
 v11        f58ca32  Variante A + neue Fotos, Pläne und Projektdaten (Pakete 1+2), Startbild Kinderhospiz
+v12        0226e13  Variante A + überarbeitete Abstände

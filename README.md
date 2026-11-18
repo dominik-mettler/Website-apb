@@ -54,3 +54,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v9 – Variante B + Präsentation, Weiterleitungen, Tempo | https://dominik-mettler.github.io/Website-apb/v9/ |
 | v10 – Variante C + Präsentation, Weiterleitungen, Tempo | https://dominik-mettler.github.io/Website-apb/v10/ |
 | v11 – neue Fotos, Pläne, Projektdaten | https://dominik-mettler.github.io/Website-apb/v11/ |
+| v12 – überarbeitete Abstände | https://dominik-mettler.github.io/Website-apb/v12/ |
