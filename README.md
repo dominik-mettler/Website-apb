@@ -60,3 +60,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v15 – Logo-Schrift sauber gesetzt | https://dominik-mettler.github.io/Website-apb/v15/ |
 | v16 – Karte = Vermessung S/W, Luftbild, 3D | https://dominik-mettler.github.io/Website-apb/v16/ |
 | v17 – neues Referenzblatt (A4, 2 Seiten) | https://dominik-mettler.github.io/Website-apb/v17/ |
+| v18 – Original-Referenzblätter (A3, PDF) | https://dominik-mettler.github.io/Website-apb/v18/ |
