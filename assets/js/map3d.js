@@ -35,7 +35,7 @@
     box = document.createElement("div");
     box.className = "m3d"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "3D-Ansicht");
     box.innerHTML = '<div class="m3d-top"><div class="m3d-title"><span class="eyebrow">3D-Ansicht · swisstopo</span><b>' + esc(title) + '</b></div>' +
-      '<div class="m3d-ctrl"><div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="luft" aria-pressed="true">Luftbild</button><button type="button" data-l="av" aria-pressed="false">Vermessung</button></div>' +
+      '<div class="m3d-ctrl"><div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="av" aria-pressed="false">Karte</button><button type="button" data-l="luft" aria-pressed="true">Luftbild</button></div>' +
       '<button type="button" class="m3d-b" data-b="1" aria-pressed="true">Gebäude</button><button type="button" class="m3d-close" aria-label="3D-Ansicht schliessen">×</button></div></div>' +
       '<div class="m3d-stage"><div class="m3d-cesium"></div><div class="m3d-load"><span></span>3D-Daten werden geladen …</div><div class="m3d-card" hidden></div>' +
       '<p class="m3d-help">Ziehen: drehen · Rechte Maustaste oder Ctrl + Ziehen: neigen · Mausrad: zoomen</p></div>';

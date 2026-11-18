@@ -155,14 +155,16 @@
     var map = L.map(node, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView(opts.center || [47.33, 8.68], opts.zoom || 10);
     var attr = '&copy; <a href="https://www.swisstopo.admin.ch/" target="_blank" rel="noopener">swisstopo</a>';
     var base = function (layer, ext) { return L.tileLayer("https://wmts.geo.admin.ch/1.0.0/" + layer + "/default/current/3857/{z}/{x}/{y}." + ext, { maxZoom: 19, maxNativeZoom: 18, attribution: attr }); };
-    var grau = base("ch.swisstopo.pixelkarte-grau", "jpeg").addTo(map), luft = base("ch.swisstopo.swissimage", "jpeg");
-    var av = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.kantone.cadastralwebmap-farbe/default/current/3857/{z}/{x}/{y}.png", { maxZoom: 20, maxNativeZoom: 20, minZoom: 12, attribution: attr + " · Amtliche Vermessung" });
-    var LAY = { karte: grau, luft: luft, av: av }, CLS = { karte: "is-grau", luft: "", av: "is-av" };
-    node.classList.add("is-grau");
+    /* «Karte» = amtliche Vermessung S/W; weit herausgezoomt (keine Vermessungsdaten) die graue Landeskarte */
+    var grau = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg", { maxZoom: 14, opacity: .62, attribution: attr });
+    var av = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.kantone.cadastralwebmap-farbe/default/current/3857/{z}/{x}/{y}.png", { minZoom: 15, maxZoom: 20, maxNativeZoom: 20, attribution: "Amtliche Vermessung" });
+    var karte = L.layerGroup([grau, av]).addTo(map), luft = base("ch.swisstopo.swissimage", "jpeg");
+    var LAY = { karte: karte, luft: luft }, CLS = { karte: "is-av", luft: "" };
+    node.classList.add("is-av");
     var sw = L.control({ position: "topright" });
     sw.onAdd = function () {
       var d = L.DomUtil.create("div", "map-tools");
-      d.innerHTML = '<div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="karte" aria-pressed="true">Karte</button><button type="button" data-l="luft" aria-pressed="false">Luftbild</button><button type="button" data-l="av" aria-pressed="false" title="Amtliche Vermessung (schwarz-weiss)">Vermessung</button></div>' +
+      d.innerHTML = '<div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="karte" aria-pressed="true" title="Amtliche Vermessung (schwarz-weiss)">Karte</button><button type="button" data-l="luft" aria-pressed="false">Luftbild</button></div>' +
         (opts.threeD !== false ? '<button type="button" class="map-3d" title="In die 3D-Ansicht wechseln">3D</button>' : "");
       L.DomEvent.disableClickPropagation(d);
       L.DomEvent.disableScrollPropagation(d);
@@ -172,9 +174,8 @@
           var k = btn.dataset.l;
           Object.keys(LAY).forEach(function (n) { if (n !== k && map.hasLayer(LAY[n])) map.removeLayer(LAY[n]); });
           LAY[k].addTo(map);
-          node.classList.remove("is-grau", "is-av"); if (CLS[k]) node.classList.add(CLS[k]);
+          node.classList.remove("is-av"); if (CLS[k]) node.classList.add(CLS[k]);
           Array.prototype.forEach.call(b, function (x) { x.setAttribute("aria-pressed", x === btn); });
-          if (k === "av" && map.getZoom() < 16) map.setZoom(16);
         };
       });
       var t = d.querySelector(".map-3d");
