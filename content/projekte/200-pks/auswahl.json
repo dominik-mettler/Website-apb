@@ -1,0 +1,61 @@
+{
+ "id": "200-pks",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "i-000.png",
+   "groesse": [
+    1981,
+    1321
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "i-001.png",
+   "groesse": [
+    1032,
+    688
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "",
+   "original": "i-002.png",
+   "groesse": [
+    1176,
+    784
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Eingangsbereich",
+   "original": "i-005.png",
+   "groesse": [
+    1170,
+    780
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Kindergartenraum",
+   "original": "i-006.png",
+   "groesse": [
+    1174,
+    783
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Oberlicht",
+   "original": "i-004.png",
+   "groesse": [
+    1170,
+    780
+   ]
+  }
+ ],
+ "plaene": [],
+ "quelle": "Bilder aus dem Projektdatenblatt (_apb-Projektdaten-Allg-CC24-260612.pdf)"
+}

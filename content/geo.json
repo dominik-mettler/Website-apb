@@ -1,0 +1,207 @@
+{
+ "180-mwu": [
+  47.347057,
+  8.709313,
+  "Wilstrasse 12 8610 Uster"
+ ],
+ "198-psu": [
+  47.345249,
+  8.731216,
+  "Aathalstrasse 35 8610 Uster"
+ ],
+ "206-rbl": [
+  47.412777,
+  8.393353,
+  "Güterstrasse 20 8953 Dietikon"
+ ],
+ "218-mfl": [
+  47.357334,
+  8.710852,
+  "Loren-Allee 1 8610 Uster"
+ ],
+ "235-bsw": [
+  47.41293,
+  8.591489,
+  "Bahnhofplatz 1a 8304 Wallisellen"
+ ],
+ "241-mrn": [
+  47.348507,
+  8.716499,
+  "Seestrasse 1 8610 Uster"
+ ],
+ "251-asch": [
+  47.225151,
+  8.943293,
+  "Bahnhofstrasse 2 8716 Schmerikon"
+ ],
+ "254-mad": [
+  47.402767,
+  8.625685,
+  "Alpenstrasse 29 8600 Dübendorf"
+ ],
+ "258-bpa": [
+  47.391315,
+  8.489122,
+  "Altstetterplatz 12 8048 Zürich"
+ ],
+ "261-swn": [
+  47.36961,
+  8.688293,
+  "Stationsstrasse 49 8606 Nänikon"
+ ],
+ "261-10-swn": [
+  47.36961,
+  8.688293,
+  "Stationsstrasse 49 8606 Nänikon"
+ ],
+ "263-piu": [
+  47.352093,
+  8.725867,
+  "Wagerenstrasse 20 8610 Uster"
+ ],
+ "266-sku": [
+  47.351078,
+  8.7068,
+  "Krämerackerstrasse 31 8610 Uster"
+ ],
+ "270-bsb": [
+  47.325901,
+  8.468311,
+  "Stationsstrasse 32 8906 Bonstetten"
+ ],
+ "278-seh": [
+  47.250523,
+  8.772615,
+  "Eichtalstrasse 27 8634 Hombrechtikon"
+ ],
+ "281-mzv": [
+  47.390553,
+  8.672163,
+  "Zürcherstrasse 12 8604 Volketswil"
+ ],
+ "289-mtf": [
+  47.279568,
+  8.619145,
+  "Teienstrasse 93 8706 Meilen"
+ ],
+ "292-mlw": [
+  47.364239,
+  8.737783,
+  "Hanfroosenweg 7 8615 Wermatswil"
+ ],
+ "300-bswae": [
+  47.229267,
+  8.675076,
+  "Bahnhofstrasse 4 8820 Wädenswil"
+ ],
+ "304-sth": [
+  47.25161,
+  8.783082,
+  "Eichwisstrasse 55 8634 Hombrechtikon"
+ ],
+ "306-gzm": [
+  47.340511,
+  8.667645,
+  "Zürichstrasse 8 8124 Maur"
+ ],
+ "308-mzu": [
+  47.346802,
+  8.717687,
+  "Zentralstrasse 21 8610 Uster"
+ ],
+ "309-mpg": [
+  47.365261,
+  8.690989,
+  "Am Pfisterhölzli 54 8606 Greifensee"
+ ],
+ "310-gws": [
+  47.381359,
+  8.651107,
+  "Dorfstrasse 9a 8603 Schwerzenbach"
+ ],
+ "311-sbh": [
+  47.288239,
+  8.61323,
+  "Schulhausstrasse 37 8704 Herrliberg"
+ ],
+ "313-gbw": [
+  47.275795,
+  8.914883,
+  "Bahnhofstrasse 6 8636 Wald ZH"
+ ],
+ "318-epu": [
+  47.3498,
+  8.710513,
+  "Pündtstrasse 8 8610 Uster"
+ ],
+ "319-sag": [
+  47.278923,
+  8.757814,
+  "Aussergass 1 8627 Grüningen (Schulanlage)"
+ ],
+ "321-pbv": [
+  47.38834,
+  8.68377,
+  "Feldhofstrasse 25 8604 Volketswil"
+ ],
+ "324-kbg": [
+  47.310383,
+  8.782699,
+  "Böschacherstrasse 5 8624 Grüt (Gossau ZH)"
+ ],
+ "325-kjw": [
+  47.274128,
+  8.910851,
+  "Jonastrasse 47 8636 Wald ZH"
+ ],
+ "326-shu": [
+  47.353954,
+  8.722825,
+  "Hasenbühlstrasse 3.1 8610 Uster"
+ ],
+ "327-sdu": [
+  47.346645,
+  8.715414,
+  "Schulweg 6 8610 Uster"
+ ],
+ "329-sam": [
+  47.326775,
+  8.655597,
+  "Aeschstrasse 17 8127 Forch"
+ ],
+ "333-kff": [
+  47.371071,
+  8.644171,
+  "Sunnetalstrasse 6 8117 Fällanden"
+ ],
+ "334-sbg": [
+  47.30061,
+  8.764584,
+  "Bergstrasse 37 8625 Gossau ZH"
+ ],
+ "338-ebw": [
+  47.280624,
+  8.909616,
+  "Binzholzstrasse 17 8636 Wald ZH"
+ ],
+ "341-spu": [
+  47.348862,
+  8.711581,
+  "Wilstrasse 30 8610 Uster"
+ ],
+ "344-miu": [
+  47.351238,
+  8.718082,
+  "Industriestrasse 3 8610 Uster"
+ ],
+ "347-gtv": [
+  47.391201,
+  8.672136,
+  "Tolackerstrasse 2 8604 Volketswil"
+ ],
+ "200-pks": [
+  47.382889,
+  8.653471,
+  "Schwerzenbach (Ort)"
+ ]
+}

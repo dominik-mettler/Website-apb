@@ -4,6 +4,7 @@
 
 DATEN = {
  '333-kff': {
+  'drop': ['Bauzeit', 'Kennwerte'],
   'facts': [('Fertigstellung', 'Oktober 2025'), ('Bearbeitung', 'SIA-Phasen 2.1 und 3.1 bis 5.3'), ('Bauherr', 'Stiftung Kinderhospiz Schweiz'),
             ('Kosten', "18 Mio. Fr. (BKP 1–9, inkl. MwSt.)"), ('Kenndaten', "ca. 10'000 m3 GV (SIA 416)"), ('Adresse', 'Sunnetalstrasse 6, 8117 Fällanden')],
   'text': [
@@ -38,7 +39,7 @@ DATEN = {
   'facts': [('Bearbeitung', 'SIA-Phasen 3.1 Vorprojekt bis 5.3 Inbetriebnahme'), ('Bauherr', 'Gemeinde Grüningen'),
             ('1. Etappe Neubau', '07/2017 – 10/2018, ca. 7.1 Mio. Fr. (BKP 1–9)'), ('2. Etappe Aufstockung', '04/2023 – 10/2023, ca. 3.9 Mio. Fr. (BKP 1–9)'),
             ('Kenndaten', "ca. 8'700 m3 GV, ca. 2'540 m2 GF (nach 2. Etappe)"), ('Adresse', 'Schlüssbergstrasse 10, 8627 Grüningen')],
-  'drop': ['Kosten', 'Bauzeit', 'Fertigstellung', 'Status'], 'status': 'Realisiert', 'year': 2023,
+  'drop': ['Kosten', 'Bauzeit', 'Fertigstellung', 'Status', 'Termine 1. Etappe', 'Termine 2. Etappe', 'Kennwerte'], 'status': 'Realisiert', 'year': 2023,
   'text': [
    ('Situation', 'Die bestehende Schulanlage Aussergass besteht aus mehreren Schulgebäuden mit Kindergarten und benötigte aus Platzmangel eine Erweiterung. Das Grundstück liegt in der Zone für öffentliche Bauten und grenzt an Kernzone und Landwirtschaftszone an.'),
    ('Raumprogramm', 'Das neue Gebäude beinhaltet die Räumlichkeiten der Schulverwaltung, Klassenzimmer, Gruppenräume, einen Schulhort sowie einen Kindergarten im EG. So konnten Synergien zwischen Schule und schulergänzender Betreuung genutzt werden. Aufgrund des hohen Wachstums der Gemeinde wurde bereits vier Jahre nach der Erstellung ein neues Geschoss als Aufstockung aufgesetzt.'),

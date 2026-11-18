@@ -1,0 +1,70 @@
+{
+ "id": "266-sku",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "i-014.png",
+   "groesse": [
+    1155,
+    1444
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "i-003.png",
+   "groesse": [
+    1174,
+    783
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "",
+   "original": "i-006.png",
+   "groesse": [
+    1713,
+    1142
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Klassenzimmer",
+   "original": "i-000.png",
+   "groesse": [
+    1617,
+    1078
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Korridor",
+   "original": "i-001.png",
+   "groesse": [
+    1028,
+    685
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "",
+   "original": "i-012.png",
+   "groesse": [
+    1150,
+    767
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "",
+   "original": "i-013.png",
+   "groesse": [
+    1146,
+    764
+   ]
+  }
+ ],
+ "plaene": [],
+ "quelle": "Bilder aus dem Projektdatenblatt (_apb-Projektdaten-Allg-CC24-260612.pdf)"
+}

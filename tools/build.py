@@ -3,7 +3,7 @@ OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 S = os.path.join(os.path.dirname(os.path.abspath(__file__)), '')
 jobs = json.load(open(S + 'jobs.json'))
 
-NAV = [('projekte.html', 'Projekte'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere')]
+NAV = [('projekte.html', 'Projekte'), ('aktuell.html', 'Aktuell'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere')]
 MARK_OLD = '''<svg width="126" height="65" viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
 
 def header(cur):
@@ -149,6 +149,27 @@ HERO_C = """<section class="mo" aria-label="Projekte">
 </section>"""
 HERO = {'A': HERO_A, 'B': HERO_B, 'C': HERO_C}[HOME_VARIANT]
 
+# ---------------------------------------------------------------- AKTUELL (Daten)
+_aj = {}; exec(open(os.path.join(OUT, 'content/aktuell.py')).read(), _aj); AKTUELL = _aj['AKTUELL']
+_dat = json.loads(open(os.path.join(OUT, 'assets/js/data.js')).read().split('window.APB = ', 1)[1].rstrip().rstrip(';'))
+_P = {p['id']: p for p in _dat['projects']}
+MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+def _mon(d): y, m = d.split('-'); return f'{MONATE[int(m) - 1]} {y}'
+def _news_img(n, big=False):
+    if n.get('bild'): return n['bild']
+    p = _P.get(n.get('projekt'))
+    if not p: return ''
+    base = p.get('base') or f"assets/img/projects/{p['id']}/"
+    return base + '01' + ('.webp' if big else '-s.webp')
+def news_card(n, big=False):
+    p = _P.get(n.get('projekt'))
+    href = n.get('link') or (f"projekt.html?p={p['id']}" if p else '')
+    im = _news_img(n, big)
+    media = f'<div class="media"><img src="{im}" alt="" loading="lazy" width="800" height="533"></div>' if im else '<div class="media news-blank"><span>apb</span></div>'
+    lt = n.get('linktext') or ('Zum Projekt' if p else '')
+    return (f'<article class="news rv"><a href="{href}" class="news-a" data-cursor="Lesen">{media}<div class="news-t"><span class="news-meta"><b>{n.get("art", "")}</b> · {_mon(n["datum"])}</span>'
+            f'<h3>{html.escape(n["titel"])}</h3><p>{html.escape(n["text"])}</p>' + (f'<span class="link">{lt}<span class="arr"></span></span>' if lt else '') + '</div></a></article>')
+
 # ---------------------------------------------------------------- HOME
 home = f'''
 {HERO}
@@ -194,6 +215,13 @@ home = f'''
   <div class="rail">
     <div class="rail-track" id="rail"></div>
     <div class="wrap rail-foot"><div class="rail-progress"><i></i></div><div class="rail-btns"><button type="button" class="round prev" aria-label="Zurück"><span class="arr"></span></button><button type="button" class="round next" aria-label="Weiter"><span class="arr"></span></button></div></div>
+  </div>
+</section>
+
+<section class="section tight" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head"><div><span class="eyebrow rv">Aktuell</span><h2 class="h1" data-split style="margin-top:18px">Neues aus<br>dem Atelier</h2></div><a class="link rv" href="aktuell.html">Alle Meldungen<span class="arr"></span></a></div>
+    <div class="news-grid">{"".join(news_card(n) for n in AKTUELL[:3])}</div>
   </div>
 </section>
 
@@ -269,7 +297,15 @@ proj = f'''
     <div class="chips" id="chips" role="group" aria-label="Nach Thema filtern"></div>
     <div class="tools-right">
       <label class="search"><span class="sr-only">Projekte durchsuchen</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg><input id="q" type="search" placeholder="Ort, Bauherr, Stichwort …" autocomplete="off"></label>
+      <button type="button" class="filter-btn" id="filter-btn" aria-expanded="false" aria-controls="filter-panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 4h12M4.5 8h7M7 12h2"/></svg>Filter<b id="filter-n" hidden></b></button>
       <div class="views" role="group" aria-label="Ansicht">{vbtns}</div>
+    </div>
+  </div>
+  <div class="filter-panel" id="filter-panel" hidden>
+    <div class="wrap">
+      <div class="fgroup"><span class="flabel">Merkmale</span><div class="chips" id="ftags" role="group" aria-label="Nach Merkmal filtern"></div></div>
+      <div class="fgroup"><span class="flabel">Baukosten (BKP 1–9)</span><div class="chips" id="fcost" role="group" aria-label="Nach Baukosten filtern"></div></div>
+      <button type="button" class="link freset" id="freset">Alle Filter zurücksetzen</button>
     </div>
   </div>
 </div>
@@ -282,7 +318,7 @@ proj = f'''
       <tbody></tbody>
     </table>
   </div>
-  <div id="v-karte" hidden><div class="map" id="pmap" aria-label="Projektkarte"><div class="map-legend"><span><i></i>Projekt</span><span><i class="o"></i>Atelier Uster</span></div></div></div>
+  <div id="v-karte" hidden><div class="map-split"><div class="map" id="pmap" aria-label="Projektkarte"><div class="map-legend" id="pmap-legend"></div></div><ol class="map-list" id="maplist" aria-label="Projekte auf der Karte"></ol></div></div>
   <div id="v-zeitachse" hidden>
     <div class="tl-wrap" style="margin:0 calc(-1 * var(--pad))"><div class="timeline" id="timeline"><div class="tl-inner"></div></div></div>
     <div class="tl-open" id="tl-open" hidden><h3 class="h3">Ohne Fertigstellungsjahr</h3><div class="pgrid even"></div></div>
@@ -519,6 +555,24 @@ chronik = '''
 </div>
 '''
 page('chronik.html', 'chronik.html', '30 Jahre apb architekten – Chronik 1996–2026', 'Chronik der apb architekten ag von der Gründung 1996 bis zum 30-Jahr-Jubiläum 2026: Meilensteine und realisierte Projekte.', chronik, 'chronik')
+
+# ---------------------------------------------------------------- AKTUELL (Seite)
+_jahre = sorted({n['datum'][:4] for n in AKTUELL}, reverse=True)
+aktuell = f"""
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Aktuell</span>
+    <h1 class="display" data-split>Neues aus<br>dem Atelier.</h1>
+    <div class="page-hero-grid"><p class="lead rv">Fertigstellungen, Projekte und Neuigkeiten aus dem Büro – von der Lehrstelle bis zum Jubiläum.</p></div>
+  </div>
+</section>
+<section class="section tight" style="padding-top:0">
+  <div class="wrap">
+""" + ''.join(f'<div class="news-year"><h2 class="news-y rv">{y}</h2><div class="news-grid">' + ''.join(news_card(n) for n in AKTUELL if n['datum'].startswith(y)) + '</div></div>' for y in _jahre) + """
+  </div>
+</section>
+"""
+page('aktuell.html', 'aktuell.html', 'Aktuell – apb architekten ag', 'Neuigkeiten der apb architekten ag: Fertigstellungen, Projekte, Lehrstelle und 30 Jahre Jubiläum.', aktuell, 'aktuell')
 
 # ---------------------------------------------------------------- KARRIERE
 def para(lines):

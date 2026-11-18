@@ -216,6 +216,8 @@
     ["Team", "Büro", "buero.html#team", "mitarbeitende architekten"],
     ["30 Jahre apb", "Chronik 1996–2026", "chronik.html", "jubiläum chronik geschichte"],
     ["Karriere", "Stellen & Initiativbewerbung", "karriere.html", "jobs stellen bewerbung"],
+    ["Aktuell", "Neuigkeiten aus dem Atelier", "aktuell.html", "news neuigkeiten fertigstellung meldungen"],
+    ["Bauablauf im Zeitraffer", "Kirchgemeindehaus Schwerzenbach – Film der Baustellen-Webcam", "projekt.html?p=310-gws", "video film webcam zeitraffer baustelle"],
     ["Lehrstelle Zeichner/-in EFZ", "Karriere – Lehrbeginn August 2028", "karriere.html#lehrstelle", "lehre lehrling ausbildung schnupper"],
     ["Kontakt", "Seestrasse 110a, 8610 Uster", "kontakt.html", "adresse telefon email anfahrt"],
     ["Impressum & Datenschutz", "Rechtliches", "impressum.html", "datenschutz"]
@@ -436,8 +438,43 @@
     });
   }
 
+
+  /* ---------- Zeitraffer-Player ---------- */
+  function timelapse(root) {
+    $$(".tl-player", root || document).forEach(function (box) {
+      if (box.dataset.ready) return; box.dataset.ready = 1;
+      var src = box.dataset.src, strip = box.dataset.strip;
+      box.innerHTML = '<div class="tlp-stage"><img class="tlp-poster" src="' + box.dataset.poster + '" alt="Baustelle Kirchgemeindehaus Schwerzenbach" loading="lazy"><button type="button" class="tlp-big" aria-label="Zeitraffer abspielen"><span></span></button></div>' +
+        '<div class="tlp-bar"><button type="button" class="tlp-play" aria-label="Abspielen"><span></span></button>' +
+        '<div class="tlp-track" style="background-image:url(' + strip + ')"><input type="range" min="0" max="1000" value="0" step="1" aria-label="Position im Bauablauf"><i class="tlp-fill"></i><span class="tlp-head"></span></div>' +
+        '<span class="tlp-time">0:00</span><div class="tlp-speed" role="group" aria-label="Geschwindigkeit"><button type="button" data-r="1" aria-pressed="true">1×</button><button type="button" data-r="2" aria-pressed="false">2×</button><button type="button" data-r="4" aria-pressed="false">4×</button></div>' +
+        '<button type="button" class="tlp-sound" aria-pressed="false" aria-label="Ton einschalten">Ton aus</button></div>';
+      var stage = $(".tlp-stage", box), v = null, range = $("input", box), fill = $(".tlp-fill", box), head = $(".tlp-head", box), time = $(".tlp-time", box), play = $(".tlp-play", box), rate = 1;
+      function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+      function ensure() {
+        if (v) return v;
+        v = document.createElement("video"); v.src = src; v.preload = "auto"; v.muted = true; v.playsInline = true; v.setAttribute("playsinline", ""); v.className = "tlp-video";
+        stage.appendChild(v);
+        v.addEventListener("timeupdate", function () { if (!v.duration) return; var k = v.currentTime / v.duration; range.value = Math.round(k * 1000); fill.style.width = head.style.left = (k * 100) + "%"; time.textContent = fmt(v.currentTime) + " / " + fmt(v.duration); });
+        v.addEventListener("play", function () { box.classList.add("playing"); play.setAttribute("aria-label", "Pause"); });
+        v.addEventListener("pause", function () { box.classList.remove("playing"); play.setAttribute("aria-label", "Abspielen"); });
+        v.addEventListener("loadedmetadata", function () { v.playbackRate = rate; time.textContent = fmt(0) + " / " + fmt(v.duration); });
+        return v;
+      }
+      function toggle() { ensure(); box.classList.add("started"); if (v.paused) v.play(); else v.pause(); }
+      $(".tlp-big", box).addEventListener("click", toggle); play.addEventListener("click", toggle);
+      stage.addEventListener("click", function (e) { if (v && e.target === v) toggle(); });
+      range.addEventListener("input", function () { ensure(); box.classList.add("started"); var go = function () { v.currentTime = range.value / 1000 * v.duration; }; if (v.readyState >= 1) go(); else v.addEventListener("loadedmetadata", go, { once: true }); fill.style.width = head.style.left = (range.value / 10) + "%"; });
+      $$(".tlp-speed button", box).forEach(function (b) { b.addEventListener("click", function () { rate = +b.dataset.r; if (v) v.playbackRate = rate; $$(".tlp-speed button", box).forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); }); });
+      var snd = $(".tlp-sound", box);
+      snd.addEventListener("click", function () { ensure(); v.muted = !v.muted; snd.setAttribute("aria-pressed", !v.muted); snd.textContent = v.muted ? "Ton aus" : "Ton an"; snd.setAttribute("aria-label", v.muted ? "Ton einschalten" : "Ton ausschalten"); });
+    });
+  }
+  window.apbTimelapse = timelapse;
+
   intro();
   transitions();
+  timelapse();
   compare();
   indexHero();
   mosaic();

@@ -1,0 +1,70 @@
+{
+ "id": "198-psu",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "i-002.png",
+   "groesse": [
+    1505,
+    1003
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "Klassenzimmer im Dachgeschoss",
+   "original": "i-000.png",
+   "groesse": [
+    2048,
+    1365
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Klassenzimmer",
+   "original": "i-005.png",
+   "groesse": [
+    2048,
+    1365
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "i-004.png",
+   "groesse": [
+    1028,
+    685
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Korridor",
+   "original": "i-007.png",
+   "groesse": [
+    1170,
+    780
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Garderobe",
+   "original": "i-006.png",
+   "groesse": [
+    1146,
+    764
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Mediathek",
+   "original": "i-001.png",
+   "groesse": [
+    756,
+    504
+   ]
+  }
+ ],
+ "plaene": [],
+ "quelle": "Bilder aus dem Projektdatenblatt (_apb-Projektdaten-Allg-CC24-260612.pdf)"
+}

@@ -1,0 +1,61 @@
+{
+ "id": "206-rbl",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "i-000.png",
+   "groesse": [
+    2048,
+    1365
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "i-001.png",
+   "groesse": [
+    1031,
+    687
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "",
+   "original": "i-002.png",
+   "groesse": [
+    1150,
+    767
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Personalrestaurant",
+   "original": "i-004.png",
+   "groesse": [
+    1174,
+    783
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Personalrestaurant",
+   "original": "i-005.png",
+   "groesse": [
+    1170,
+    780
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Personalrestaurant",
+   "original": "i-006.png",
+   "groesse": [
+    2031,
+    1354
+   ]
+  }
+ ],
+ "plaene": [],
+ "quelle": "Bilder aus dem Projektdatenblatt (_apb-Projektdaten-Allg-CC24-260612.pdf)"
+}

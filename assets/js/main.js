@@ -169,11 +169,13 @@
     }
     return map;
   }
+  var CATCOL = { wohnen: "#e2b04a", lernen: "#5aa9d6", leiten: "#a796e0", glauben: "#d8d2c4", pflegen: "#6cc08b", reisen: "#e0708f", kaufen: "#e3925a", arbeiten: "#9bb8ab", turnen: "#5aa9d6", beleuchten: "#d8d2c4" };
+  function pinColor(p) { return CATCOL[p.cats[0]] || "#edebe6"; }
   function projectMarkers(map, list) {
     var layer = L.layerGroup().addTo(map);
     var markers = {};
     list.forEach(function (p) {
-      var m = L.marker(p.geo, { icon: L.divIcon({ className: "", html: '<div class="pin"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }), title: p.name + ", " + p.ort });
+      var m = L.marker(p.geo, { icon: L.divIcon({ className: "", html: '<div class="pin" data-id="' + p.id + '" style="background:' + pinColor(p) + '"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }), title: p.name + ", " + p.ort });
       m.bindPopup('<a class="pop" href="' + url(p) + '"><img src="' + img(p, 1, true) + '" alt=""><div><b>' + esc(p.name) + "</b><span>" + esc(p.ort) + " · " + esc(yearOf(p)) + "</span></div></a>", { closeButton: false, offset: [0, -4] });
       m.on("mouseover", function () { m.openPopup(); });
       m.addTo(layer); markers[p.id] = m;
@@ -344,7 +346,9 @@
      PROJEKTE
      ========================================================================== */
   function initProjects() {
-    var state = { cat: "alle", view: "raster", q: "", sort: "nr", dir: "desc" };
+    var state = { cat: "alle", view: "raster", q: "", sort: "nr", dir: "desc", tags: [], cost: "" };
+    var TAGS = [["minergie", "MINERGIE"], ["denkmal", "Denkmalschutz / Ortsbild"], ["wettbewerb", "Wettbewerb / Planerwahl 1. Rang"], ["holzbau", "Holzbau"]];
+    var COSTS = [["0-2", "bis 2 Mio.", 0, 2], ["2-5", "2 – 5 Mio.", 2, 5], ["5-10", "5 – 10 Mio.", 5, 10], ["10-99", "über 10 Mio.", 10, 999]];
     var h = new URLSearchParams(location.hash.slice(1));
     if (h.get("thema") && (catLabel[h.get("thema")] || h.get("thema") === "auswahl")) state.cat = h.get("thema");
     if (h.get("ansicht")) state.view = h.get("ansicht");
@@ -358,8 +362,19 @@
       return '<button type="button" class="chip" data-cat="' + c[0] + '" aria-pressed="false">' + c[1] + "<sup>" + n + "</sup></button>";
     }).join("");
 
+    var ftags = $("#ftags"), fcost = $("#fcost"), fpanel = $("#filter-panel"), fbtn = $("#filter-btn"), fn = $("#filter-n");
+    if (ftags) {
+      ftags.innerHTML = TAGS.map(function (t) { var n = all.filter(function (p) { return (p.tags || []).indexOf(t[0]) > -1; }).length; return '<button type="button" class="chip" data-tag="' + t[0] + '" aria-pressed="false">' + t[1] + "<sup>" + n + "</sup></button>"; }).join("");
+      fcost.innerHTML = COSTS.map(function (c) { var n = all.filter(function (p) { return p.mio && p.mio >= c[2] && p.mio < c[3]; }).length; return '<button type="button" class="chip" data-cost="' + c[0] + '" aria-pressed="false">' + c[1] + "<sup>" + n + "</sup></button>"; }).join("");
+      fbtn.addEventListener("click", function () { var o = fpanel.hidden; fpanel.hidden = !o; fbtn.setAttribute("aria-expanded", o); });
+      ftags.addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; var t = b.dataset.tag, i = state.tags.indexOf(t); if (i > -1) state.tags.splice(i, 1); else state.tags.push(t); render(); });
+      fcost.addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; state.cost = state.cost === b.dataset.cost ? "" : b.dataset.cost; render(); });
+      $("#freset").addEventListener("click", function () { state.tags = []; state.cost = ""; state.cat = "alle"; state.q = ""; $("#q").value = ""; render(); });
+    }
     function match(p) {
       if (state.cat === "auswahl" && !p.sel) return false;
+      if (state.tags.length && !state.tags.every(function (t) { return (p.tags || []).indexOf(t) > -1; })) return false;
+      if (state.cost) { var c = COSTS.filter(function (x) { return x[0] === state.cost; })[0]; if (!p.mio || p.mio < c[2] || p.mio >= c[3]) return false; }
       if (state.cat !== "alle" && state.cat !== "auswahl" && p.cats.indexOf(state.cat) < 0) return false;
       if (state.q) {
         var hay = (p.name + " " + p.ort + " " + p.sub + " " + p.text + " " + p.facts.map(function (f) { return f[1]; }).join(" ") + " " + p.cats.map(function (c) { return catLabel[c]; }).join(" ")).toLowerCase();
@@ -381,8 +396,16 @@
       $$(".chip", chips).forEach(function (c) { c.setAttribute("aria-pressed", c.dataset.cat === state.cat); });
       $$(".views button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.view === state.view); });
       Object.keys(views).forEach(function (k) { views[k].hidden = k !== state.view; });
+      if (ftags) {
+        $$(".chip", ftags).forEach(function (c) { c.setAttribute("aria-pressed", state.tags.indexOf(c.dataset.tag) > -1); });
+        $$(".chip", fcost).forEach(function (c) { c.setAttribute("aria-pressed", c.dataset.cost === state.cost); });
+        var nf = state.tags.length + (state.cost ? 1 : 0); fn.hidden = !nf; fn.textContent = nf;
+        if (nf && fpanel.hidden) { fpanel.hidden = false; fbtn.setAttribute("aria-expanded", true); }
+      }
       var list = sorted(all.filter(match));
-      countEl.innerHTML = "<b>" + list.length + "</b> " + (list.length === 1 ? "Projekt" : "Projekte") + (state.cat !== "alle" ? " · " + (state.cat === "auswahl" ? "Auswahl" : catLabel[state.cat]) : "");
+      var extra = state.tags.map(function (t) { return TAGS.filter(function (x) { return x[0] === t; })[0][1]; });
+      if (state.cost) extra.push(COSTS.filter(function (x) { return x[0] === state.cost; })[0][1]);
+      countEl.innerHTML = "<b>" + list.length + "</b> " + (list.length === 1 ? "Projekt" : "Projekte") + (state.cat !== "alle" ? " · " + (state.cat === "auswahl" ? "Auswahl" : catLabel[state.cat]) : "") + (extra.length ? " · " + esc(extra.join(" · ")) : "");
       empty.classList.toggle("on", !list.length);
       if (state.view === "raster") grid.innerHTML = list.map(card).join("");
       if (state.view === "liste") {
@@ -396,6 +419,19 @@
         if (map) {
           if (mk) map.removeLayer(mk.layer);
           mk = projectMarkers(map, list);
+          var used = {}; list.forEach(function (p) { used[p.cats[0]] = 1; });
+          $("#pmap-legend").innerHTML = D.cats.filter(function (c) { return used[c[0]]; }).map(function (c) { return '<span><i style="background:' + CATCOL[c[0]] + '"></i>' + c[1] + "</span>"; }).join("") + '<span><i class="o"></i>Atelier Uster</span>';
+          var ml = $("#maplist");
+          ml.innerHTML = list.map(function (p) { return '<li><a href="' + url(p) + '" data-id="' + p.id + '"><img src="' + img(p, 1, true) + '" alt="" loading="lazy" width="800" height="600"><span><b>' + esc(p.name) + "</b><small>" + esc(p.ort) + (p.year ? " · " + p.year : "") + (p.geoExakt ? "" : " · Lage ungefähr") + '</small></span><i style="background:' + pinColor(p) + '"></i></a></li>'; }).join("");
+          var hl = function (id, on) { var el = map.getContainer().querySelector('.pin[data-id="' + id + '"]'); if (el) el.classList.toggle("on", on); };
+          $$("a", ml).forEach(function (a) {
+            a.addEventListener("mouseenter", function () { hl(a.dataset.id, true); var mm = mk.markers[a.dataset.id]; if (mm) { mm.openPopup(); } });
+            a.addEventListener("mouseleave", function () { hl(a.dataset.id, false); });
+            a.addEventListener("focus", function () { var mm = mk.markers[a.dataset.id]; if (mm) { map.panTo(mm.getLatLng()); mm.openPopup(); } });
+          });
+          Object.keys(mk.markers).forEach(function (id) {
+            mk.markers[id].on("mouseover", function () { var a = ml.querySelector('a[data-id="' + id + '"]'); if (a) { $$("a.on", ml).forEach(function (x) { x.classList.remove("on"); }); a.classList.add("on"); a.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); } });
+          });
           setTimeout(function () { map.invalidateSize(); if (list.length) map.fitBounds(L.latLngBounds(list.map(function (p) { return p.geo; }).concat([OFFICE])), { padding: [50, 50], maxZoom: 13 }); }, 30);
         }
       });
@@ -498,7 +534,8 @@
       '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div></aside></div>' +
       (gal ? '<div class="gallery' + (n > 4 ? " lead-wide" : "") + '">' + gal + "</div>" : "") + "</div>" +
       (p.desc && p.desc.length ? '<section class="section tight p-desc"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Projektbeschrieb</h2></div><div class="p-desc-grid">' +
-        p.desc.map(function (d) { return '<div class="rv"><h3>' + esc(d[0]) + "</h3><p>" + esc(d[1]) + "</p></div>"; }).join("") + "</div></div></section>" : "") +
+        p.desc.map(function (d) { return '<div class="rv">' + (d[0] ? "<h3>" + esc(d[0]) + "</h3>" : "") + "<p>" + esc(d[1]) + "</p></div>"; }).join("") + "</div></div></section>" : "") +
+      (p.video ? '<section class="section tight p-video"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Bauablauf im Zeitraffer</h2><span class="muted small rv">' + esc(p.video.text) + '</span></div><div class="tl-player rv" data-src="' + esc(p.video.src) + '" data-poster="' + esc(p.video.poster) + '" data-strip="' + esc(p.video.strip) + '"></div></div></section>' : "") +
       (p.plans && p.plans.length ? '<section class="section tight p-plans"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Pläne</h2><span class="muted small rv">Zum Vergrössern anklicken</span></div><div class="plan-grid">' +
         p.plans.map(function (pl, k) { return '<figure class="plan rv" data-k="' + k + '" data-cursor="Vergrössern"><div class="plan-img"><img src="' + plan(p, k + 1, true) + '" alt="' + esc(pl) + '" loading="lazy" width="1200" height="800"></div><figcaption>' + esc(pl) + "</figcaption></figure>"; }).join("") + "</div></div></section>" : "") +
       (p.team && p.team.length ? '<section class="section tight p-team"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Beteiligte</h2></div><dl class="team-list rv">' +
@@ -526,11 +563,12 @@
       if (e.key === "ArrowLeft" && e.altKey) location.href = url(prevP);
     });
 
+    if (window.apbTimelapse) window.apbTimelapse(root); else setTimeout(function () { if (window.apbTimelapse) window.apbTimelapse(root); }, 300);
     withLeaflet(function () {
-      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: 12 });
+      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: p.geoExakt ? 15 : 13 });
       if (mm) {
         projectMarkers(mm, [p]);
-        mm.fitBounds(L.latLngBounds([p.geo, OFFICE]), { padding: [30, 30], maxZoom: 13 });
+        mm.setView(p.geo, p.geoExakt ? 15 : 13);
       }
     });
     observe(root);

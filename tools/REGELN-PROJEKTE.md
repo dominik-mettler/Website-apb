@@ -36,3 +36,14 @@ Wenn erstellt, immer in dieser Auswahl:
 ## Ablauf
 - Material sammeln, sortieren und vorbereiten (Auswahl, Bildunterschriften, Daten).
 - Die Website erst neu bauen, wenn Dominik das Signal gibt (es kommen noch viele weitere Projekte).
+
+## Vorgemerkt: interaktive Pläne (Punkt 3)
+- Grundrisse zoombar; beim Darüberfahren über einen Raum erscheint das passende Foto.
+- **Vor der Umsetzung mit Dominik klären:** Zuordnung Raum ↔ Foto muss bestätigt werden
+  (Dateinamen der Fotos und Raumbezeichnungen im Plan reichen allein nicht sicher).
+
+## Datenblätter
+- Sammlung: `_apb-Projektdaten-Allg-CC24-260612.pdf` → `tools/datenblaetter_auslesen.py` → `content/datenblaetter/seiten.json`
+- Zuordnung Seite → Projekt und neue Projekte: `tools/datenblaetter.py`
+- Nicht übernommen: Platzhalter (Lorem ipsum, XX), Kontakt-/Referenzpersonen, Telefonnummern, Namen privater Bauherrschaften
+- Entwürfe ohne Inhalt (339 Pfungen, Rooswis, Doppel-EFH Fuchsgasse) noch nicht veröffentlicht

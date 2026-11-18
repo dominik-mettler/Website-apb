@@ -1,0 +1,52 @@
+{
+ "id": "338-ebw",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "i-005.png",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "i-004.png",
+   "groesse": [
+    1037,
+    691
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Nordfassade vor der Sanierung",
+   "original": "i-003.png",
+   "groesse": [
+    1037,
+    691
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Neue Fenster",
+   "original": "i-001.png",
+   "groesse": [
+    1151,
+    767
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Fenster vor der Sanierung",
+   "original": "i-002.png",
+   "groesse": [
+    1146,
+    764
+   ]
+  }
+ ],
+ "plaene": [],
+ "quelle": "Bilder aus dem Projektdatenblatt (_apb-Projektdaten-Allg-CC24-260612.pdf)"
+}
