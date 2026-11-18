@@ -43,7 +43,7 @@ jobs:
             grep -rlZ 'assets/img/projects/' "_site/$v" --include='*.html' --include='*.js' | xargs -0 -r sed -i 's#assets/img/projects/#../assets/img/projects/#g'
 
           done
-          rm -rf _site/.github _site/versions.txt _site/tools
+          rm -rf _site/.github _site/versions.txt _site/tools _site/content
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,169 @@
+{
+ "id": "333-kff",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "333-KFF-Aussen-DSC10315.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "333-KFF-Aussen-Pos3-DSC11240.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Empfang",
+   "original": "333-KFF-Innen-0-EG-Empfang-Pos6-DSC10906.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Gemeinschaftsraum",
+   "original": "333-KFF-Innen-0-EG-Gemeinschaftsraum-Pos6-DSC10352.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Begegnungszone",
+   "original": "333-KFF-Innen-0-EG-Vorzone-Pos6-DSC10441.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Pflegezimmer",
+   "original": "333-KFF-Innen-0-EG-Pflegezimmer-Raum-Pos3-DSC10371.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Familienzimmer",
+   "original": "333-KFF-Innen-1-OG-Familienzimmer-Pos8-DSC10538.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "333-KFF-Innen-1-OG-TH-Pos1-DSC10808.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Aufenthaltsraum mit Teeküche",
+   "original": "333-KFF-Innen-1-OG-Teekueche-Pos3-DSC10476.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Multifunktionsraum",
+   "original": "333-KFF-Innen-2-OG-Multifunktionsraum-Pos6-DSC10609.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/11.jpg",
+   "unterschrift": "Raum der Stille",
+   "original": "333-KFF-Innen-2-OG-Raum-der-Stille-Pos3-DSC10786.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/12.jpg",
+   "unterschrift": "Snoezelen-Raum",
+   "original": "333-KFF-Innen-UG-Snoezelen-Pos2-DSC11072.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "333-KFF-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss – Pflegeabteilung",
+   "original": "333-KFF-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Grundriss 2. Obergeschoss – Veranstaltungsbereich mit Mehrzweckraum",
+   "original": "333-KFF-GR-OG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Schnitt",
+   "original": "333-KFF-QS02.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Schnitt",
+   "original": "333-KFF-QS04.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht Südost",
+   "original": "333-KFF-FA-Sued-Ost.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

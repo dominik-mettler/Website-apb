@@ -1,0 +1,106 @@
+{
+ "id": "344-miu",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "344-MIU-Aussen-8-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "Wohnung 203 – Wohnzimmer",
+   "original": "344-MIU-Whg-203-5-Wohnzimmer-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Wohnung 203 – Küche",
+   "original": "344-MIU-Whg-203-3-Küche-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Wohnung 203 – Zimmer",
+   "original": "344-MIU-Whg-203-6-Zimmer1.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Wohnung 203 – Bad",
+   "original": "344-MIU-Whg-203-2-Bad-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Wohnung 201 – Wohnzimmer",
+   "original": "344-MIU-Whg-201-4-Wohnzimmer-1.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Wohnung 201 – Küche",
+   "original": "344-MIU-Whg-201-7-Kueche-1.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Wohnung 201 – Essbereich",
+   "original": "344-MIU-Whg-201-8-Essen.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Wohnung 306 – Garderobe",
+   "original": "344-MIU-Whg-306-1-Garderobe.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/10.jpg",
+   "unterschrift": "Wohnung 306 – Ausblick aus der Küche",
+   "original": "344-MIU-Whg-306-8-Kuechenausblick.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "344-MIU-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

@@ -1,0 +1,97 @@
+{
+ "id": "334-sbg",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "334-SBG-Fassade-241015-IMG_3492.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "334-SBG-Luftbild-250615-DJI_20250615091841_0023_D.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Lernlandschaft",
+   "original": "334-SBG-Innen-Lernlandschaft-DSC01486.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Lernlandschaft",
+   "original": "334-SBG-Innen-Lernlandschaft-DSC01527.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Lernlandschaft",
+   "original": "334-SBG-Innen-Lernlandschaft-DSC01547.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Lernlandschaft",
+   "original": "334-SBG-Innen-Lernlandschaft-DSC01572.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Laufbahn",
+   "original": "334-SBG-Laufbahn-250519-IMG_6108.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Photovoltaikanlage",
+   "original": "334-SBG-PV-Anlage-241015-IMG_3504.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Wärmepumpen",
+   "original": "334-SBG-Waermepumpe-IMG_7934.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "334-SBG-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

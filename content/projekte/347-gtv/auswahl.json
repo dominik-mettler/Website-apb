@@ -1,0 +1,97 @@
+{
+ "id": "347-gtv",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "347-GTV-Aussen-260611-IMG_3598.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "347-GTV-Aussen-260611-IMG_3601.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "",
+   "original": "347-GTV-Aussen-IMG_6892-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Werkstatt",
+   "original": "347-GTV-Innen-0-EG-Werkstatt-IMG_7298.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Werkstatt",
+   "original": "347-GTV-Innen-0-EG-Werkstatt-IMG_7334.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Treppe",
+   "original": "347-GTV-Innen-0-EG-Treppe-IMG_7310.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Büro",
+   "original": "347-GTV-Innen-1-OG-Büro-IMG_7303.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Büro",
+   "original": "347-GTV-Innen-1-OG-Büro-IMG_7315.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Büro",
+   "original": "347-GTV-Innen-1-OG-Büro-IMG_7332.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "347-GTV-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}

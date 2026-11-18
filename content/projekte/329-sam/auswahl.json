@@ -1,0 +1,142 @@
+{
+ "id": "329-sam",
+ "fotos": [
+  {
+   "datei": "fotos/01.jpg",
+   "unterschrift": "",
+   "original": "329-SAM-00-Aussen-DSC03787b.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/02.jpg",
+   "unterschrift": "",
+   "original": "329-SAM-00-Aussen-NO-Sonne-StorenAuf-DSC03790.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/03.jpg",
+   "unterschrift": "Aussenspielbereich",
+   "original": "329-SAM-00-Aussen-Spielplatz-DSC04058b.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/04.jpg",
+   "unterschrift": "Treppenhaus",
+   "original": "329-SAM-01-Treppenhaus-DSC03880b-2.jpg",
+   "groesse": [
+    1600,
+    2000
+   ]
+  },
+  {
+   "datei": "fotos/05.jpg",
+   "unterschrift": "Garderobe aus massiver Eiche",
+   "original": "329-SAM-12-Garderobe-DSC04055b.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/06.jpg",
+   "unterschrift": "Klassenzimmer",
+   "original": "329-SAM-15-Schulzimmer1-DSC03940b-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/07.jpg",
+   "unterschrift": "Klassenzimmer",
+   "original": "329-SAM-15-Schulzimmer3-DSC04000b-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/08.jpg",
+   "unterschrift": "Klassenzimmer",
+   "original": "329-SAM-05-Schulzimmer1-leer-Sonne-StorenAuf-LichtAn1-DSC03830.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "fotos/09.jpg",
+   "unterschrift": "Gruppenraum",
+   "original": "329-SAM-16-Gruppenraum-DSC04010b-2.jpg",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ],
+ "plaene": [
+  {
+   "datei": "plaene/01.png",
+   "unterschrift": "Situation",
+   "original": "329-SAM-Situation.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/02.png",
+   "unterschrift": "Grundriss Erdgeschoss – links neuer Trakt E, rechts bestehender Trakt D",
+   "original": "329-SAM-GR-EG.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/03.png",
+   "unterschrift": "Querschnitt durch das Treppenhaus",
+   "original": "329-SAM-QS01.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/04.png",
+   "unterschrift": "Längsschnitt",
+   "original": "329-SAM-LS02.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/05.png",
+   "unterschrift": "Ansicht Ost",
+   "original": "329-SAM-Fassade-Ost.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  },
+  {
+   "datei": "plaene/06.png",
+   "unterschrift": "Ansicht Süd",
+   "original": "329-SAM-Fassade-Sued.pdf",
+   "groesse": [
+    2400,
+    1600
+   ]
+  }
+ ]
+}
