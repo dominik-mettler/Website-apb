@@ -6,11 +6,11 @@
    ========================================================================== */
 (function () {
   "use strict";
-  var BASE = "assets/vendor/cesium/";
+  var BASE = (window.APB_ROOT || "") + "assets/vendor/cesium/";
   var loading = null, viewer = null, box = null, tileset = null, layers = {}, entities = {}, onKey = null;
   var CATCOL = { wohnen: "#e2b04a", lernen: "#5aa9d6", leiten: "#a796e0", glauben: "#d8d2c4", pflegen: "#6cc08b", reisen: "#e0708f", kaufen: "#e3925a", arbeiten: "#9bb8ab", turnen: "#5aa9d6", beleuchten: "#d8d2c4" };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function img(p) { return (p.base || "assets/img/projects/" + p.id + "/") + "01-s.webp"; }
+  function img(p) { return (p.base || (window.APB_ROOT || "") + "assets/img/projects/" + p.id + "/") + "01-s.webp"; }
 
   function load() {
     if (window.Cesium) return Promise.resolve();
@@ -60,7 +60,7 @@
   function card(p) {
     var c = box.querySelector(".m3d-card");
     if (!p) { c.hidden = true; return; }
-    c.innerHTML = '<a href="projekt.html?p=' + encodeURIComponent(p.id) + '"><img src="' + img(p) + '" alt=""><span><b>' + esc(p.name) + "</b><small>" + esc(p.ort) + (p.year ? " · " + p.year : "") + '</small><em>Zum Projekt →</em></span></a><button type="button" aria-label="Schliessen">×</button>';
+    c.innerHTML = '<a href="' + (p.url || "projekt.html?p=" + encodeURIComponent(p.id)) + '"><img src="' + img(p) + '" alt=""><span><b>' + esc(p.name) + "</b><small>" + esc(p.ort) + (p.year ? " · " + p.year : "") + '</small><em>Zum Projekt →</em></span></a><button type="button" aria-label="Schliessen">×</button>';
     c.hidden = false;
     c.querySelector("button").onclick = function () { c.hidden = true; };
   }

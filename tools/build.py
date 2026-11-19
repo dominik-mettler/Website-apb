@@ -6,15 +6,17 @@ jobs = json.load(open(S + 'jobs.json'))
 NAV = [('projekte.html', 'Projekte'), ('aktuell.html', 'Aktuell'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere')]
 MARK_OLD = '''<svg width="126" height="65" viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
 
-def header(cur):
+OHNE_EN = {'praesentation.html', '404.html'}
+def header(cur, fn=''):
     links = ''.join(f'<a href="{h}"{" aria-current=page" if h == cur else ""}>{t}</a>' for h, t in NAV)
     mlinks = ''.join(f'<li><a href="{h}">{t}</a></li>' for h, t in NAV + [('kontakt.html', 'Kontakt')])
+    lang = '' if fn in OHNE_EN else f'<a class="lang" href="en/{fn}" hreflang="en" lang="en" aria-label="English version" title="English version">EN</a>'
     return f'''<a class="skip" href="#main">Zum Inhalt springen</a>
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="index.html" aria-label="apb architekten ag – Startseite"><img class="logo-img" src="assets/img/logo-light.svg" alt="apb architekten ag" width="729" height="126"></a>
-    <nav class="nav" aria-label="Hauptnavigation"><button type="button" class="search-btn" aria-label="Suche öffnen" title="Suche (Taste /)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>{links}<a class="nav-cta" href="kontakt.html"{" aria-current=page" if cur == "kontakt.html" else ""}>Kontakt</a></nav>
-    <button type="button" class="search-btn mobile-only" aria-label="Suche öffnen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>
+    <nav class="nav" aria-label="Hauptnavigation"><button type="button" class="search-btn" aria-label="Suche öffnen" title="Suche (Taste /)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>{links}{lang}<a class="nav-cta" href="kontakt.html"{" aria-current=page" if cur == "kontakt.html" else ""}>Kontakt</a></nav>
+    {lang.replace('class="lang"', 'class="lang mobile-only"')}<button type="button" class="search-btn mobile-only" aria-label="Suche öffnen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg></button>
     <button class="menu-btn" type="button" aria-label="Menü" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
   </div>
 </header>
@@ -28,9 +30,9 @@ FOOTER = '''<footer class="site-footer">
   <div class="wrap">
     <div class="top">
       <p class="claim">Präzision.<br>Flexibilität.<br>Professionalität.</p>
-      <div class="col"><h4>Atelier</h4>apb architekten ag<br>Seestrasse 110a<br>8610 Uster</div>
-      <div class="col"><h4>Kontakt</h4><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
-      <div class="col"><h4>Navigation</h4><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a></div>
+      <div class="col"><h2 class="f-h">Atelier</h2>apb architekten ag<br>Seestrasse 110a<br>8610 Uster</div>
+      <div class="col"><h2 class="f-h">Kontakt</h2><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
+      <div class="col"><h2 class="f-h">Navigation</h2><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a></div>
     </div>
     <div class="giant" aria-hidden="true"><img src="assets/img/logo-light.svg" alt="" width="729" height="126" loading="lazy"></div>
     <div class="bottom"><span>© <span data-year>2026</span> apb architekten ag · Mitglied SIA · MINERGIE®-Fachpartner</span><span><a href="impressum.html">Impressum &amp; Datenschutz</a></span></div>
@@ -51,9 +53,10 @@ INTRO = '<div class="intro-ov" role="presentation" hidden><div class="intro-inne
 
 import hashlib
 # Vorschau auf GitHub Pages: nicht von Google indexieren lassen (vor Go-live auf False setzen)
-PREVIEW = True
-BASE_URL = 'https://dominik-mettler.github.io/Website-apb/'
-JSONLD = '''<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"apb architekten ag","description":"Architektur, Planung, Bauleitung und Beratung in Uster und im Kanton Zürich","foundingDate":"1996","url":"https://www.apb-architekten.ch","telephone":"+41 44 944 60 80","faxNumber":"+41 44 944 60 81","email":"info@apb-architekten.ch","address":{"@type":"PostalAddress","streetAddress":"Seestrasse 110a","postalCode":"8610","addressLocality":"Uster","addressRegion":"ZH","addressCountry":"CH"},"geo":{"@type":"GeoCoordinates","latitude":47.348162,"longitude":8.695723},"founder":{"@type":"Person","name":"Peter Brader"},"employee":[{"@type":"Person","name":"Pia Kiebel","jobTitle":"Inhaberin"},{"@type":"Person","name":"Thomas Schinkhof","jobTitle":"Inhaber"}],"memberOf":[{"@type":"Organization","name":"SIA – Schweizerischer Ingenieur- und Architektenverein"}]}</script>'''
+# Go-live: APB_LIVE=1 setzen -> Google darf indexieren, alle Adressen zeigen auf www.apb-architekten.ch
+PREVIEW = os.environ.get('APB_LIVE') != '1'
+BASE_URL = 'https://dominik-mettler.github.io/Website-apb/' if PREVIEW else 'https://www.apb-architekten.ch/'
+JSONLD = '''<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","@id":"''' + BASE_URL + '''#org","logo":"''' + BASE_URL + '''assets/img/logo-dark.svg","image":"''' + BASE_URL + '''assets/img/p2/333-kff/01.jpg","areaServed":[{"@type":"AdministrativeArea","name":"Kanton Zürich"},{"@type":"City","name":"Uster"}],"knowsAbout":["Architektur","Bauleitung","Bauherrenberatung","Schulhausbau","Denkmalpflege","MINERGIE"],"priceRange":"CHF","name":"apb architekten ag","description":"Architektur, Planung, Bauleitung und Beratung in Uster und im Kanton Zürich","foundingDate":"1996","url":"https://www.apb-architekten.ch","telephone":"+41 44 944 60 80","faxNumber":"+41 44 944 60 81","email":"info@apb-architekten.ch","address":{"@type":"PostalAddress","streetAddress":"Seestrasse 110a","postalCode":"8610","addressLocality":"Uster","addressRegion":"ZH","addressCountry":"CH"},"geo":{"@type":"GeoCoordinates","latitude":47.348162,"longitude":8.695723},"founder":{"@type":"Person","name":"Peter Brader"},"employee":[{"@type":"Person","name":"Pia Kiebel","jobTitle":"Inhaberin"},{"@type":"Person","name":"Thomas Schinkhof","jobTitle":"Inhaber"}],"memberOf":[{"@type":"Organization","name":"SIA – Schweizerischer Ingenieur- und Architektenverein"}]}</script>'''
 def V(path):
     return path + '?v=' + hashlib.md5(open(os.path.join(OUT, path), 'rb').read()).hexdigest()[:8]
 
@@ -73,6 +76,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:image" content="{BASE_URL}assets/img/projects/319-sag/01.jpg">\n{'<meta name="robots" content="noindex, nofollow">' if PREVIEW else ''}\n{JSONLD if pg == 'home' or pg == 'kontakt' else ''}
+{'' if fn in OHNE_EN else f'<link rel="canonical" href="{BASE_URL}{fn}"><link rel="alternate" hreflang="de-CH" href="{BASE_URL}{fn}"><link rel="alternate" hreflang="en" href="{BASE_URL}en/{fn}"><link rel="alternate" hreflang="x-default" href="{BASE_URL}{fn}">'}
 <link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
 {lf}
@@ -84,7 +88,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
 {INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
-{header(cur)}
+{header(cur, fn)}
 <main id="main">
 {body}
 </main>
@@ -164,7 +168,7 @@ def _news_img(n, big=False):
     return base + '01' + ('.webp' if big else '-s.webp')
 def news_card(n, big=False):
     p = _P.get(n.get('projekt'))
-    href = n.get('link') or (f"projekt.html?p={p['id']}" if p else '')
+    href = n.get('link') or (p.get('url') or f"projekt.html?p={p['id']}" if p else '')
     im = _news_img(n, big)
     media = f'<div class="media"><img src="{im}" alt="" loading="lazy" width="800" height="533"></div>' if im else '<div class="media news-blank"><span>apb</span></div>'
     lt = n.get('linktext') or ('Zum Projekt' if p else '')
@@ -281,7 +285,7 @@ icons = {
  'liste': '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="1.6"/><rect x="1" y="7.2" width="14" height="1.6"/><rect x="1" y="12.4" width="14" height="1.6"/></svg>',
  'karte': '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z"/><circle cx="8" cy="6.5" r="1.8"/></svg>',
  'zeitachse': '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="12" width="14" height="1.6"/><rect x="2" y="7" width="3" height="4"/><rect x="6.5" y="3" width="3" height="8"/><rect x="11" y="5" width="3" height="6"/></svg>'}
-vbtns = ''.join(f'<button type="button" data-view="{k}" aria-pressed="false">{v}<span>{k.capitalize()}</span></button>' for k, v in icons.items())
+vbtns = ''.join(f'<button type="button" data-view="{k}" aria-pressed="false" aria-label="{k.capitalize()}">{v}<span>{k.capitalize()}</span></button>' for k, v in icons.items())
 proj = f'''
 <section class="page-hero" style="padding-bottom:clamp(40px,5vw,72px)">
   <div class="wrap">
@@ -312,6 +316,7 @@ proj = f'''
 </div>
 <div class="wrap">
   <div class="result-line"><span id="count" aria-live="polite"></span><span class="small">Klicken für Details</span></div>
+  <h2 class="sr-only">Projektübersicht</h2>
   <div id="v-raster"><div class="pgrid" id="pgrid"></div></div>
   <div id="v-liste" hidden>
     <table class="plist" id="plist">
@@ -535,7 +540,7 @@ chronik = '''
 </section>
 <div class="wrap">
   <div class="chron">
-    <aside class="chron-side" aria-hidden="true">
+    <aside class="chron-side" aria-label="Zeitleiste 1996–2026">
       <div>
         <div class="chron-year"></div>
         <div class="chron-meta"><span><b id="c-age">0</b>Jahre apb</span><span><b id="c-projects">0</b>Projekte in dieser Chronik</span></div>
@@ -676,7 +681,7 @@ kontakt = '''
 <section class="section tight" style="padding-top:0">
   <div class="wrap contact-grid">
     <div class="info">
-      <div class="c-block rv"><h3>Adresse</h3><p class="v">apb architekten ag<br>Seestrasse 110a<br>8610 Uster</p><p style="margin-top:14px"><a class="link" href="https://www.google.com/maps/dir/?api=1&amp;destination=47.348162,8.695723" target="_blank" rel="noopener">Route planen<span class="arr"></span></a></p></div>
+      <h2 class="sr-only">Kontaktangaben</h2><div class="c-block rv"><h3>Adresse</h3><p class="v">apb architekten ag<br>Seestrasse 110a<br>8610 Uster</p><p style="margin-top:14px"><a class="link" href="https://www.google.com/maps/dir/?api=1&amp;destination=47.348162,8.695723" target="_blank" rel="noopener">Route planen<span class="arr"></span></a></p></div>
       <div class="c-block rv"><h3>Telefon</h3><a class="v copy" href="tel:+41449446080" data-copy="+41 44 944 60 80">+41 (0)44 944 60 80<span class="hint">Kopieren</span></a><p class="muted small" style="margin-top:6px">Fax +41 (0)44 944 60 81</p></div>
       <div class="c-block rv"><h3>E-Mail</h3><a class="v copy" href="mailto:info@apb-architekten.ch" data-copy="info@apb-architekten.ch">info@apb-architekten.ch<span class="hint">Kopieren</span></a></div>
     </div>
@@ -722,7 +727,7 @@ imp = '''
 <h2>Kontaktformular</h2>
 <p>Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Anfrageformular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.</p>
 <h2>Kartendienst</h2>
-<p>Zur Darstellung von Karten verwenden wir den Geodienst des Bundesamts für Landestopografie swisstopo (wmts.geo.admin.ch). Beim Laden der Karte wird Ihre IP-Adresse an den Server von swisstopo übermittelt. Schriften und alle übrigen Inhalte werden direkt von unserem Server ausgeliefert.</p>
+<p>Zur Darstellung von Karten und der 3D-Ansicht verwenden wir die Geodienste des Bundesamts für Landestopografie swisstopo (wmts.geo.admin.ch, 3d.geo.admin.ch). Beim Laden der Karte bzw. der 3D-Ansicht wird Ihre IP-Adresse an die Server von swisstopo übermittelt. Schriften und alle übrigen Inhalte werden direkt von unserem Server ausgeliefert.</p>
 </div></div></section>
 '''
 page('impressum.html', '', 'Impressum & Datenschutz – apb architekten ag', 'Impressum und Datenschutzerklärung der apb architekten ag, Uster.', imp, 'impressum')
@@ -755,7 +760,7 @@ REDIRECTS = {
     'impressum': 'impressum.html',
 }
 for _pid in _ids:
-    REDIRECTS['architektur/projekte/' + _pid] = 'projekt.html?p=' + _pid
+    REDIRECTS['architektur/projekte/' + _pid] = _P[_pid]['url'] if _pid in _P and _P[_pid].get('url') else 'projekt.html?p=' + _pid
 for _j in ['projektleiter-in', 'junior-projektleiter-in', 'architekt-in', 'bauleiter-in', 'techniker-in', 'zeichner-in']:
     REDIRECTS['offene-stellen/stellen-offen/' + _j] = 'karriere.html#' + _j
 for _n, _t in [(6, 'wohnen'), (7, 'arbeiten'), (8, 'reisen'), (9, 'kaufen'), (10, 'pflegen'), (11, 'leiten'), (12, 'glauben'), (16, 'turnen'), (18, 'beleuchten'), (19, 'lernen'), (22, 'auswahl')]:
@@ -765,9 +770,20 @@ for _path, _target in REDIRECTS.items():
     _dst = os.path.join(OUT, _path, 'index.html')
     os.makedirs(os.path.dirname(_dst), exist_ok=True)
     open(_dst, 'w').write(f'''<!doctype html><html lang="de-CH"><head><meta charset="utf-8"><title>Weiterleitung – apb architekten ag</title>
-<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={_up}{_target}">
+<meta name="robots" content="noindex"><link rel="canonical" href="{BASE_URL}{_target.split('#')[0]}"><meta http-equiv="refresh" content="0; url={_up}{_target}">
 <script>location.replace("{_up}{_target}");</script>
 <style>body{{background:#0c0c0b;color:#edebe6;font:16px/1.5 Helvetica,Arial,sans-serif;padding:40px}}a{{color:#f15d30}}</style></head>
 <body><p>Diese Seite ist umgezogen: <a href="{_up}{_target}">weiter zur neuen Seite</a>.</p></body></html>
 ''')
 print('redirects', len(REDIRECTS))
+
+# 301-Weiterleitungen der alten Adressen für den Live-Server (Apache .htaccess); erhält das Google-Ranking
+with open(os.path.join(OUT, '.htaccess'), 'w') as _h:
+    _h.write('# Alte Adressen der bisherigen Website -> neue Seiten (301 = dauerhaft umgezogen)\nRewriteEngine On\n')
+    for _path, _target in sorted(REDIRECTS.items()):
+        _t = _target.split('#')[0]
+        if '?' in _t:
+            _base, _q = _t.split('?', 1)
+            _h.write(f'RewriteRule ^{re.escape(_path)}/?$ /{_base}?{_q} [R=301,L]\n')
+        else:
+            _h.write(f'RewriteRule ^{re.escape(_path)}/?$ /{_t} [R=301,NE,L]\n')

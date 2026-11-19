@@ -11,8 +11,8 @@
   var root = document.documentElement;
   var Y0 = 1996, Y1 = 2026;
 
-  function img(p, i, small) { var n = i || 1, b = (p.base || "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
-  function url(p) { return "projekt.html?p=" + encodeURIComponent(p.id); }
+  function img(p, i, small) { var n = i || 1, b = (p.base || (window.APB_ROOT || "") + "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
+  function url(p) { return p.url || "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
 
@@ -165,7 +165,7 @@
     var scrub = $(".scrub"), sh = "";
     for (y = Y0; y <= Y1; y++) {
       var n = (byYear[y] || []).length, has = n || MS[y];
-      sh += '<button type="button" class="' + (has ? "" : "nil") + '" style="--n:' + n + '" data-y="' + y + '" aria-label="Zu ' + y + '"' + (has ? "" : " disabled") + "></button>";
+      sh += '<button type="button" class="' + (has ? "" : "nil") + '" style="--n:' + n + '" data-y="' + y + '" aria-label="Zum Jahr ' + y + '"' + (has ? "" : " disabled") + "></button>";
     }
     scrub.innerHTML = sh;
     $$("button", scrub).forEach(function (b) {
@@ -203,24 +203,24 @@
 
   /* ---------- Globale Suche ---------- */
   var PAGES = [
-    ["Projekte", "Alle Projekte – Raster, Liste, Karte, Zeitachse", "projekte.html", "architektur übersicht"],
-    ["Wettbewerbe & Auswahlverfahren", "Projekte", "projekt.html?p=wettbewerbe", "wettbewerb planerwahl rang modell"],
-    ["Planung", "Leistungen", "leistungen.html#planung", "firmenphilosophie planen bauen"],
-    ["SIA-Norm 112 – Phasen", "Leistungen", "leistungen.html#sia-112", "sia phasen vorprojekt bauprojekt ausschreibung bauleitung kosten"],
-    ["Leistungsfinder", "Leistungen – welche Leistung passt?", "leistungen.html#finder", "finder beratung hilfe"],
-    ["Bauherrenberatung", "Leistungen", "leistungen.html#bauherren", "beratung bauherr gemeinde studienauftrag kostenschätzung machbarkeit grundstück"],
-    ["Käuferbetreuung", "Leistungen", "leistungen.html#kaeufer", "käufer stockwerkeigentum eigentumswohnung"],
-    ["Liegenschaftsanalyse", "Leistungen", "leistungen.html#liegenschaft", "liegenschaft zustandsanalyse bestand gebäudezustand schadstoffe erdbeben"],
-    ["Firmenprofil", "Büro", "buero.html#profil", "geschichte gründung 1996 2011 mitgliedschaften sia minergie"],
-    ["Atelier", "Büro – Turicum-Gebäude, Uster", "buero.html#atelier", "büro seestrasse archicad bim"],
-    ["Team", "Büro", "buero.html#team", "mitarbeitende architekten"],
-    ["30 Jahre apb", "Chronik 1996–2026", "chronik.html", "jubiläum chronik geschichte"],
-    ["Karriere", "Stellen & Initiativbewerbung", "karriere.html", "jobs stellen bewerbung"],
-    ["Aktuell", "Neuigkeiten aus dem Atelier", "aktuell.html", "news neuigkeiten fertigstellung meldungen"],
-    ["Bauablauf im Zeitraffer", "Kirchgemeindehaus Schwerzenbach – Film der Baustellen-Webcam", "projekt.html?p=310-gws", "video film webcam zeitraffer baustelle"],
-    ["Lehrstelle Zeichner/-in EFZ", "Karriere – Lehrbeginn August 2028", "karriere.html#lehrstelle", "lehre lehrling ausbildung schnupper"],
-    ["Kontakt", "Seestrasse 110a, 8610 Uster", "kontakt.html", "adresse telefon email anfahrt"],
-    ["Impressum & Datenschutz", "Rechtliches", "impressum.html", "datenschutz"]
+    ["Projekte", "Alle Projekte – Raster, Liste, Karte, Zeitachse", "projekte.html", "architektur übersicht projects architecture overview grid list map timeline"],
+    ["Wettbewerbe & Auswahlverfahren", "Projekte", "projekt.html?p=wettbewerbe", "wettbewerb planerwahl rang modell competition selection model"],
+    ["Planung", "Leistungen", "leistungen.html#planung", "firmenphilosophie planen bauen philosophy planning design build"],
+    ["SIA-Norm 112 – Phasen", "Leistungen", "leistungen.html#sia-112", "sia phasen vorprojekt bauprojekt ausschreibung bauleitung kosten stages design tendering site supervision cost"],
+    ["Leistungsfinder", "Leistungen – welche Leistung passt?", "leistungen.html#finder", "finder beratung hilfe services help advice"],
+    ["Bauherrenberatung", "Leistungen", "leistungen.html#bauherren", "beratung bauherr gemeinde studienauftrag kostenschätzung machbarkeit grundstück client advisory municipality cost estimate feasibility plot"],
+    ["Käuferbetreuung", "Leistungen", "leistungen.html#kaeufer", "käufer stockwerkeigentum eigentumswohnung buyer condominium apartment"],
+    ["Liegenschaftsanalyse", "Leistungen", "leistungen.html#liegenschaft", "liegenschaft zustandsanalyse bestand gebäudezustand schadstoffe erdbeben property survey condition assessment earthquake"],
+    ["Firmenprofil", "Büro", "buero.html#profil", "geschichte gründung 1996 2011 mitgliedschaften sia minergie profile history memberships"],
+    ["Atelier", "Büro – Turicum-Gebäude, Uster", "buero.html#atelier", "büro seestrasse archicad bim studio office"],
+    ["Team", "Büro", "buero.html#team", "mitarbeitende architekten team people architects staff"],
+    ["30 Jahre apb", "Chronik 1996–2026", "chronik.html", "jubiläum chronik geschichte anniversary chronicle history 30 years"],
+    ["Karriere", "Stellen & Initiativbewerbung", "karriere.html", "jobs stellen bewerbung careers vacancies application"],
+    ["Aktuell", "Neuigkeiten aus dem Atelier", "aktuell.html", "news neuigkeiten fertigstellung meldungen completion"],
+    ["Bauablauf im Zeitraffer", "Kirchgemeindehaus Schwerzenbach – Film der Baustellen-Webcam", "projekt-310-kirchgemeindehaus-schwerzenbach.html", "video film webcam zeitraffer baustelle time-lapse construction site"],
+    ["Lehrstelle Zeichner/-in EFZ", "Karriere – Lehrbeginn August 2028", "karriere.html#lehrstelle", "lehre lehrling ausbildung schnupper apprenticeship apprentice training draughtsperson"],
+    ["Kontakt", "Seestrasse 110a, 8610 Uster", "kontakt.html", "adresse telefon email anfahrt contact address telephone directions"],
+    ["Impressum & Datenschutz", "Rechtliches", "impressum.html", "datenschutz legal notice privacy imprint"]
   ];
   [["Projektleiter/-in", "projektleiter-in"], ["Junior Projektleiter/-in", "junior-projektleiter-in"], ["Architekt/-in", "architekt-in"], ["Bauleiter/-in", "bauleiter-in"], ["Techniker/-in", "techniker-in"], ["Zeichner/-in", "zeichner-in"], ["Administration", "administration"]].forEach(function (j) {
     PAGES.push([j[0], "Karriere – Stellenprofil", "karriere.html#" + j[1], "stelle job bewerbung"]);
@@ -334,7 +334,7 @@
     var map = { neubau: ["Neubau", "Wir planen einen Neubau und würden gerne ein erstes Gespräch vereinbaren."], umbau: ["Umbau / Sanierung", "Wir planen einen Umbau bzw. eine Sanierung und würden gerne ein erstes Gespräch vereinbaren."], beratung: ["Bauherrenberatung", "Wir interessieren uns für eine Bauherrenberatung."], liegenschaft: ["Liegenschaftsanalyse", "Wir interessieren uns für eine Analyse unserer Liegenschaft."], kaeufer: ["Käuferbetreuung", "Wir interessieren uns für die Käuferbetreuung."], bewerbung: ["Bewerbung", ""] };
     var k = location.hash.slice(1), m = map[k]; if (!m) return;
     var r = f.querySelector('input[name="anliegen"][value="' + m[0] + '"]'); if (r) r.checked = true;
-    var t = $("#f-msg"); if (t && !t.value && m[1]) t.value = m[1] + "\n\n";
+    var t = $("#f-msg"); if (t && !t.value && m[1]) t.value = (window.APB_T ? window.APB_T(m[1]) : m[1]) + "\n\n";
     setTimeout(function () { f.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }); var n = $("#f-name"); if (n) n.focus({ preventScroll: true }); }, 400);
   }
 
@@ -474,4 +474,8 @@
   projectTools();
   jubiTeaser();
   chronik();
+  /* Sprachumschalter: gleiche Seite inkl. Projekt und Anker */
+  Array.prototype.forEach.call(document.querySelectorAll("a.lang"), function (a) {
+    a.addEventListener("click", function () { a.href = a.href.split(/[?#]/)[0] + location.search + location.hash; });
+  });
 })();

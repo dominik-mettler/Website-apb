@@ -5,6 +5,7 @@
   "use strict";
 
   var D = window.APB || { projects: [], cats: [] };
+  var ROOT = window.APB_ROOT || "";
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -16,9 +17,9 @@
   D.projects.forEach(function (p) { byId[p.id] = p; });
 
   /* ---------- helpers ---------- */
-  function img(p, i, small) { var n = i || 1, b = (p.base || "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
+  function img(p, i, small) { var n = i || 1, b = (p.base || ROOT + "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
   function plan(p, k, small) { return (p.base || "") + "plan-" + String(k).padStart(2, "0") + (small ? "-s" : "") + ".webp"; }
-  function url(p) { return "projekt.html?p=" + encodeURIComponent(p.id); }
+  function url(p) { return p.url || "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function yearOf(p) { return p.year || (p.status === "Nicht realisiert" ? "Projekt" : "–"); }
   function statusClass(s) { return s === "Realisiert" ? "" : s === "Nicht realisiert" ? "no" : "prog"; }
@@ -137,15 +138,15 @@
     if (window.L) return cb();
     if (leafletQ) return leafletQ.push(cb);
     leafletQ = [cb];
-    var css = document.createElement("link"); css.rel = "stylesheet"; css.href = "assets/vendor/leaflet/leaflet.css"; document.head.appendChild(css);
-    var s = document.createElement("script"); s.src = "assets/vendor/leaflet/leaflet.js";
+    var css = document.createElement("link"); css.rel = "stylesheet"; css.href = ROOT + "assets/vendor/leaflet/leaflet.css"; document.head.appendChild(css);
+    var s = document.createElement("script"); s.src = ROOT + "assets/vendor/leaflet/leaflet.js";
     s.onload = function () { var q = leafletQ; leafletQ = []; q.forEach(function (f) { f(); }); };
     document.head.appendChild(s);
   }
   var m3dQ = null;
   function open3d(o) {
     if (window.APB3D) return window.APB3D.open(o);
-    if (!m3dQ) { m3dQ = document.createElement("script"); m3dQ.src = window.APB_3D || "assets/js/map3d.js"; document.head.appendChild(m3dQ); }
+    if (!m3dQ) { m3dQ = document.createElement("script"); m3dQ.src = window.APB_3D || ROOT + "assets/js/map3d.js"; document.head.appendChild(m3dQ); }
     m3dQ.addEventListener("load", function () { window.APB3D.open(o); }, { once: true });
   }
   window.apbOpen3d = open3d;
@@ -191,7 +192,7 @@
     node.addEventListener("click", function () { map.scrollWheelZoom.enable(); });
     node.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
     if (opts.office !== false) {
-      L.marker(OFFICE, { icon: L.divIcon({ className: "", html: '<div class="pin office"></div>', iconSize: [22, 22], iconAnchor: [11, 11] }), zIndexOffset: 1000, title: "apb architekten ag" })
+      L.marker(OFFICE, { icon: L.divIcon({ className: "pin-hit", html: '<div class="pin office"></div>', iconSize: [28, 28], iconAnchor: [14, 14] }), zIndexOffset: 1000, title: "apb architekten ag" })
         .addTo(map).bindPopup('<div class="pop"><div><b>apb architekten ag</b>Seestrasse 110a, 8610 Uster<br><a href="https://www.google.com/maps/dir/?api=1&destination=47.348162,8.695723" target="_blank" rel="noopener">Route planen →</a></div></div>');
     }
     return map;
@@ -202,7 +203,7 @@
     var layer = L.layerGroup().addTo(map);
     var markers = {};
     list.forEach(function (p) {
-      var m = L.marker(p.geo, { icon: L.divIcon({ className: "", html: '<div class="pin" data-id="' + p.id + '" style="background:' + pinColor(p) + '"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }), title: p.name + ", " + p.ort });
+      var m = L.marker(p.geo, { icon: L.divIcon({ className: "", html: '<div class="pin" data-id="' + p.id + '" style="background:' + pinColor(p) + '"></div>', iconSize: [26, 26], iconAnchor: [13, 13], className: "pin-hit" }), title: p.name + ", " + p.ort });
       m.bindPopup('<a class="pop" href="' + url(p) + '"><img src="' + img(p, 1, true) + '" alt=""><div><b>' + esc(p.name) + "</b><span>" + esc(p.ort) + " · " + esc(yearOf(p)) + "</span></div></a>", { closeButton: false, offset: [0, -4] });
       m.on("mouseover", function () { m.openPopup(); });
       m.addTo(layer); markers[p.id] = m;
@@ -525,14 +526,14 @@
      PROJEKT (Detail)
      ========================================================================== */
   function initProject() {
-    var id = new URLSearchParams(location.search).get("p");
+    var id = new URLSearchParams(location.search).get("p") || document.body.getAttribute("data-pid");
     var root = $("#project");
     if (id === "wettbewerbe") return renderCompetitions(root);
     var p = byId[id] || D.projects[0];
     var list = D.projects.slice().sort(function (a, b) { return a.id < b.id ? 1 : -1; });
     var idx = list.indexOf(p);
     var prevP = list[(idx - 1 + list.length) % list.length], nextP = list[(idx + 1) % list.length];
-    document.title = p.name + " " + p.ort + " – apb architekten ag";
+    document.title = p.name + ", " + p.ort + " – apb architekten ag";
     var md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute("content", p.name + ", " + p.ort + ": " + p.text);
 
     var related = D.projects.filter(function (q) { return q !== p && q.cats.some(function (c) { return p.cats.indexOf(c) > -1; }); });
@@ -606,12 +607,12 @@
     document.title = "Wettbewerbe und Architekten-Auswahlverfahren – apb architekten ag";
     document.body.classList.remove("on-dark");
     var C = D.competitions;
-    var src = function (c, s) { return "assets/img/projects/wettbewerbe/" + String(c.i).padStart(2, "0") + (s ? "-s.webp" : ".jpg"); };
+    var src = function (c, s) { return ROOT + "assets/img/projects/wettbewerbe/" + String(c.i).padStart(2, "0") + (s ? "-s.webp" : ".jpg"); };
     root.innerHTML =
       '<section class="page-hero"><div class="wrap"><span class="eyebrow">Projekte</span><h1 class="display" data-split>Wettbewerbe<br>&amp; Auswahl&shy;verfahren</h1>' +
       '<div class="page-hero-grid"><p class="lead rv">Teilnahme an zahlreichen öffentlichen Wettbewerben und Architekten-Auswahlverfahren.</p>' +
       '<div class="aside rv"><a class="link" href="projekte.html">Alle Projekte<span class="arr"></span></a></div></div></div></section>' +
-      '<div class="wrap" style="padding-bottom:clamp(80px,10vw,160px)"><div class="pgrid even">' + C.map(function (c, i) {
+      '<div class="wrap" style="padding-bottom:clamp(80px,10vw,160px)"><h2 class="sr-only">Wettbewerbsbeiträge</h2><div class="pgrid even">' + C.map(function (c, i) {
         var parts = c.t.split("///").map(function (s) { return s.trim(); });
         var linked = c.p && byId[c.p];
         return '<a class="card" ' + (linked ? 'href="' + url(linked) + '"' : 'href="#" data-i="' + i + '"') + ' data-cursor="' + (linked ? "Projekt" : "Vergrössern") + '" data-lb="' + i + '"><div class="media">' + (parts[2] ? '<span class="tag">' + esc(parts[2]) + "</span>" : "") +

@@ -140,6 +140,13 @@ for p in D['projects']:
 
 for p in D['projects']:   # Original-Referenzblatt (tools/referenzblaetter.py)
     if os.path.exists(os.path.join(R, 'assets/ref', p['id'] + '.pdf')): p['ref'] = 'assets/ref/' + p['id'] + '.pdf'
+def _slug(t):
+    t = t.lower()
+    for a, b in (('ä', 'ae'), ('ö', 'oe'), ('ü', 'ue'), ('ß', 'ss'), ('é', 'e'), ('è', 'e'), ('à', 'a')):
+        t = t.replace(a, b)
+    return re.sub(r'[^a-z0-9]+', '-', t).strip('-')
+for p in D['projects']:   # eigene, für Google lesbare Projektseite (tools/seo.py)
+    p['url'] = 'projekt-' + re.match(r'[\d-]+', p['id']).group(0).strip('-') + '-' + _slug(p['name'] + ' ' + p['ort']) + '.html'
 D['projects'].sort(key=lambda p: p['id'], reverse=True)
 D['projects'] = [p for p in D['projects'] if p.get('img')]   # ohne Bilder nicht veröffentlichen
 head = '/* Projektdaten – generiert von tools/projekte_einbauen.py */\n'

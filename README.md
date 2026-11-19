@@ -18,6 +18,22 @@ Statische Website ohne Build-Schritt. Alle Inhalte stammen von der bisherigen Se
 ## Seiten bearbeiten
 Die HTML-Seiten werden mit `python3 tools/build.py` aus den Texten in `tools/build.py` erzeugt (Kopf, Navigation und Fusszeile für alle Seiten gleich).
 
+## Alles neu bauen (Reihenfolge)
+```
+python3 tools/projekte_einbauen.py     # Projektdaten -> assets/js/data.js
+HOME_VARIANT=A python3 tools/build.py  # deutsche Seiten, Weiterleitungen, .htaccess
+python3 tools/englisch.py              # englische Seiten unter en/ (meldet Lücken in content/en/fehlend.txt)
+python3 tools/seo.py                   # Projektseiten DE/EN, Meta-Angaben, sitemap.xml, robots.txt
+```
+Englische Texte: `content/en/seiten.py` (Seiten und Bedienelemente), `content/en/projekte.py` (Projekttexte),
+`content/en/fakten.py` (Kenndaten, Rollen, Legenden, Pläne). Fachbegriffe: `content/en/GLOSSAR.md`.
+
+## Go-live (Google)
+Die Vorschau auf GitHub Pages ist für Google gesperrt (`noindex`), damit sie der echten Website keine Konkurrenz macht.
+Für den Wechsel auf www.apb-architekten.ch alles mit `APB_LIVE=1` bauen (z. B. `APB_LIVE=1 python3 tools/build.py` usw.):
+Dann sind Indexierung, Sitemap, Canonical-Adressen und strukturierte Daten auf die echte Domain gestellt, und die
+`.htaccess` leitet alle alten Adressen dauerhaft (301) auf die neuen Seiten um. Danach die Sitemap in der Google Search Console einreichen.
+
 ## Startseiten-Varianten
 `HOME_VARIANT=A python3 tools/build.py` (A = Kino/Slider, B = Index/Projektliste, C = Mosaik/Bildraster). Ohne Angabe wird A gebaut.
 

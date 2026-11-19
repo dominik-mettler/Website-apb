@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dominik-mettler.github.io/Website-apb/sitemap.xml
