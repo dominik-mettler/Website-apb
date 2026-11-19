@@ -17,3 +17,4 @@ v15        c39911f  Variante A + Logo-Schrift sauber gesetzt (Arial Bold statt n
 v16        2f8de2b  Variante A + Karte = amtliche Vermessung S/W, Luftbild, 3D
 v17        2458657  Variante A + neues Referenzblatt (A4, 2 Seiten)
 v18        aa5b840  Variante A + Original-Referenzblätter (A3, PDF)
+v19        8c3e724  Variante A + englische Version, Projektseiten für Google, Barrierefreiheit

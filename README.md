@@ -61,6 +61,7 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | neuester Stand | https://dominik-mettler.github.io/Website-apb/ |
 | v1 – erstes Redesign | https://dominik-mettler.github.io/Website-apb/v1/ |
 | v2 – Schwarz, Orange, Intro, 30 Jahre | https://dominik-mettler.github.io/Website-apb/v2/ |
+| v19 – englische Version, Google, Barrierefreiheit | https://dominik-mettler.github.io/Website-apb/v19/ |
 | v3 – Intro mit Original-Logo | https://dominik-mettler.github.io/Website-apb/v3/ |
 | v4 – 30 füllt sich sauber | https://dominik-mettler.github.io/Website-apb/v4/ |
 | v5 – Variante A «Kino» | https://dominik-mettler.github.io/Website-apb/v5/ |
