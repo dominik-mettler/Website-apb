@@ -777,9 +777,30 @@ for _path, _target in REDIRECTS.items():
 ''')
 print('redirects', len(REDIRECTS))
 
+CSP = """default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wmts.geo.admin.ch https://3d.geo.admin.ch; connect-src 'self' https://wmts.geo.admin.ch https://3d.geo.admin.ch; worker-src 'self' blob:; font-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"""
 # 301-Weiterleitungen der alten Adressen für den Live-Server (Apache .htaccess); erhält das Google-Ranking
 with open(os.path.join(OUT, '.htaccess'), 'w') as _h:
-    _h.write('# Alte Adressen der bisherigen Website -> neue Seiten (301 = dauerhaft umgezogen)\nRewriteEngine On\n')
+    _h.write('''# Sicherheit (getestet: Karten, 3D-Ansicht, Video, alle Seiten laufen mit diesen Regeln)
+Options -Indexes
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "%s"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always unset X-Powered-By
+</IfModule>
+# Arbeitsdateien nie ausliefern
+RedirectMatch 404 ^/(tools|content|\\.git|\\.github)(/|$)
+RewriteEngine On
+# immer verschlüsselt und immer mit www
+RewriteCond %%{HTTPS} off [OR]
+RewriteCond %%{HTTP_HOST} ^apb-architekten\\.ch$ [NC]
+RewriteRule ^(.*)$ https://www.apb-architekten.ch/$1 [R=301,L,NE]
+
+# Alte Adressen der bisherigen Website -> neue Seiten (301 = dauerhaft umgezogen)
+''' % CSP)
     for _path, _target in sorted(REDIRECTS.items()):
         _t = _target.split('#')[0]
         if '?' in _t:

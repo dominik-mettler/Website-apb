@@ -1,5 +1,23 @@
-# Alte Adressen der bisherigen Website -> neue Seiten (301 = dauerhaft umgezogen)
+# Sicherheit (getestet: Karten, 3D-Ansicht, Video, alle Seiten laufen mit diesen Regeln)
+Options -Indexes
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wmts.geo.admin.ch https://3d.geo.admin.ch; connect-src 'self' https://wmts.geo.admin.ch https://3d.geo.admin.ch; worker-src 'self' blob:; font-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always unset X-Powered-By
+</IfModule>
+# Arbeitsdateien nie ausliefern
+RedirectMatch 404 ^/(tools|content|\.git|\.github)(/|$)
 RewriteEngine On
+# immer verschlüsselt und immer mit www
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^apb-architekten\.ch$ [NC]
+RewriteRule ^(.*)$ https://www.apb-architekten.ch/$1 [R=301,L,NE]
+
+# Alte Adressen der bisherigen Website -> neue Seiten (301 = dauerhaft umgezogen)
 RewriteRule ^architektur/?$ /projekte.html [R=301,NE,L]
 RewriteRule ^architektur/projekte/?$ /projekte.html [R=301,NE,L]
 RewriteRule ^architektur/projekte/016\-kpf/?$ /projekt-016-kirchturm-st-katharina-faellanden.html [R=301,NE,L]

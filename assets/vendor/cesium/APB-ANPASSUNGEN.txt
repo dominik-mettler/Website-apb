@@ -1,0 +1,3 @@
+Cesium 1.140.0 (npm), unverändert ausser:
+- Cesium.js: Knockout-Zeile `(0,eval)("this")` durch `globalThis` ersetzt (gleiche Wirkung),
+  damit die Seite mit strenger Content-Security-Policy ohne unsafe-eval läuft.
