@@ -3,6 +3,9 @@
 # facts: überschreibt/ergänzt die Kenndaten der bisherigen Website (Verfahren/Status bleiben).
 
 DATEN = {
+ '200-pks': {  # Adresse gemäss amtlichem Verzeichnis: Strasse heisst «Hegger»
+  'facts': [('Adresse', 'Hegger 4, 8603 Schwerzenbach')],
+ },
  '333-kff': {
   'drop': ['Bauzeit', 'Kennwerte'],
   'facts': [('Fertigstellung', 'Oktober 2025'), ('Bearbeitung', 'SIA-Phasen 2.1 und 3.1 bis 5.3'), ('Bauherr', 'Stiftung Kinderhospiz Schweiz'),

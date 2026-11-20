@@ -106,8 +106,8 @@ for pid, d in DATEN.items():
     facts = {k: v for k, v in p['facts'] if k not in d.get('drop', [])}
     for k, v in d['facts']: facts[k] = v
     p['facts'] = [[k, facts[k]] for k in ORDER if k in facts] + [[k, v] for k, v in facts.items() if k not in ORDER]
-    p['desc'] = [list(x) for x in d['text']]
-    p['team'] = [list(x) for x in d['team']]
+    if 'text' in d: p['desc'] = [list(x) for x in d['text']]
+    if 'team' in d: p['team'] = [list(x) for x in d['team']]
     if 'status' in d: p['status'] = d['status']
     p['year'] = d.get('year') or jahr(facts.get('Fertigstellung')) or p.get('year')
 

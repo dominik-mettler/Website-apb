@@ -28,8 +28,14 @@ def zeilen(n):
         out.append(([float(v) for v in m.groups()[:4]], t))
     return out
 
+# Blätter mit veralteten Angaben (bis eine aktuelle Fassung vorliegt)
+VERALTET = {'333-kff': 'altes Blatt: ca. 16 Mio., Ausführung bis Dez. 2026 – aktuell 18 Mio., fertig Okt. 2025'}
 bericht = {}
 for pid, seiten in SEITENZUORDNUNG.items():
+    if pid in VERALTET:
+        z = os.path.join(OUT, pid + '.pdf')
+        if os.path.exists(z): os.remove(z)
+        bericht[pid] = 'in Bearbeitung (veraltet: ' + VERALTET[pid] + ')'; continue
     privat = NEU.get(pid, {}).get('privat')
     wahl = None
     for n in seiten:

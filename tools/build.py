@@ -583,6 +583,7 @@ page('aktuell.html', 'aktuell.html', 'Aktuell – apb architekten ag', 'Neuigkei
 # ---------------------------------------------------------------- KARRIERE
 def para(lines):
     t = ' '.join(lines); t = re.sub(r'\s+', ' ', t)
+    t = re.sub(r'\s*Idealalter \d+-\d+ Jahre,\s*', ' ', t)   # Altersangaben bewusst entfernt
     return t
 def job_parts(slug):
     L = jobs[slug]
@@ -594,6 +595,7 @@ def job_parts(slug):
         sub = rest[0]; rest = rest[1:]
     txt = ' '.join(rest)
     txt = re.sub(r'\s+', ' ', txt).replace('- und', '-und').replace('kosten-und', 'kosten- und')
+    txt = re.sub(r'\s*Idealalter \d+-\d+ Jahre,\s*', ' ', txt)   # Altersangaben bewusst entfernt
     ref = re.search(r'(HP-[A-Z]+-\d+)', txt).group(1)
     s = re.split(r'(?=Wir sind keine Planfabrik)|(?=Wir bieten Ihnen)|(?=Fühlen Sie sich angesprochen\?)|(?=Gerne erwarten wir)', txt)
     s = [x.strip() for x in s if x.strip()]
