@@ -130,6 +130,9 @@ SEITEN = {
     'In the basement of Pünt School, the after-school care centre, kitchen and entrance area were converted and refurbished. The work was carried out in phases between February and August 2026.',
 'Zum Projekt': 'View project',
 'Projekt': 'Project',
+'Arealentwicklung Zürcherstrasse, Volketswil: Etappen 1 und 2 bezogen': 'Zürcherstrasse site development, Volketswil: phases 1 and 2 occupied',
+'Mit dem Gewerbebau an der Tolackerstrasse 2 – zwei Werkstatthallen und Büros als hochisolierter Holzbau – sind die ersten beiden Etappen der Arealentwicklung abgenommen und bezogen. Sanierung und Ersatzneubau an der Zürcherstrasse 16 folgen 2027/28.':
+    'With the commercial building at Tolackerstrasse 2 – two workshop halls and offices built as a highly insulated timber structure – the first two phases of the site development have been handed over and occupied. The refurbishment and replacement building at Zürcherstrasse 16 will follow in 2027/28.',
 'Schulanlage Berg, Gossau: Sanierung in Etappen': 'Berg School, Gossau: refurbishment in phases',
 'Umbau und Sanierung von Gebäudeteilen, Haustechnik und Aussenanlagen der denkmalgeschützten Schulanlage aus den 1950er und 1970er Jahren – mit Photovoltaikanlage und neuen Wärmepumpen.':
     'Conversion and refurbishment of parts of the buildings, the building services and the grounds of the listed school complex from the 1950s and 1970s – with a photovoltaic system and new heat pumps.',

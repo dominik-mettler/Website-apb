@@ -109,6 +109,8 @@ for pid, d in DATEN.items():
     if 'text' in d: p['desc'] = [list(x) for x in d['text']]
     if 'team' in d: p['team'] = [list(x) for x in d['team']]
     if 'status' in d: p['status'] = d['status']
+    if 'sub' in d: p['sub'] = d['sub']
+    if 'kurz' in d: p['text'] = d['kurz']
     p['year'] = d.get('year') or jahr(facts.get('Fertigstellung')) or p.get('year')
 
 # 5b: Zeitraffer-Videos
@@ -133,6 +135,7 @@ for p in D['projects']:
     if re.search(r'denkmal|inventar|ortsbildschutz|schützenswert|kommunal geschützt|kantonal geschützt|geschützten? (?:schul|gebäude|bau|bahn|ortsbild)|unter schutz', corpus): tags.append('denkmal')
     if re.search(r'1\.\s*rang', dict(p['facts']).get('Verfahren', '').lower()): tags.append('wettbewerb')
     if re.search(r'holzbau|holzelement|holz-beton|holzbauweise|holz-hybrid|beton-holz', corpus): tags.append('holzbau')
+    tags = [t for t in tags if t not in DATEN.get(p['id'], {}).get('ohne_tags', [])]   # manuell ausgeschlossen
     p['tags'] = tags
     v = mio(p)
     if v: p['mio'] = v

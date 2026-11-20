@@ -3,6 +3,20 @@
 # facts: überschreibt/ergänzt die Kenndaten der bisherigen Website (Verfahren/Status bleiben).
 
 DATEN = {
+ '347-gtv': {  # Quelle: Referenzblatt «Arealentwicklung Zürcherstrasse, Volketswil» (Stand Juni 2026)
+  'ohne_tags': ['denkmal'],  # nur das Nachbargebäude ist inventarisiert
+  'sub': 'Neubau Werkstatthallen und Büros in Holzbauweise',
+  'kurz': 'Neubau eines Gewerbebaus mit zwei Werkstatthallen und Büros als hochisolierter Holzbau – Teil der Arealentwicklung Zürcherstrasse in Volketswil.',
+  'facts': [('Fertigstellung', 'Juni 2026'), ('Kosten', "12.8 Mio. Fr. (BKP 1–9, inkl. MwSt., Arealentwicklung 1. + 2. Etappe)"),
+            ('Kenndaten', "ca. 18'300 m3 GV (SIA 416, Arealentwicklung 1. + 2. Etappe)")],
+  'text': [
+   ('Situation', 'Der Gewerbebau an der Tolackerstrasse 2 ist Teil der Arealentwicklung Zürcherstrasse/Tolackerstrasse in Volketswil. Diese besteht aus einem inventarisierten Wohngebäude aus dem 19. Jahrhundert, einer Erweiterung mit zwei Wohnblöcken, einem Gewerbebau in Massivbauweise, einem Gewerbebau in Holzbauweise und einer Tiefgarage. Die Aussenraumgestaltung verflicht die verschiedenen Nutzergruppen und gestaltet den Übergang von der Kernzone zur Industriezone.'),
+   ('Nutzung', 'Im Neubau sind zwei Hallen für Metallbau sowie Sanitär- und Werkleitungsbau mit den dazugehörigen Büros untergebracht. Der Werkstattbetrieb stellt besondere Anforderungen an Anlieferung, betriebliche Abläufe und Lärmschutz sowie an erhöhte Trag- und Nutzlasten.'),
+   ('Konstruktion', 'Die Werkstatthalle wurde ohne Unterkellerung als hochisolierter Holzbau realisiert. Die Büros und Nebenräume liegen direkt angrenzend an die beiden Hallen. Bei der Projektierung musste den internen Lasten der Metallverarbeitung Rechnung getragen und der Bodenaufbau für besondere Bodenbelastungen inklusive Befahrbarkeit ausgelegt werden.'),
+   ('Gestaltung', 'Das Thema des Inventargebäudes in der Kernzone – eine klar gegliederte Fassade mit Sprossenfenstern und Klappläden – wird im Gewerbebau mit vorgehängten Schiebeläden weitergeführt, so dass sich die Neubauten zeitgemäss in das Ortsbild einfügen.'),
+   ('Etappierung', "Die Arealentwicklung wird in Etappen ausgeführt. Bis Ende Juni 2026 sind die Etappen 1 und 2 mit rund 18'300 m³ Gebäudevolumen realisiert, abgenommen und bezogen. Die Sanierung der bestehenden Werkstatthalle und der Ersatzneubau an der Zürcherstrasse 16 folgen 2027/28."),
+  ],
+ },
  '200-pks': {  # Adresse gemäss amtlichem Verzeichnis: Strasse heisst «Hegger»
   'facts': [('Adresse', 'Hegger 4, 8603 Schwerzenbach')],
  },

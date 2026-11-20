@@ -302,5 +302,10 @@ P('341-spu', name='Pünt School', sub='Conversion and refurbishment of the after
 P('344-miu', name='Industriestrasse Apartment Building', sub='Refurbishment of an apartment building',
   text='Refurbishment of an apartment building.')
 
-P('347-gtv', name='Tolackerstrasse Commercial Building', sub='New commercial building with workshop and offices',
-  text='New commercial building with a workshop and offices.')
+P('347-gtv', name='Tolackerstrasse Commercial Building', sub='New workshop halls and offices in timber construction',
+  text='New commercial building with two workshop halls and offices, built as a highly insulated timber structure – part of the Zürcherstrasse site development in Volketswil.',
+  desc=[['Situation', 'The commercial building at Tolackerstrasse 2 is part of the Zürcherstrasse/Tolackerstrasse site development in Volketswil. It comprises a listed 19th-century residential building, an extension with two apartment blocks, a commercial building in solid construction, a commercial building in timber and an underground car park. The landscaping weaves together the different user groups and shapes the transition from the village core zone to the industrial zone.'],
+        ['Use', 'The new building houses two halls for metalwork and for plumbing and utility construction, together with their offices. The workshop operations place particular demands on deliveries, operational processes and noise protection, as well as on increased structural and imposed loads.'],
+        ['Construction', 'The workshop hall was built without a basement as a highly insulated timber structure. The offices and ancillary rooms adjoin the two halls directly. The design had to take account of the internal loads of metalworking, and the floor build-up was designed for special loads, including vehicle traffic.'],
+        ['Design', 'The theme of the listed building in the core zone – a clearly structured façade with glazing bars and hinged shutters – is continued in the commercial building with sliding shutters mounted in front of the façade, so that the new buildings fit into the townscape in a contemporary way.'],
+        ['Phasing', 'The site development is being carried out in phases. By the end of June 2026, phases 1 and 2, with a building volume of around 18,300 m³, had been completed, handed over and occupied. The refurbishment of the existing workshop hall and the replacement building at Zürcherstrasse 16 will follow in 2027/28.']])

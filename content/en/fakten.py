@@ -26,6 +26,8 @@ EXAKT = {
     'Wettbewerb 1. Rang': 'Design competition, 1st place',
     'Baupreis 03 Forum Architektur Zürcher Oberland': 'Building Award 03, Zurich Oberland Architecture Forum',
     'n.v.': 'n/a',
+    '12.8 Mio. Fr. (BKP 1–9, inkl. MwSt., Arealentwicklung 1. + 2. Etappe)': 'CHF 12.8 million (BKP 1–9, incl. VAT, site development phases 1 + 2)',
+    "ca. 18'300 m3 GV (SIA 416, Arealentwicklung 1. + 2. Etappe)": 'approx. 18,300 m³ building volume (SIA 416, site development phases 1 + 2)',
     'Realisiert': 'Completed', 'Nicht realisiert': 'Not built',
     'MINERGIE-P (ZH-769-P)': 'MINERGIE-P (ZH-769-P)',
     'Tot.: 2.6 Mio. Fr. (BKP 1-9) Erw.:1.5 Mio. Fr. (BKP 1-9)': 'Total: CHF 2.6 million (BKP 1–9), extension: CHF 1.5 million (BKP 1–9)',
