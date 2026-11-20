@@ -472,11 +472,12 @@
 
     function renderTimeline(list) {
       var tl = $("#timeline .tl-inner"), open = $("#tl-open");
-      var dated = list.filter(function (p) { return p.year; });
-      var undated = list.filter(function (p) { return !p.year; });
+      var tlY = function (p) { return p.year || p.tlYear; };   /* tlYear: nur für die Zeitachse */
+      var dated = list.filter(tlY);
+      var undated = list.filter(function (p) { return !tlY(p); });
       var y0 = 2002, y1 = 2026, html = "";
       for (var y = y0; y <= y1; y++) {
-        var ps = dated.filter(function (p) { return p.year === y; });
+        var ps = dated.filter(function (p) { return tlY(p) === y; });
         if (!ps.length) { html += '<div class="tl-year gap" aria-hidden="true"><span class="yl">' + String(y).slice(2) + "</span></div>"; continue; }
         html += '<div class="tl-year"><span class="yl">' + y + '</span><div class="row">' + ps.map(function (p) {
           return '<a class="tl-item" href="' + url(p) + '" data-cursor="Ansehen"><img src="' + img(p, 1, true) + '" alt="" loading="lazy" width="800" height="600"><span>' + esc(p.name) + " <em>" + esc(p.ort) + "</em></span></a>";

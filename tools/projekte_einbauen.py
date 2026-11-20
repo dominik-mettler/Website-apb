@@ -104,12 +104,13 @@ for pid, d in DATEN.items():
     p = byid.get(pid)
     if not p: continue
     facts = {k: v for k, v in p['facts'] if k not in d.get('drop', [])}
-    for k, v in d['facts']: facts[k] = v
+    for k, v in d.get('facts', []): facts[k] = v
     p['facts'] = [[k, facts[k]] for k in ORDER if k in facts] + [[k, v] for k, v in facts.items() if k not in ORDER]
     if 'text' in d: p['desc'] = [list(x) for x in d['text']]
     if 'team' in d: p['team'] = [list(x) for x in d['team']]
     if 'status' in d: p['status'] = d['status']
     if 'sub' in d: p['sub'] = d['sub']
+    if 'zeitachse' in d: p['tlYear'] = d['zeitachse']   # nur Einordnung in der Zeitachse, nicht auf der Projektseite
     if 'kurz' in d: p['text'] = d['kurz']
     p['year'] = d.get('year') or jahr(facts.get('Fertigstellung')) or p.get('year')
 

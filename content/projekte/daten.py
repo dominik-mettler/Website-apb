@@ -3,6 +3,9 @@
 # facts: überschreibt/ergänzt die Kenndaten der bisherigen Website (Verfahren/Status bleiben).
 
 DATEN = {
+ # Nicht realisiert (Auftrag nicht an apb): nur in der Zeitachse eingeordnet – Umgang noch mit Thomas klären
+ '320-ksp': {'zeitachse': 2022},
+ '312-gok': {'zeitachse': 2020},
  '347-gtv': {  # Quelle: Referenzblatt «Arealentwicklung Zürcherstrasse, Volketswil» (Stand Juni 2026)
   'ohne_tags': ['denkmal'],  # nur das Nachbargebäude ist inventarisiert
   'sub': 'Neubau Werkstatthallen und Büros in Holzbauweise',
