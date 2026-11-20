@@ -22,3 +22,4 @@ v20        d955891  Variante A + Adresse Hegger, ohne Idealalter, Kinderhospiz-B
 v21        78b3dc9  Variante A + Gewerbebau Tolackerstrasse mit Referenzblatt und Beschrieb
 v22        a6a1756  Variante A + Zeitachse: Pfäffikon 2022, Küsnacht 2020
 v23        b8fb5b0  Variante A + Arealentwicklung Zürcherstrasse verlinkt
+v24        8861eec  Variante A + Schulhaus Pünt mit Luftbild
