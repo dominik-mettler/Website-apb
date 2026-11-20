@@ -80,3 +80,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v19 – englische Version, Google, Barrierefreiheit | https://dominik-mettler.github.io/Website-apb/v19/ |
 | v20 – Hegger-Adresse, ohne Idealalter | https://dominik-mettler.github.io/Website-apb/v20/ |
 | v21 – Gewerbebau Tolackerstrasse: Referenzblatt, Beschrieb | https://dominik-mettler.github.io/Website-apb/v21/ |
+| v22 – Zeitachse: Pfäffikon 2022, Küsnacht 2020 | https://dominik-mettler.github.io/Website-apb/v22/ |
