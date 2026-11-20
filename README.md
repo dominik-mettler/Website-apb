@@ -78,3 +78,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v17 – neues Referenzblatt (A4, 2 Seiten) | https://dominik-mettler.github.io/Website-apb/v17/ |
 | v18 – Original-Referenzblätter (A3, PDF) | https://dominik-mettler.github.io/Website-apb/v18/ |
 | v19 – englische Version, Google, Barrierefreiheit | https://dominik-mettler.github.io/Website-apb/v19/ |
+| v20 – Hegger-Adresse, ohne Idealalter | https://dominik-mettler.github.io/Website-apb/v20/ |
