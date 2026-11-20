@@ -19,3 +19,4 @@ v17        2458657  Variante A + neues Referenzblatt (A4, 2 Seiten)
 v18        aa5b840  Variante A + Original-Referenzblätter (A3, PDF)
 v19        8c3e724  Variante A + englische Version, Projektseiten für Google, Barrierefreiheit
 v20        d955891  Variante A + Adresse Hegger, ohne Idealalter, Kinderhospiz-Blatt zurückgehalten
+v21        78b3dc9  Variante A + Gewerbebau Tolackerstrasse mit Referenzblatt und Beschrieb
