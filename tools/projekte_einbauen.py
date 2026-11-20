@@ -110,6 +110,7 @@ for pid, d in DATEN.items():
     if 'team' in d: p['team'] = [list(x) for x in d['team']]
     if 'status' in d: p['status'] = d['status']
     if 'sub' in d: p['sub'] = d['sub']
+    if 'areal' in d: p['areal'] = d['areal']   # gleiche Arealentwicklung -> gegenseitig verlinkt
     if 'zeitachse' in d: p['tlYear'] = d['zeitachse']   # nur Einordnung in der Zeitachse, nicht auf der Projektseite
     if 'kurz' in d: p['text'] = d['kurz']
     p['year'] = d.get('year') or jahr(facts.get('Fertigstellung')) or p.get('year')

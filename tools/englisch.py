@@ -167,6 +167,7 @@ def daten():
     for p in D['projects']:
         e = P.PROJEKTE.get(p['id'], {})
         wo = 'projekt ' + p['id']
+        if p.get('areal'): p['areal'] = P.AREAL.get(p['areal'], p['areal']) if p['areal'] in P.AREAL else fehlend.setdefault(p['areal'], set()).add(wo + ' areal') or p['areal']
         for k in ('name', 'sub', 'text'):
             if e.get(k): p[k] = e[k]
             elif p.get(k): fehlend.setdefault(norm(p[k]), set()).add(wo + ' ' + k) if not F.gleich(p[k]) else None

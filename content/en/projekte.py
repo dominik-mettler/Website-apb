@@ -1,6 +1,7 @@
 # Englische Projekttexte (britisches Englisch), Fachbegriffe gemäss GLOSSAR.md
 # Pro Projekt: name, sub, text, desc (gleiche Anzahl Abschnitte wie deutsch: [Titel, Text])
 PROJEKTE = {}
+AREAL = {'Arealentwicklung Zürcherstrasse, Volketswil': 'Zürcherstrasse site development, Volketswil'}
 def P(pid, **k): PROJEKTE[pid] = k
 
 P('016-kpf', name='St. Katharina Bell Tower',

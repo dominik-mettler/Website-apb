@@ -542,7 +542,8 @@
       var sa = a.cats.filter(function (c) { return p.cats.indexOf(c) > -1; }).length, sb = b.cats.filter(function (c) { return p.cats.indexOf(c) > -1; }).length;
       return sb - sa || (b.year || 0) - (a.year || 0);
     });
-    related = related.slice(0, 3);
+    var areal = p.areal ? D.projects.filter(function (q) { return q !== p && q.areal === p.areal; }) : [];
+    related = areal.concat(related.filter(function (q) { return areal.indexOf(q) < 0; })).slice(0, 3);
 
     var n = p.img.length;
     var gal = "";
@@ -558,6 +559,7 @@
       '<div class="wrap"><div class="p-crumbs"><nav aria-label="Brotkrumen"><a href="index.html">Start</a><span>/</span><a href="projekte.html">Projekte</a><span>/</span><span aria-current="page">' + esc(p.name) + "</span></nav>" +
       '<div class="p-pn"><a class="prev" href="' + url(prevP) + '"><span class="arr"></span>Vorheriges</a><a href="' + url(nextP) + '">Nächstes<span class="arr"></span></a></div></div>' +
       '<div class="p-body"><div class="p-intro"><p class="sub rv">' + esc(p.sub) + '</p><p class="lead rv" style="--d:.1s">' + esc(p.text) + "</p>" +
+      (areal.length ? '<p class="p-areal rv" style="--d:.15s">Teil der <b>' + esc(p.areal) + '</b> <span>– ebenfalls auf diesem Areal:</span> ' + areal.map(function (q) { return '<a href="' + url(q) + '">' + esc(q.name) + "</a>"; }).join(", ") + "</p>" : "") +
       '<div class="p-cats rv" style="--d:.2s">' + p.cats.map(function (c) { return '<a class="chip" href="projekte.html#thema=' + c + '">' + catLabel[c] + "</a>"; }).join("") + "</div></div>" +
       '<aside class="facts rv"><dl>' + p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" +
       '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div><button type="button" class="btn-3d" id="p3d"><span>3D</span>Umgebung in 3D ansehen</button></aside></div>' +

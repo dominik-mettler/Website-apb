@@ -9,7 +9,8 @@
 - **Nicht realisierte Projekte – Umgang klären:** Kirchgemeindehaus Pfäffikon (320, Planerwahl 1. Rang, Auftrag ging nicht an apb)
   und Gemeindehaus Küsnacht (312, Planerwahl 1. Rang, nicht ausgeführt). Vorerst als «Nicht realisiert» online und in der Zeitachse
   bei 2022 bzw. 2020 eingeordnet (ohne Jahr auf der Projektseite). Frage: so zeigen, unter «Wettbewerbe» verschieben oder entfernen?
-- Projekt 281 (MFH Zürcherstrasse) und 347 (Gewerbebau Tolackerstrasse) sind dieselbe Arealentwicklung: zusammenführen oder verlinken?
+- Arealentwicklung Zürcherstrasse: 281 (MFH Zürcherstrasse) und 347 (Gewerbebau Tolackerstrasse) bleiben getrennt und sind gegenseitig verlinkt.
+  Weitere Etappe (kleineres MFH, Zürcherstrasse 16) ist in der Baueingabe – später als eigenes Projekt mit 'areal' ergänzen; 281 hat noch ältere Angaben.
 - Thomas’ Liste mit Verbesserungen und Fragen: ausstehend.
 
 ## Material

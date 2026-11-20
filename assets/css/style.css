@@ -1233,3 +1233,7 @@ body.variant-c .site-header .logo { transition: opacity .4s; }
 /* Vorab gerenderter Projektinhalt (für Suchmaschinen, wird von JS ersetzt) */
 .seo-pre img { max-width: 100%; height: auto; }
 .seo-pre dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; }
+
+/* Hinweis auf gleiche Arealentwicklung */
+.p-areal { margin: 18px 0 0; padding: 12px 14px; border-left: 2px solid var(--accent); background: rgba(255,255,255,.03); font-size: 15px; line-height: 1.5; color: var(--ink-2, var(--ink)); }
+.p-areal a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }

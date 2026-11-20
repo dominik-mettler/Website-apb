@@ -6,8 +6,10 @@ DATEN = {
  # Nicht realisiert (Auftrag nicht an apb): nur in der Zeitachse eingeordnet – Umgang noch mit Thomas klären
  '320-ksp': {'zeitachse': 2022},
  '312-gok': {'zeitachse': 2020},
+ '281-mzv': {'areal': 'Arealentwicklung Zürcherstrasse, Volketswil'},  # weitere Etappe (kleineres MFH) in Baueingabe – später ergänzen
  '347-gtv': {  # Quelle: Referenzblatt «Arealentwicklung Zürcherstrasse, Volketswil» (Stand Juni 2026)
   'ohne_tags': ['denkmal'],  # nur das Nachbargebäude ist inventarisiert
+  'areal': 'Arealentwicklung Zürcherstrasse, Volketswil',
   'sub': 'Neubau Werkstatthallen und Büros in Holzbauweise',
   'kurz': 'Neubau eines Gewerbebaus mit zwei Werkstatthallen und Büros als hochisolierter Holzbau – Teil der Arealentwicklung Zürcherstrasse in Volketswil.',
   'facts': [('Fertigstellung', 'Juni 2026'), ('Kosten', "12.8 Mio. Fr. (BKP 1–9, inkl. MwSt., Arealentwicklung 1. + 2. Etappe)"),
