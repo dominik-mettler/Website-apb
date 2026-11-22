@@ -52,3 +52,8 @@ Wenn erstellt, immer in dieser Auswahl:
 - Text nie aus Pixelbildern nachzeichnen. Zuerst die Schrift bestimmen und den Text mit der echten Schrift setzen (Konturen aus der Schriftdatei).
 - Nur nicht-typografische Teile (z. B. der skizzierte Würfel im Logo) dürfen vektorisiert werden.
 - Logo-Wortmarke «apb architekten ag»: Arial/Helvetica Bold → gesetzt mit Liberation Sans Bold (gleiche Masse wie Arial).
+
+## Bildrechte – gilt immer
+- Nur Fotos verwenden, an denen apb die Rechte hat (eigene Fotos, beauftragte Fotografen, schriftliche Erlaubnis).
+- Fremdfotos (z. B. von Google Maps, Social Media, Websites Dritter) nie einbauen – auch nicht, wenn sie im gelieferten Ordner liegen.
+  Bei Dateinamen mit Hinweisen wie «Google», «Maps», «Internet» immer zuerst nachfragen.
