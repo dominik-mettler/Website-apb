@@ -380,6 +380,7 @@
     var h = new URLSearchParams(location.hash.slice(1));
     if (h.get("thema") && (catLabel[h.get("thema")] || h.get("thema") === "auswahl")) state.cat = h.get("thema");
     if (h.get("ansicht")) state.view = h.get("ansicht");
+    state.mit = h.get("mit") && (D.beteiligte || {})[h.get("mit")] ? h.get("mit") : "";
 
     var chips = $("#chips"), grid = $("#pgrid"), tbody = $("#plist tbody"), countEl = $("#count"), empty = $(".empty");
     var views = { raster: $("#v-raster"), liste: $("#v-liste"), karte: $("#v-karte"), zeitachse: $("#v-zeitachse") };
@@ -397,15 +398,16 @@
       fbtn.addEventListener("click", function () { var o = fpanel.hidden; fpanel.hidden = !o; fbtn.setAttribute("aria-expanded", o); });
       ftags.addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; var t = b.dataset.tag, i = state.tags.indexOf(t); if (i > -1) state.tags.splice(i, 1); else state.tags.push(t); render(); });
       fcost.addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; state.cost = state.cost === b.dataset.cost ? "" : b.dataset.cost; render(); });
-      $("#freset").addEventListener("click", function () { state.tags = []; state.cost = ""; state.cat = "alle"; state.q = ""; $("#q").value = ""; render(); });
+      $("#freset").addEventListener("click", function () { state.tags = []; state.cost = ""; state.cat = "alle"; state.q = ""; state.mit = ""; $("#q").value = ""; render(); });
     }
     function match(p) {
+      if (state.mit && !(p.team || []).some(function (t) { return (t[2] || []).indexOf(state.mit) > -1; })) return false;
       if (state.cat === "auswahl" && !p.sel) return false;
       if (state.tags.length && !state.tags.every(function (t) { return (p.tags || []).indexOf(t) > -1; })) return false;
       if (state.cost) { var c = COSTS.filter(function (x) { return x[0] === state.cost; })[0]; if (!p.mio || p.mio < c[2] || p.mio >= c[3]) return false; }
       if (state.cat !== "alle" && state.cat !== "auswahl" && p.cats.indexOf(state.cat) < 0) return false;
       if (state.q) {
-        var hay = (p.name + " " + p.ort + " " + p.sub + " " + p.text + " " + p.facts.map(function (f) { return f[1]; }).join(" ") + " " + p.cats.map(function (c) { return catLabel[c]; }).join(" ")).toLowerCase();
+        var hay = (p.name + " " + p.ort + " " + p.sub + " " + p.text + " " + p.facts.map(function (f) { return f[1]; }).join(" ") + " " + p.cats.map(function (c) { return catLabel[c]; }).join(" ") + " " + (p.team || []).map(function (t) { return t[1] + " " + (t[2] || []).map(function (k) { return (D.beteiligte || {})[k] ? D.beteiligte[k].n : ""; }).join(" "); }).join(" ")).toLowerCase();
         return state.q.toLowerCase().split(/\s+/).every(function (w) { return hay.indexOf(w) > -1; });
       }
       return true;
@@ -433,8 +435,10 @@
       var list = sorted(all.filter(match));
       var extra = state.tags.map(function (t) { return TAGS.filter(function (x) { return x[0] === t; })[0][1]; });
       if (state.cost) extra.push(COSTS.filter(function (x) { return x[0] === state.cost; })[0][1]);
-      countEl.innerHTML = "<b>" + list.length + "</b> " + (list.length === 1 ? "Projekt" : "Projekte") + (state.cat !== "alle" ? " · " + (state.cat === "auswahl" ? "Auswahl" : catLabel[state.cat]) : "") + (extra.length ? " · " + esc(extra.join(" · ")) : "");
+      countEl.innerHTML = "<b>" + list.length + "</b> " + (list.length === 1 ? "Projekt" : "Projekte") + (state.cat !== "alle" ? " · " + (state.cat === "auswahl" ? "Auswahl" : catLabel[state.cat]) : "") + (extra.length ? " · " + esc(extra.join(" · ")) : "") +
+        (state.mit ? ' <span class="mit-tag">mit <b>' + esc(D.beteiligte[state.mit].n) + '</b><button type="button" class="mit-x" aria-label="Filter entfernen">×</button></span>' : "");
       empty.classList.toggle("on", !list.length);
+      var mx = $(".mit-x", countEl); if (mx) mx.addEventListener("click", function () { state.mit = ""; render(); });
       if (state.view === "raster") grid.innerHTML = list.map(card).join("");
       if (state.view === "liste") {
         tbody.innerHTML = list.map(function (p) {
@@ -467,6 +471,7 @@
       var hs = new URLSearchParams();
       if (state.cat !== "alle") hs.set("thema", state.cat);
       if (state.view !== "raster") hs.set("ansicht", state.view);
+      if (state.mit) hs.set("mit", state.mit);
       history.replaceState(null, "", hs.toString() ? "#" + hs.toString() : location.pathname + location.search);
     }
 
@@ -526,6 +531,39 @@
   /* ==========================================================================
      PROJEKT (Detail)
      ========================================================================== */
+  /* ---------- Beteiligte (Fachplaner): klickbar ab 2 gemeinsamen Projekten ---------- */
+  var BET = D.beteiligte || {};
+  function betHTML(t) {
+    var keys = (t[2] || []).filter(function (k) { return BET[k]; });
+    if (!keys.length) return esc(t[1]);
+    var btn = function (k, txt) { return '<button type="button" class="bt" data-bet="' + k + '" aria-haspopup="true" aria-expanded="false">' + esc(txt) + "</button>"; };
+    if (keys.length === 1 && (t[2] || []).length === 1) return btn(keys[0], t[1]);
+    return (t[2] || []).map(function (k) { return BET[k] ? btn(k, BET[k].n) : esc(k); }).join(", ");
+  }
+  function betMenu(root) {
+    var menu = null, owner = null;
+    function zu() { if (menu) { menu.remove(); menu = null; } if (owner) { owner.setAttribute("aria-expanded", "false"); owner = null; } }
+    root.addEventListener("click", function (e) {
+      var b = e.target.closest(".bt"); if (!b) return;
+      e.preventDefault(); var war = owner === b; zu(); if (war) return;
+      var k = b.dataset.bet, x = BET[k]; if (!x) return;
+      menu = document.createElement("div"); menu.className = "bt-menu"; menu.setAttribute("role", "menu");
+      menu.innerHTML = '<span class="bt-name">' + esc(x.n) + "</span>" +
+        '<a role="menuitem" href="projekte.html#mit=' + k + '">Alle Projekte mit ' + esc(x.n) + " (" + x.c + ")</a>" +
+        (x.w ? '<a role="menuitem" href="' + esc(x.w) + '" target="_blank" rel="noopener">Website ↗</a>' : "") +
+        (x.a === "apb" ? '<a role="menuitem" href="buero.html#team">Zum Team</a>' : "");
+      document.body.appendChild(menu);
+      var r = b.getBoundingClientRect(), mw = Math.min(320, innerWidth - 24);
+      menu.style.left = Math.max(12, Math.min(r.left + scrollX, scrollX + innerWidth - mw - 12)) + "px";
+      menu.style.top = (r.bottom + scrollY + 6) + "px";
+      owner = b; b.setAttribute("aria-expanded", "true");
+      var first = menu.querySelector("a"); if (first) first.focus({ preventScroll: true });
+    });
+    document.addEventListener("click", function (e) { if (menu && !e.target.closest(".bt-menu") && !e.target.closest(".bt")) zu(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && menu) { var o = owner; zu(); if (o) o.focus(); } });
+    addEventListener("resize", zu);
+  }
+
   function initProject() {
     var id = new URLSearchParams(location.search).get("p") || document.body.getAttribute("data-pid");
     var root = $("#project");
@@ -570,7 +608,7 @@
       (p.plans && p.plans.length ? '<section class="section tight p-plans"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Pläne</h2><span class="muted small rv">Zum Vergrössern anklicken</span></div><div class="plan-grid">' +
         p.plans.map(function (pl, k) { return '<figure class="plan rv" data-k="' + k + '" data-cursor="Vergrössern"><div class="plan-img"><img src="' + plan(p, k + 1, true) + '" alt="' + esc(pl) + '" loading="lazy" width="1200" height="800"></div><figcaption>' + esc(pl) + "</figcaption></figure>"; }).join("") + "</div></div></section>" : "") +
       (p.team && p.team.length ? '<section class="section tight p-team"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Beteiligte</h2></div><dl class="team-list rv">' +
-        p.team.map(function (t) { return "<div><dt>" + esc(t[0]) + "</dt><dd>" + esc(t[1]) + "</dd></div>"; }).join("") + "</dl></div></section>" : "") +
+        p.team.map(function (t) { return "<div><dt>" + esc(t[0]) + "</dt><dd>" + betHTML(t) + "</dd></div>"; }).join("") + "</dl></div></section>" : "") +
       (related.length ? '<section class="section tight related"><div class="wrap"><div class="section-head"><h2 class="h2">Verwandte Projekte</h2><a class="link" href="projekte.html#thema=' + p.cats[0] + '">Alle Projekte «' + catLabel[p.cats[0]] + '»<span class="arr"></span></a></div><div class="pgrid">' + related.map(card).join("") + "</div></div></section>" : "") +
       '<a class="next-project" href="' + url(nextP) + '" data-cursor="Weiter"><img src="' + img(nextP, 1) + '" alt="" loading="lazy"><div class="wrap"><span class="eyebrow">Nächstes Projekt</span><h2 class="display">' + esc(nextP.name) + "</h2></div></a>";
 
@@ -603,6 +641,7 @@
       }
     });
     var b3 = $("#p3d"); if (b3) b3.addEventListener("click", function () { open3d({ focus: p }); });
+    betMenu(root);
     observe(root);
   }
 

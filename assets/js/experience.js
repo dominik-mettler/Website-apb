@@ -234,8 +234,15 @@
     if (!btns.length) return;
     var catL = {}; (D.cats || []).forEach(function (c) { catL[c[0]] = c[1]; });
     var PI = D.projects.map(function (p) {
-      var bh = (p.facts.filter(function (f) { return f[0] === "Bauherr"; })[0] || [])[1] || "";
-      return { p: p, hay: fold([p.name, p.ort, p.sub, p.text, bh, p.nr, p.year, p.status, p.cats.map(function (c) { return catL[c]; }).join(" "), p.facts.map(function (f) { return f[1]; }).join(" ")].join(" ")), nm: fold(p.name + " " + p.ort), bh: bh };
+      var bh = (p.facts.filter(function (f) { return f[0] === "Bauherr" || f[0] === "Client"; })[0] || [])[1] || "";
+      var team = (p.team || []).map(function (t) { return t[1]; }).join(" ");
+      return { p: p, hay: fold([p.name, p.ort, p.sub, p.text, bh, p.nr, p.year, p.status, p.cats.map(function (c) { return catL[c]; }).join(" "), p.facts.map(function (f) { return f[1]; }).join(" "), team].join(" ")), nm: fold(p.name + " " + p.ort), bh: bh };
+    });
+    /* Beteiligte (ab 2 gemeinsamen Projekten) als eigene Treffer */
+    var BETL = D.beteiligte || {};
+    Object.keys(BETL).forEach(function (k) {
+      var x = BETL[k]; if (x.a === "apb") return;
+      PAGES.push([x.n, "Fachplaner · " + x.c + " Projekte", "projekte.html#mit=" + k, "fachplaner beteiligte planer ingenieur consultant"]);
     });
     var GI = PAGES.map(function (g) { return { g: g, hay: fold(g.join(" ")), nm: fold(g[0]) }; });
     var box = document.createElement("div");

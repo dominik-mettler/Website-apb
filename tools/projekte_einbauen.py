@@ -154,6 +154,24 @@ for p in D['projects']:   # eigene, für Google lesbare Projektseite (tools/seo.
     p['url'] = 'projekt-' + re.match(r'[\d-]+', p['id']).group(0).strip('-') + '-' + _slug(p['name'] + ' ' + p['ort']) + '.html'
 D['projects'].sort(key=lambda p: p['id'], reverse=True)
 D['projects'] = [p for p in D['projects'] if p.get('img')]   # ohne Bilder nicht veröffentlichen
+
+# Beteiligte: Schreibweisen zu Firmen/Personen zusammenfassen (content/fachplaner.py), klickbar ab 2 gemeinsamen Projekten
+sys.path.insert(0, os.path.join(R, 'content'))
+from fachplaner import BETEILIGTE
+WEB = {k: v for k, v in json.load(open(os.path.join(R, 'content/fachplaner-web.json'))).items() if not k.startswith('_')}
+def _bet_keys(v):
+    m = [b[0] for b in BETEILIGTE if re.search(b[2], v, re.I)]
+    if len(m) == 1: return m
+    teile = [[b[0] for b in BETEILIGTE if re.search(b[2], t.strip(), re.I)] for t in v.split(',')]
+    return [x[0] for x in teile if len(x) == 1] or m
+_zahl = {}
+for p in D['projects']:
+    for t in p.get('team') or []:
+        del t[2:]
+        t.append(_bet_keys(t[1]))
+        for k in set(t[2]): _zahl.setdefault(k, set()).add(p['id'])
+D['beteiligte'] = {b[0]: {'n': b[1], 'a': b[3], 'c': len(_zahl[b[0]]), **({'w': WEB[b[0]]} if b[0] in WEB else {})}
+                   for b in BETEILIGTE if b[3] and len(_zahl.get(b[0], ())) >= 2}
 head = '/* Projektdaten – generiert von tools/projekte_einbauen.py */\n'
 # Trennstriche aus dem Zeilenumbruch der alten Website entfernen (bewusst explizite Liste)
 TRENN = ['drin-genden', 'Aussen-hülle', 'über-hohen', 'wel-ches', 'unter-streicht', 'unter-irdische', 'son-dern',

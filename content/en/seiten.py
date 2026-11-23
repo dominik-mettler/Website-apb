@@ -608,7 +608,7 @@ UI = {
 'Wir planen einen Umbau bzw. eine Sanierung und würden gerne ein erstes Gespräch vereinbaren.': 'We are planning a conversion or refurbishment and would like to arrange an initial meeting.',
 'Wir interessieren uns für eine Bauherrenberatung.': 'We are interested in client advisory services.', 'Wir interessieren uns für eine Analyse unserer Liegenschaft.': 'We are interested in an assessment of our property.',
 'Wir interessieren uns für die Käuferbetreuung.': 'We are interested in buyer support.',
-'SIA-Norm 112 – Phasen': 'SIA standard 112 – stages', 'Bewerben': 'Apply', 'Teil der': 'Part of the', '– ebenfalls auf diesem Areal:': '– also on this site:', 'Bauleitung': 'Site supervision', 'Schulhausbau': 'School buildings', 'Denkmalpflege': 'Heritage conservation', 'Projektübersicht': 'Project overview', 'Kontaktangaben': 'Contact details', 'Wettbewerbsbeiträge': 'Competition entries', 'Wettbewerbsbeitrag': 'Competition entry', 'Zeitleiste 1996–2026': 'Timeline 1996–2026', 'Raster': 'Grid', 'Liste': 'List', 'Karte': 'Map', 'Zeitachse': 'Timeline', 'Start': 'Home', 'Brotkrumen': 'Breadcrumb', 'Lesen': 'Read', ', Amtliche Vermessung': ', official cadastral survey', 'Anfrage': 'Enquiry', 'Chronik 1996–2026': 'Chronicle 1996–2026', 'Stellen & Initiativbewerbung': 'Jobs & speculative applications',
+'SIA-Norm 112 – Phasen': 'SIA standard 112 – stages', 'Bewerben': 'Apply', 'mit': 'with', 'Filter entfernen': 'Remove filter', 'Fachplaner': 'Consultant', 'Zum Team': 'Meet the team', 'Website ↗': 'Website ↗', 'Teil der': 'Part of the', '– ebenfalls auf diesem Areal:': '– also on this site:', 'Bauleitung': 'Site supervision', 'Schulhausbau': 'School buildings', 'Denkmalpflege': 'Heritage conservation', 'Projektübersicht': 'Project overview', 'Kontaktangaben': 'Contact details', 'Wettbewerbsbeiträge': 'Competition entries', 'Wettbewerbsbeitrag': 'Competition entry', 'Zeitleiste 1996–2026': 'Timeline 1996–2026', 'Raster': 'Grid', 'Liste': 'List', 'Karte': 'Map', 'Zeitachse': 'Timeline', 'Start': 'Home', 'Brotkrumen': 'Breadcrumb', 'Lesen': 'Read', ', Amtliche Vermessung': ', official cadastral survey', 'Anfrage': 'Enquiry', 'Chronik 1996–2026': 'Chronicle 1996–2026', 'Stellen & Initiativbewerbung': 'Jobs & speculative applications',
 'Karriere – Lehrbeginn August 2028': 'Careers – apprenticeship starts August 2028', 'Lehrstelle Zeichner/-in EFZ': 'Apprenticeship as architectural draughtsperson (EFZ)',
 }
 
@@ -629,6 +629,7 @@ MUSTER = [
     (r'(\d+) Fertigstellungen', r'\1 completions'),
     (r'Alle Projekte «(.+)»', r'All “\1” projects'),
     (r'Zum Jahr (\d{4})', r'Go to \1'),
+    (r'Alle Projekte mit (.+) \((\d+)\)', r'All projects with \1 (\2)'),
     (r'Keine Treffer für «(.*)»\. Versuchen Sie einen Ort, eine Nutzung oder einen Bauherrn\.', r'No results for “\1”. Try a place, a type of building or a client.'),
 ]
 _MON = [('Januar', 'January'), ('Februar', 'February'), ('März', 'March'), ('April', 'April'), ('Mai', 'May'), ('Juni', 'June'),

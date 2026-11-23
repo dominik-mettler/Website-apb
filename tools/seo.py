@@ -111,7 +111,7 @@ def projektseite(lang, p, vorlage):
     for t, x in p.get('desc') or []:
         teile.append(('<h2>%s</h2>' % E(t) if t else '') + '<p>%s</p>' % E(x))
     if p.get('team'):
-        teile.append('<h2>%s</h2><dl>' % L('Projektteam', 'Project team') + ''.join('<dt>%s</dt><dd>%s</dd>' % (E(a), E(v)) for a, v in p['team']) + '</dl>')
+        teile.append('<h2>%s</h2><dl>' % L('Projektteam', 'Project team') + ''.join('<dt>%s</dt><dd>%s</dd>' % (E(t[0]), E(t[1])) for t in p['team']) + '</dl>')
     teile.append('</div></article>')
     doc, n = re.subn(r'<div id="project">.*?</noscript></div>', lambda m: '<div id="project">' + ''.join(teile) + '</div>', doc, count=1, flags=re.S)
     assert n == 1, 'Projekt-Container nicht gefunden: ' + lang + ' ' + fn

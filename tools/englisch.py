@@ -184,7 +184,7 @@ def daten():
             p['plans'] = [F.plan(x) or fehlend.setdefault(x, set()).add(wo + ' plan') or x for x in p['plans']]
         p['facts'] = [F.fakt(a, b, fehlend, wo) for a, b in p['facts']]
         if p.get('team'):
-            p['team'] = [[F.rolle(a, fehlend, wo), F.wert(b)] for a, b in p['team']]
+            p['team'] = [[F.rolle(t[0], fehlend, wo), F.wert(t[1])] + t[2:] for t in p['team']]
         if p.get('status'): p['status'] = F.STATUS.get(p['status'], p['status'])
         if p.get('video') and p['video'].get('text'): p['video']['text'] = e.get('video', F.VIDEO.get(p['video']['text'], p['video']['text']))
     D['cats'] = [[c, F.KAT[c]] for c, _ in D['cats']]

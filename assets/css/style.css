@@ -1237,3 +1237,14 @@ body.variant-c .site-header .logo { transition: opacity .4s; }
 /* Hinweis auf gleiche Arealentwicklung */
 .p-areal { margin: 18px 0 0; padding: 12px 14px; border-left: 2px solid var(--accent); background: rgba(255,255,255,.03); font-size: 15px; line-height: 1.5; color: var(--ink-2, var(--ink)); }
 .p-areal a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Beteiligte: klickbar mit Menü */
+.team-list .bt { font: inherit; color: inherit; text-align: left; padding: 0; border: 0; background: none; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(241,93,48,.55); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.team-list .bt:hover, .team-list .bt[aria-expanded="true"] { color: var(--accent); text-decoration-color: currentColor; }
+.bt-menu { position: absolute; z-index: 60; width: max-content; max-width: min(320px, calc(100vw - 24px)); background: #1a1a18; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; box-shadow: 0 14px 40px rgba(0,0,0,.5); padding: 6px; display: flex; flex-direction: column; }
+.bt-menu .bt-name { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); padding: 8px 10px 4px; }
+.bt-menu a { padding: 9px 10px; border-radius: 4px; font-size: 15px; color: #edebe6; text-decoration: none; }
+.bt-menu a:hover, .bt-menu a:focus-visible { background: rgba(241,93,48,.14); color: var(--accent); outline: none; }
+.mit-tag { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; padding: 2px 4px 2px 10px; border: 1px solid var(--accent); border-radius: 999px; font-size: .92em; }
+.mit-x { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; line-height: 1; color: inherit; }
+.mit-x:hover { background: rgba(241,93,48,.18); }
