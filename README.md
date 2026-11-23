@@ -88,3 +88,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v28 – Pläne zugeschnitten, Kartenpunkte korrigiert | https://dominik-mettler.github.io/Website-apb/v28/ |
 | v29 – Seite «Potenzial» mit Login (in Bearbeitung) | https://dominik-mettler.github.io/Website-apb/v29/ |
 | v30 – Pläne unbeschnitten, Situation auf Projekt zentriert | https://dominik-mettler.github.io/Website-apb/v30/ |
+| v31 – Pläne im Original, kein Zuschnitt | https://dominik-mettler.github.io/Website-apb/v31/ |
