@@ -205,7 +205,7 @@
       if (!k.ring) return;
       var c = k.ring.reduce(function (s, p) { return [s[0] + p[0] / k.ring.length, s[1] + p[1] / k.ring.length]; }, [0, 0]), cw = wgs(c[0], c[1]);
       var g = llArr(k.ring); g.push(g[0], g[1]);
-      ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(g), width: 3, material: weiss, clampToGround: true } });
+      ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(g), width: 3, material: weiss, clampToGround: true } })._pzArbeit = 1;
       letzteParzelle = true;
       if (aktuellR) {                                     // zulässiges Baufeld als Fläche (Rasterzeilen à 1 m)
         var R = aktuellR, schritt = 2;
@@ -228,7 +228,7 @@
       a.eintraege.forEach(function (e) {
         if (!/Baulinie/i.test(e.code + e.legende) || !e.geo) return;
         e.geo.forEach(function (gg) { var l = gg.Line || gg.line; if (!l || !l.coordinates) return;
-          ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(llArr(l.coordinates)), width: 2, material: new C.PolylineDashMaterialProperty({ color: C.Color.fromCssColorString("#e5484d") }), clampToGround: true } }); });
+          ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(llArr(l.coordinates)), width: 2, material: new C.PolylineDashMaterialProperty({ color: C.Color.fromCssColorString("#e5484d") }), clampToGround: true } })._pzArbeit = 1; });
       });
       var bb = (k.bf || k.ring).map(function (p) { return wgs(p[0], p[1]); });
       window.APB3D.ausblenden([Math.min.apply(null, bb.map(function (q) { return q[0]; })), Math.max.apply(null, bb.map(function (q) { return q[0]; })), Math.min.apply(null, bb.map(function (q) { return q[1]; })), Math.max.apply(null, bb.map(function (q) { return q[1]; }))]);
@@ -504,9 +504,9 @@
           var att = { c: [p.c[0] + vv[0] * nordV * p.T * 0.12, p.c[1] + vv[1] * nordV * p.T * 0.12], L: p.L * 0.82, T: p.T * 0.7, ang: p.ang };
           add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0, extrudedHeight: z0 + GH, material: mix ? C.Color.fromCssColorString(PAL["4.5"]) : WEISS, outline: P, outlineColor: C.Color.fromCssColorString("#2f2d29").withAlpha(0.75) } });
           add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0 + GH, extrudedHeight: z0 + GH + 0.35, material: BAND } });
-          r.forEach(function (q, i) { quad(q, r[(i + 1) % 4], z0, z0 + 1.0, C.Color.WHITE.withAlpha(0.5), 0, null); });   // Geländer
+          if (!P) r.forEach(function (q, i) { quad(q, r[(i + 1) % 4], z0, z0 + 1.0, C.Color.WHITE.withAlpha(0.5), 0, null); });   // Geländer
           var ae = ecken(att);
-          [[ae[0], ae[1]], [ae[2], ae[3]]].forEach(function (sd) { var n = aussenNormale(sd[0], sd[1], att.c); if (n[1] < -0.3) { var Ls = Math.hypot(sd[1][0] - sd[0][0], sd[1][1] - sd[0][1]); quad([sd[0][0] + (sd[1][0] - sd[0][0]) * 0.08, sd[0][1] + (sd[1][1] - sd[0][1]) * 0.08], [sd[0][0] + (sd[1][0] - sd[0][0]) * 0.92, sd[0][1] + (sd[1][1] - sd[0][1]) * 0.92], z0 + 0.1, z0 + 2.4, GLAS, 0.06, n); } });
+          if (!P) [[ae[0], ae[1]], [ae[2], ae[3]]].forEach(function (sd) { var n = aussenNormale(sd[0], sd[1], att.c); if (n[1] < -0.3) { var Ls = Math.hypot(sd[1][0] - sd[0][0], sd[1][1] - sd[0][1]); quad([sd[0][0] + (sd[1][0] - sd[0][0]) * 0.08, sd[0][1] + (sd[1][1] - sd[0][1]) * 0.08], [sd[0][0] + (sd[1][0] - sd[0][0]) * 0.92, sd[0][1] + (sd[1][1] - sd[0][1]) * 0.92], z0 + 0.1, z0 + 2.4, GLAS, 0.06, n); } });
         } else {
           // Sattel- oder Walmdach mit Vordach; First parallel zur Längsseite
           var lang = p.L >= p.T, Lr = lang ? p.L : p.T, Tr = lang ? p.T : p.L, ang2 = lang ? p.ang : p.ang + Math.PI / 2;

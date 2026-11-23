@@ -274,7 +274,7 @@
           sc.skyAtmosphere.show = false; sc.skyBox && (sc.skyBox.show = false); sc.sun && (sc.sun.show = false); sc.moon && (sc.moon.show = false);
           sc.backgroundColor = Cesium.Color.fromCssColorString("#ebe8e1"); sc.fog.enabled = false;
           if (tileset) tileset.style = gebStil();
-          if (trees) { trees.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE; trees.style = new Cesium.Cesium3DTileStyle({ color: "color('#ffffff', 1.0)" }); }
+          if (trees) { trees.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.MIX; trees.colorBlendAmount = 1.0; trees.style = new Cesium.Cesium3DTileStyle({ color: "color('#f4f2ec', 1.0)" }); trees.makeStyleDirty && trees.makeStyleDirty(); }
           if (top) top.hidden = true;
           if (ziel) {
             viewer.camera.switchToOrthographicFrustum();
@@ -285,7 +285,7 @@
           viewer.camera.switchToPerspectiveFrustum();
           sc.skyAtmosphere.show = true; sc.skyBox && (sc.skyBox.show = true); sc.sun && (sc.sun.show = true); sc.moon && (sc.moon.show = true);
           sc.backgroundColor = vorher.bg; sc.globe.baseColor = vorher.base; sc.fog.enabled = true;
-          if (trees) { trees.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.MIX; trees.style = new Cesium.Cesium3DTileStyle({ color: "color('#a9bb98', 1.0)" }); }
+          if (trees) { trees.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.MIX; trees.colorBlendAmount = 0.75; trees.style = new Cesium.Cesium3DTileStyle({ color: "color('#a9bb98', 1.0)" }); }
           if (top) top.hidden = false;
           grundlage(vorher.modus); vorher = null;
         }
