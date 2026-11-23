@@ -8,6 +8,7 @@
 (function () {
   "use strict";
   var BASE = (window.APB_ROOT || "") + "assets/vendor/cesium/";
+  var api = {};
   var loading = null, viewer = null, box = null, tileset = null, trees = null, edges = null, layers = {}, entities = {}, onKey = null, focusFeat = null, modus = "modell";
   var CATCOL = { wohnen: "#e2b04a", lernen: "#5aa9d6", leiten: "#a796e0", glauben: "#d8d2c4", pflegen: "#6cc08b", reisen: "#e0708f", kaufen: "#e3925a", arbeiten: "#9bb8ab", turnen: "#5aa9d6", beleuchten: "#d8d2c4" };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -32,14 +33,23 @@
     });
   }
 
-  function ui(title) {
+  function ui(title, container) {
     box = document.createElement("div");
-    box.className = "m3d"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "3D-Ansicht");
+    box.className = "m3d" + (container ? " m3d-inline" : "");
+    if (!container) { box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); }
+    box.setAttribute("aria-label", "3D-Ansicht");
     box.innerHTML = '<div class="m3d-top"><div class="m3d-title"><span class="eyebrow">3D-Ansicht · swisstopo</span><b>' + esc(title) + '</b></div>' +
       '<div class="m3d-ctrl"><div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="modell" aria-pressed="true">Modell</button><button type="button" data-l="av" aria-pressed="false">Karte</button><button type="button" data-l="luft" aria-pressed="false">Luftbild</button></div>' +
       '<button type="button" class="m3d-b" data-b="1" aria-pressed="true">Bäume</button><button type="button" class="m3d-close" aria-label="3D-Ansicht schliessen">×</button></div></div>' +
       '<div class="m3d-stage"><div class="m3d-cesium"></div><div class="m3d-load"><span></span>3D-Daten werden geladen …</div><div class="m3d-card" hidden></div>' +
       '<p class="m3d-help">Ziehen: drehen · Rechte Maustaste oder Ctrl + Ziehen: neigen · Mausrad: zoomen</p></div>';
+    if (container) {                                   // eingebettet (z. B. Potenzial-Tool): kein Overlay, kein Schliessen
+      box.querySelector(".m3d-top").classList.add("m3d-top-inline");
+      box.querySelector(".m3d-close").remove();
+      box.querySelector(".m3d-title").remove();
+      container.appendChild(box); box.classList.add("on");
+      return;
+    }
     document.body.appendChild(box);
     document.body.style.overflow = "hidden";
     requestAnimationFrame(function () { box.classList.add("on"); });
@@ -89,8 +99,9 @@
   function open(opts) {
     opts = opts || {};
     var list = opts.projects || (window.APB && window.APB.projects) || [];
+    if (opts.ohneProjekte) list = [];
     var focus = opts.focus || null;
-    ui(opts.titel || (focus ? focus.name + ", " + focus.ort : "Projekte von apb architekten"));
+    ui(opts.titel || (focus ? focus.name + ", " + focus.ort : "Projekte von apb architekten"), opts.container);
     load().then(function () {
       if (!box) return;
       Cesium.Ion.defaultAccessToken = "";
@@ -123,7 +134,10 @@
       // Bestehende Gebäude im swisstopo-Modell werden eingefärbt; Neubauten (fehlen im Modell, Stand 2013/14) als Volumen ergänzt.
       var fokusBox = null, ersetzt = false;
       // Bestand ausblenden (z. B. Gebäude auf einer untersuchten Parzelle): [lonMin, lonMax, latMin, latMax]
-      var ausblend = opts.ausblenden ? "(${Longitude} > " + opts.ausblenden[0] + " && ${Longitude} < " + opts.ausblenden[1] + " && ${Latitude} > " + opts.ausblenden[2] + " && ${Latitude} < " + opts.ausblenden[3] + ")" : null;
+      var ausblend = null;
+      function setzeAusblenden(b) { ausblend = b ? "(${Longitude} > " + b[0] + " && ${Longitude} < " + b[1] + " && ${Latitude} > " + b[2] + " && ${Latitude} < " + b[3] + ")" : null; if (tileset) { tileset.style = gebStil(); sc.requestRender(); } }
+      setzeAusblenden(opts.ausblenden);
+      api.ausblenden = setzeAusblenden;
       if (focus && focus.vol && focus.vol.length) {
         var teile = [];
         focus.vol.forEach(function (v) {
@@ -218,7 +232,7 @@
         });
         entities[p.id].apb = p;
       });
-      entities.atelier = viewer.entities.add({
+      if (!opts.ohneProjekte) entities.atelier = viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(8.695723, 47.348162),
         point: { pixelSize: 14, color: Cesium.Color.fromCssColorString("#f15d30"), outlineColor: Cesium.Color.WHITE, outlineWidth: 3, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY },
         label: { text: "Atelier apb", font: "600 13px Inter, Helvetica, Arial, sans-serif", fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -229,6 +243,11 @@
       h.setInputAction(function (ev) {
         var pk = sc.pick(ev.position);
         var ent = pk && pk.id && pk.id.apb ? pk.id : null;
+        if (!ent && opts.onKlick) {
+          var ray = viewer.camera.getPickRay(ev.position), pos = ray && sc.globe.pick(ray, sc);
+          if (pos) { var cg = Cesium.Cartographic.fromCartesian(pos); opts.onKlick(Cesium.Math.toDegrees(cg.latitude), Cesium.Math.toDegrees(cg.longitude)); }
+          return;
+        }
         card(ent ? ent.apb : null);
         if (ent) fly(ent.apb);
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -259,5 +278,8 @@
   }
   function $$q(r, s) { return Array.prototype.slice.call(r.querySelectorAll(s)); }
 
-  window.APB3D = { open: open, close: close, _v: function () { return viewer; } };
+  api.open = open; api.close = close; api._v = function () { return viewer; };
+  api.boden = function (lon, lat) { return groundAt(lon, lat); };
+  api.flyTo = function (lat, lon, dist) { if (viewer) fly({ geo: [lat, lon], geoExakt: true, distanz: dist }); };
+  window.APB3D = api;
 })();

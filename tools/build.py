@@ -737,23 +737,25 @@ potenzial = """
         <button class="btn" type="submit">Anmelden<span class="arr"></span></button>
       </form>
       <div class="pz-app" data-pz-app hidden>
-        <div class="pz-top"><span class="pz-badge">Beta · Etappe 1</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
+       <div class="pz-voll">
+        <aside class="pz-side" aria-label="Potenzial-Werkzeug">
+        <div class="pz-top"><span class="pz-badge">Beta</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
         <h2 class="pz-h2" tabindex="-1">Was steht auf dieser Parzelle drin?</h2>
         <div class="pz-tool" data-pz-tool>
           <form class="pz-such" role="search" autocomplete="off">
-            <label class="pz-f"><span>Adresse oder Parzelle (z. B. «Seestrasse 110a Uster» oder «Uster B5618»)</span><input class="pz-q" type="search" placeholder="Adresse oder Gemeinde + Parzellennummer" aria-describedby="pz-st"></label>
+            <label class="pz-f"><span>Adresse oder Parzelle – oder direkt in die Karte klicken</span><input class="pz-q" type="search" placeholder="z. B. Seestrasse 110a Uster · Uster B5618" aria-describedby="pz-st"></label>
             <ul class="pz-liste" aria-label="Suchresultate"></ul>
             <label class="pz-f pz-f-std"><span>Ausbaustandard</span><select class="pz-std"><option value="einfach">einfach</option><option value="mittel" selected>mittel</option><option value="gehoben">gehoben</option></select></label>
           </form>
           <p class="pz-status" id="pz-st" role="status"></p>
           <div class="pz-res" hidden></div>
+          <div class="pz-vol" hidden></div>
+          <div class="pz-mix" hidden></div>
         </div>
-        <ol class="pz-steps">
-          <li class="ok"><b>01</b><h3>Parzelle wählen</h3><p>Adresse oder Parzellennummer – Grundstück aus der amtlichen Vermessung.</p></li>
-          <li class="ok"><b>02</b><h3>Baurecht prüfen</h3><p>ÖREB-Kataster live, Zonenwerte aus der BZO-Tabelle (12 Gemeinden), Baufeld in 3D.</p></li>
-          <li><b>03</b><h3>Volumen ausloten</h3><p>In Bearbeitung: 1–5 Volumen mit Dachformen, Setzung nach Besonnung und Lärm.</p></li>
-          <li><b>04</b><h3>Wohnungsmix &amp; Bericht</h3><p>In Bearbeitung: Mix farbig im 3D, Kennzahlen, PDF im apb-Layout.</p></li>
-        </ol>
+        <p class="pz-disc">Ersteinschätzung auf Basis öffentlicher Daten (amtliche Vermessung, ÖREB-Kataster Kanton Zürich, BZO der Gemeinden) – ersetzt keine Vorabklärung beim Bauamt.</p>
+        </aside>
+        <div class="pz-karte" data-pz-karte aria-label="3D-Karte"></div>
+       </div>
       </div>
     </div>
   </div>
@@ -762,7 +764,7 @@ potenzial = """
 (function(){
   var H="76ca705cf50bdf7e8fadd4c47ebe6ee61c84d5c7ef99a57abb565d18ad04ef8d",K="apb-pz";
   var box=document.querySelector("[data-pz]"),f=box.querySelector("[data-pz-login]"),app=box.querySelector("[data-pz-app]"),err=f.querySelector(".pz-err");
-  function zeig(an,fokus){f.hidden=an;app.hidden=!an;if(fokus)(an?app.querySelector(".pz-h2"):f.u).focus();}
+  function zeig(an,fokus){f.hidden=an;app.hidden=!an;document.documentElement.classList.toggle("pz-on",an);if(an)document.dispatchEvent(new Event("pz-login"));if(fokus)(an?app.querySelector(".pz-h2"):f.u).focus();}
   try{if(sessionStorage.getItem(K)===H)zeig(true)}catch(e){}
   async function hash(t){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
   f.addEventListener("submit",async function(e){e.preventDefault();

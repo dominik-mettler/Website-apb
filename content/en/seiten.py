@@ -6,6 +6,12 @@ SEITEN = {
 
 # ------------------------------------------------------------------ Potenzial (interner Bereich)
 'Potenzial': 'Potential',
+'3D-Karte': '3D map',
+'Adresse oder Parzelle – oder direkt in die Karte klicken': 'Address or plot – or click directly on the map',
+'Beta': 'Beta',
+'Ersteinschätzung auf Basis öffentlicher Daten (amtliche Vermessung, ÖREB-Kataster Kanton Zürich, BZO der Gemeinden) – ersetzt keine Vorabklärung beim Bauamt.': 'Initial assessment based on public data (official cadastral survey, PLR cadastre of the Canton of Zurich, municipal building regulations) – no substitute for a preliminary enquiry with the building authority.',
+'Potenzial-Werkzeug': 'Potential tool',
+'z. B. Seestrasse 110a Uster · Uster B5618': 'e.g. Seestrasse 110a Uster · Uster B5618',
 'Adresse oder Gemeinde + Parzellennummer': 'Address or municipality + plot number',
 'Adresse oder Parzelle (z. B. «Seestrasse 110a Uster» oder «Uster B5618»)': 'Address or plot (e.g. “Seestrasse 110a Uster” or “Uster B5618”)',
 'Adresse oder Parzellennummer – Grundstück aus der amtlichen Vermessung.': 'Address or plot number – plot boundary from the official cadastral survey.',
