@@ -183,7 +183,9 @@
     var c = k.ring.reduce(function (s, p) { return [s[0] + p[0] / k.ring.length, s[1] + p[1] / k.ring.length]; }, [0, 0]), cw = wgs(c[0], c[1]);
     var opts = {
       titel: t("Parzelle ", "Plot ") + a.re.Number + ", " + a.re.MunicipalityName + (a.zoneKey ? " · " + a.zoneKey : ""),
-      ort: { lat: cw[1], lon: cw[0] },
+      ort: { lat: cw[1], lon: cw[0], distanz: Math.max(160, Math.min(600, Math.sqrt(a.re.LandRegistryArea) * 5)) },
+      ausblenden: (function () { var r = (k.bf || k.ring).map(function (p) { return wgs(p[0], p[1]); }), xs = r.map(function (q) { return q[0]; }), ys = r.map(function (q) { return q[1]; });
+        return [Math.min.apply(null, xs), Math.max.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, ys)]; })(),
       zeichne: function (v, C) {
         var weiss = C.Color.fromCssColorString("#ffffff"), orange = C.Color.fromCssColorString("#f15d30");
         var g = ll(k.ring); g.push(g[0], g[1]);

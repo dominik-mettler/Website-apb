@@ -79,7 +79,7 @@
       if (!viewer) return;
       p._h = h;
       var bs = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(lon, lat, h), 40);
-      var off = new Cesium.HeadingPitchRange(Cesium.Math.toRadians(-35), Cesium.Math.toRadians(-30), p.geoExakt === false ? 1400 : 420);
+      var off = new Cesium.HeadingPitchRange(Cesium.Math.toRadians(-35), Cesium.Math.toRadians(-30), p.distanz || (p.geoExakt === false ? 1400 : 420));
       if (instant) { viewer.camera.flyToBoundingSphere(bs, { offset: off, duration: 0 }); }
       else viewer.camera.flyToBoundingSphere(bs, { offset: off, duration: 2.2 });
       viewer.scene.requestRender();
@@ -122,6 +122,8 @@
       // Projektgebäude in apb-Orange. Grundriss aus der amtlichen Vermessung (tools/projekt_volumen.py).
       // Bestehende Gebäude im swisstopo-Modell werden eingefärbt; Neubauten (fehlen im Modell, Stand 2013/14) als Volumen ergänzt.
       var fokusBox = null, ersetzt = false;
+      // Bestand ausblenden (z. B. Gebäude auf einer untersuchten Parzelle): [lonMin, lonMax, latMin, latMax]
+      var ausblend = opts.ausblenden ? "(${Longitude} > " + opts.ausblenden[0] + " && ${Longitude} < " + opts.ausblenden[1] + " && ${Latitude} > " + opts.ausblenden[2] + " && ${Latitude} < " + opts.ausblenden[3] + ")" : null;
       if (focus && focus.vol && focus.vol.length) {
         var teile = [];
         focus.vol.forEach(function (v) {
@@ -177,6 +179,7 @@
           st.color.conditions.push([fokusBox, "color('#f15d30', 1.0)"]);
           if (ersetzt) st.show = "!(" + fokusBox + ")";
         }
+        if (ausblend) st.show = st.show === "true" ? "!" + ausblend : "(" + st.show + ") && !" + ausblend;
         st.color.conditions.push(["true", basis]);
         return new Cesium.Cesium3DTileStyle(st);
       }
@@ -242,7 +245,7 @@
       grundlage("modell");
 
       if (opts.zeichne) { try { opts.zeichne(viewer, Cesium, groundAt); } catch (e) { if (window.console) console.error(e); } }
-      if (opts.ort) { fly({ geo: [opts.ort.lat, opts.ort.lon], geoExakt: true }, true); }
+      if (opts.ort) { fly({ geo: [opts.ort.lat, opts.ort.lon], geoExakt: true, distanz: opts.ort.distanz }, true); }
       else if (focus) { fly(focus, true); card(focus); }
       else {
         var c = opts.center || [47.30, 8.69], z = opts.zoom || 10;
