@@ -3,6 +3,18 @@
 # facts: überschreibt/ergänzt die Kenndaten der bisherigen Website (Verfahren/Status bleiben).
 
 DATEN = {
+ '341-spu': {  # Quelle: Datenblatt 341-SPU (23.11.2026); Kennzahlen/Kosten dort noch Platzhalter
+  'sub': 'Sanierung der Hauswartwohnung und Umbau des Hortbereichs',
+  'kurz': 'Die ehemalige Hauswartwohnung wurde zu Schulräumen der Heilpädagogischen Schule umgebaut, der Hort erhielt einen neuen Eingangsbereich und eine Regenerierküche – in zwei Etappen bei laufendem Schulbetrieb.',
+  'facts': [('Fertigstellung', 'August 2026'), ('Bauzeit', 'Februar – August 2026, 2 Etappen unter Betrieb'), ('Adresse', 'Wilstrasse 30, 8610 Uster')],
+  'text': [
+   ('Situation', 'Das Schulhaus Pünt liegt an der Wilstrasse in Uster. Zur Schulanlage gehören der im Untergeschoss von Trakt 2 untergebrachte Hort sowie die ehemalige Hauswartwohnung. Der Umbau erfolgte zwischen Februar und August 2026 in zwei Etappen bei laufendem Schulbetrieb.'),
+   ('Hauswartwohnung (1. Etappe)', 'Die ehemalige Hauswartwohnung wurde umfassend saniert und dient neu einer Abteilung der Heilpädagogischen Schule Uster (HPSU) als Schulraum. Die bestehende Raumstruktur blieb erhalten. Böden, Wandoberflächen und Nasszellen wurden erneuert.'),
+   ('Hort (2. Etappe)', 'Der Eingangsbereich des Horts wurde vergrössert und neu organisiert. Im Zentrum des Umbaus stand der Einbau einer neuen Regenerierküche. Sie wurde in Zusammenarbeit mit dem Gastroplaner geplant und ermöglicht die Mittagsverpflegung der Hortkinder vor Ort.'),
+   ('Hindernisfreiheit und Brandschutz', 'Der Hort ist neu hindernisfrei erschlossen. Der Niveauunterschied im Korridor wird mit einer Rampe überwunden. Der Brandschutz wurde vollumfänglich ertüchtigt und entspricht nun den geltenden Vorschriften. Ein neuer Brandabschluss trennt den Hort vom Schultrakt. Eine neue Treppe im Korridor führt als zweiter Fluchtweg direkt ins Freie.'),
+   ('Denkmalpflege', 'Die bestehenden Tonplattenböden im Korridor wurden erhalten. Die Platten für die Rampe und die Ergänzungen wurden in Absprache mit der Denkmalpflege von Ganz Baukeramik, Embrach, nach dem Vorbild des Bestands nachgefertigt.'),
+  ],
+ },
  # Nicht realisiert (Auftrag nicht an apb): nur in der Zeitachse eingeordnet – Umgang noch mit Thomas klären
  '320-ksp': {'zeitachse': 2022},
  '312-gok': {'zeitachse': 2020},

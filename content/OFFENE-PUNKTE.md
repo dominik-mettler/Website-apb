@@ -14,6 +14,7 @@
 - Thomas’ Liste mit Verbesserungen und Fragen: ausstehend.
 
 ## Material
+- Referenzblatt Schulhaus Pünt (341): Platzhalter (GV/GF, Kosten, Termine) ausfüllen und «Vogelperspektive» ersetzen – das Luftbild ist ein Fremdfoto ohne Nutzungsrecht
 - Aktuelles Referenzblatt Kinderhospiz (altes Blatt: 16 Mio./Dez. 2026 → gültig: 18 Mio., fertig Okt. 2025)
 - Referenzblätter ohne Platzhalter: 289, 318, 321, 324, 326, 334, 341, 344, 347
 - Porträtfotos Team (aktuell keine vorhanden)

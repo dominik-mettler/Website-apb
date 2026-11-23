@@ -297,8 +297,13 @@ P('338-ebw', name='Binzholzstrasse House', sub='Energy-efficiency refurbishment 
         ['Construction and materials', 'The existing solid building has cavity walls with little core insulation. Because of the age of the windows, blinds and external render, and to save on heating costs, an additional layer of thermal insulation was applied to the façade. To do so, the existing external timber boarding was removed from the “warm” parts of the walls. The openings were fitted with new wood-metal windows and new external venetian blinds. New colours for the rendered surfaces and the woodwork gave the house a more contemporary appearance.'],
         ['Special features', 'The windows were replaced during the owners’ two-week holiday, without any structural alterations inside the house and without disturbance to its interior.']])
 
-P('341-spu', name='Pünt School', sub='Conversion and refurbishment of the after-school care centre and caretaker’s flat',
-  text='Conversion and refurbishment of the after-school care centre and the caretaker’s flat.')
+P('341-spu', name='Pünt School', sub='Refurbishment of the caretaker’s flat and conversion of the after-school care area',
+  text='The former caretaker’s flat was converted into classrooms for the special-needs school, and the after-school care centre gained a new entrance area and a regeneration kitchen – in two phases while lessons continued.',
+  desc=[['Situation', 'Pünt School is located on Wilstrasse in Uster. The school complex includes the after-school care centre in the basement of wing 2 and the former caretaker’s flat. The conversion was carried out in two phases between February and August 2026 while the school remained in operation.'],
+        ['Caretaker’s flat (phase 1)', 'The former caretaker’s flat was comprehensively refurbished and is now used as a classroom by a department of the Uster special-needs school (HPSU). The existing room layout was retained. Floors, wall surfaces and bathrooms were renewed.'],
+        ['After-school care (phase 2)', 'The entrance area of the after-school care centre was enlarged and reorganised. At the heart of the conversion was the installation of a new regeneration kitchen. Planned together with the catering consultant, it allows the children to be served lunch on site.'],
+        ['Accessibility and fire safety', 'The after-school care centre is now accessible without steps or barriers: a ramp bridges the difference in level in the corridor. Fire safety was upgraded throughout and now meets current regulations. A new fire separation divides the care centre from the school wing, and a new staircase in the corridor provides a second escape route directly to the outside.'],
+        ['Heritage conservation', 'The existing clay tile floors in the corridor were retained. In consultation with the heritage conservation office, the tiles for the ramp and the additions were made to match the original by Ganz Baukeramik, Embrach.']])
 
 P('344-miu', name='Industriestrasse Apartment Building', sub='Refurbishment of an apartment building',
   text='Refurbishment of an apartment building.')
