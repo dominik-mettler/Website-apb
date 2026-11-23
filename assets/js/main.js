@@ -153,15 +153,16 @@
   function makeMap(node, opts) {
     if (!window.L || !node) return null;
     opts = opts || {};
-    var map = L.map(node, { scrollWheelZoom: false, zoomControl: true, attributionControl: true }).setView(opts.center || [47.33, 8.68], opts.zoom || 10);
+    var map = L.map(node, { scrollWheelZoom: false, zoomControl: false, attributionControl: true }).setView(opts.center || [47.33, 8.68], opts.zoom || 10);
     var attr = '&copy; <a href="https://www.swisstopo.admin.ch/" target="_blank" rel="noopener">swisstopo</a>';
     var base = function (layer, ext) { return L.tileLayer("https://wmts.geo.admin.ch/1.0.0/" + layer + "/default/current/3857/{z}/{x}/{y}." + ext, { maxZoom: 19, maxNativeZoom: 18, attribution: attr }); };
     /* «Karte» = amtliche Vermessung S/W; weit herausgezoomt (keine Vermessungsdaten) die graue Landeskarte */
-    var grau = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg", { maxZoom: 14, opacity: .62, attribution: attr });
+    var grau = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg", { maxZoom: 14, attribution: attr });
     var av = L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.kantone.cadastralwebmap-farbe/default/current/3857/{z}/{x}/{y}.png", { minZoom: 15, maxZoom: 20, maxNativeZoom: 20, attribution: "Amtliche Vermessung" });
     var karte = L.layerGroup([grau, av]).addTo(map), luft = base("ch.swisstopo.swissimage", "jpeg");
     var LAY = { karte: karte, luft: luft }, CLS = { karte: "is-av", luft: "" };
     node.classList.add("is-av");
+    L.control.zoom({ position: "bottomright", zoomInTitle: "Hineinzoomen", zoomOutTitle: "Herauszoomen" }).addTo(map);
     var sw = L.control({ position: "topright" });
     sw.onAdd = function () {
       var d = L.DomUtil.create("div", "map-tools");
@@ -192,7 +193,7 @@
     node.addEventListener("click", function () { map.scrollWheelZoom.enable(); });
     node.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
     if (opts.office !== false) {
-      L.marker(OFFICE, { icon: L.divIcon({ className: "pin-hit", html: '<div class="pin office"></div>', iconSize: [28, 28], iconAnchor: [14, 14] }), zIndexOffset: 1000, title: "apb architekten ag" })
+      L.marker(OFFICE, { icon: L.divIcon({ className: "pin-hit", html: '<div class="pin-buero"><img src="' + ROOT + 'assets/img/buero-marke.png" alt="" width="34" height="34"></div>', iconSize: [44, 44], iconAnchor: [22, 22] }), zIndexOffset: 1000, title: "apb architekten ag" })
         .addTo(map).bindPopup('<div class="pop"><div><b>apb architekten ag</b>Seestrasse 110a, 8610 Uster<br><a href="https://www.google.com/maps/dir/?api=1&destination=47.348162,8.695723" target="_blank" rel="noopener">Route planen →</a></div></div>');
     }
     return map;
@@ -452,7 +453,7 @@
           if (mk) map.removeLayer(mk.layer);
           mk = projectMarkers(map, list);
           var used = {}; list.forEach(function (p) { used[p.cats[0]] = 1; });
-          $("#pmap-legend").innerHTML = D.cats.filter(function (c) { return used[c[0]]; }).map(function (c) { return '<span><i style="background:' + CATCOL[c[0]] + '"></i>' + c[1] + "</span>"; }).join("") + '<span><i class="o"></i>Atelier Uster</span>';
+          $("#pmap-legend").innerHTML = D.cats.filter(function (c) { return used[c[0]]; }).map(function (c) { return '<span><i style="background:' + CATCOL[c[0]] + '"></i>' + c[1] + "</span>"; }).join("") + '<span><img class="leg-buero" src="' + ROOT + 'assets/img/buero-marke.png" alt="" width="16" height="16">Atelier Uster</span>';
           var ml = $("#maplist");
           ml.innerHTML = list.map(function (p) { return '<li><a href="' + url(p) + '" data-id="' + p.id + '"><img src="' + img(p, 1, true) + '" alt="" loading="lazy" width="800" height="600"><span><b>' + esc(p.name) + "</b><small>" + esc(p.ort) + (p.year ? " · " + p.year : "") + (p.geoExakt ? "" : " · Lage ungefähr") + '</small></span><i style="background:' + pinColor(p) + '"></i></a></li>'; }).join("");
           var hl = function (id, on) { var el = map.getContainer().querySelector('.pin[data-id="' + id + '"]'); if (el) el.classList.toggle("on", on); };
@@ -600,7 +601,7 @@
       (areal.length ? '<p class="p-areal rv" style="--d:.15s">Teil der <b>' + esc(p.areal) + '</b> <span>– ebenfalls auf diesem Areal:</span> ' + areal.map(function (q) { return '<a href="' + url(q) + '">' + esc(q.name) + "</a>"; }).join(", ") + "</p>" : "") +
       '<div class="p-cats rv" style="--d:.2s">' + p.cats.map(function (c) { return '<a class="chip" href="projekte.html#thema=' + c + '">' + catLabel[c] + "</a>"; }).join("") + "</div></div>" +
       '<aside class="facts rv"><dl>' + p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" +
-      '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div><button type="button" class="btn-3d" id="p3d"><span>3D</span>Umgebung in 3D ansehen</button></aside></div>' +
+      '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div><button type="button" class="btn-3d" id="p3d"><span aria-hidden="true">3D</span>Umgebung in 3D ansehen<i aria-hidden="true">→</i></button></aside></div>' +
       (gal ? '<div class="gallery' + (n > 4 ? " lead-wide" : "") + '">' + gal + "</div>" : "") + "</div>" +
       (p.desc && p.desc.length ? '<section class="section tight p-desc"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Projektbeschrieb</h2></div><div class="p-desc-grid">' +
         p.desc.map(function (d) { return '<div class="rv">' + (d[0] ? "<h3>" + esc(d[0]) + "</h3>" : "") + "<p>" + esc(d[1]) + "</p></div>"; }).join("") + "</div></div></section>" : "") +
@@ -634,7 +635,7 @@
 
     if (window.apbTimelapse) window.apbTimelapse(root); else setTimeout(function () { if (window.apbTimelapse) window.apbTimelapse(root); }, 300);
     withLeaflet(function () {
-      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: p.geoExakt ? 15 : 13, threeD: function () { return { focus: p }; } });
+      var mm = makeMap($("#mini-map"), { center: p.geo, zoom: p.geoExakt ? 15 : 13, threeD: false });
       if (mm) {
         projectMarkers(mm, [p]);
         mm.setView(p.geo, p.geoExakt ? 15 : 13);
@@ -796,7 +797,7 @@
       location.href = "mailto:info@apb-architekten.ch?subject=" + encodeURIComponent(topic + " – " + (d.get("name") || "Website")) + "&body=" + encodeURIComponent(body);
     });
     var cm = $("#contact-map");
-    if (cm) withLeaflet(function () { var m = makeMap(cm, { center: OFFICE, zoom: 14 }); if (m) m.setView([OFFICE[0], OFFICE[1] - 0.004], 15); });
+    if (cm) withLeaflet(function () { var m = makeMap(cm, { center: OFFICE, zoom: 14 }); if (m) m.setView([OFFICE[0], OFFICE[1] - (innerWidth > 900 ? 0.0012 : 0)], 17); });
   }
 
   /* ---------- boot ---------- */

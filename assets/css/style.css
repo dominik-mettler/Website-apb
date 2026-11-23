@@ -1248,3 +1248,57 @@ body.variant-c .site-header .logo { transition: opacity .4s; }
 .mit-tag { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; padding: 2px 4px 2px 10px; border: 1px solid var(--accent); border-radius: 999px; font-size: .92em; }
 .mit-x { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; line-height: 1; color: inherit; }
 .mit-x:hover { background: rgba(241,93,48,.18); }
+
+/* ==========================================================================
+   Karten: dunkles, reduziertes Design passend zur Website
+   ========================================================================== */
+.map { background: #0f0f0e; border: 1px solid rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; isolation: isolate; }
+.map .leaflet-container { background: #0f0f0e; }
+.map.is-av { background: #0f0f0e; }
+.map.is-av .leaflet-tile-pane { filter: invert(1) grayscale(1) brightness(.5) contrast(1.05); }
+.map:not(.is-av) .leaflet-tile-pane { filter: saturate(.85) brightness(.92); }
+.map::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 400; box-shadow: inset 0 0 60px rgba(0,0,0,.45); }
+/* Bedienelemente: halbtransparente Pillen */
+.map .map-tools { gap: 8px; margin: 12px 12px 0 0 !important; }
+.map .map-switch { background: rgba(14,14,13,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 6px 20px rgba(0,0,0,.35); padding: 3px; }
+.map .map-switch button { color: rgba(237,235,230,.68); font-size: 12px; letter-spacing: .02em; padding: 6px 12px; transition: background .25s, color .25s; }
+.map .map-switch button:hover { color: #edebe6; }
+.map .map-switch button[aria-pressed="true"] { background: #edebe6; color: #0c0c0b; }
+.map .map-3d { background: rgba(14,14,13,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(241,93,48,.7); color: var(--accent); box-shadow: 0 6px 20px rgba(0,0,0,.35); font-size: 12px; padding: 8px 13px; }
+.map .map-3d:hover { background: var(--accent); color: #fff; filter: none; }
+.map .leaflet-bar { border: 0 !important; box-shadow: 0 6px 20px rgba(0,0,0,.35) !important; border-radius: 999px !important; overflow: hidden; background: rgba(14,14,13,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); outline: 1px solid rgba(255,255,255,.12); }
+.map .leaflet-bar a { width: 32px !important; height: 32px !important; line-height: 30px !important; font-size: 17px !important; font-weight: 400; background: transparent !important; color: #edebe6 !important; border: 0 !important; border-radius: 0 !important; }
+.map .leaflet-bar a + a { border-top: 1px solid rgba(255,255,255,.1) !important; }
+.map .leaflet-bar a:hover { background: rgba(241,93,48,.18) !important; color: var(--accent) !important; }
+.map .leaflet-bottom.leaflet-right .leaflet-control-zoom { margin: 0 12px 26px 0; }
+.map .leaflet-control-attribution { background: transparent !important; color: rgba(237,235,230,.38) !important; font-size: 9px; padding: 0 8px 4px; }
+.map .leaflet-control-attribution a { color: rgba(237,235,230,.5) !important; }
+.map .leaflet-control-attribution .leaflet-attribution-flag { display: none !important; }
+/* Projektpunkte rund, Büro mit Ring */
+.pin { border-radius: 50%; width: 13px; height: 13px; border: 2px solid #0c0c0b; box-shadow: 0 0 0 1.5px rgba(237,235,230,.55), 0 2px 8px rgba(0,0,0,.5); }
+.pin.office { width: 18px; height: 18px; border: 3px solid #0c0c0b; box-shadow: 0 0 0 2px var(--accent), 0 2px 10px rgba(0,0,0,.5); }
+/* Mini-Karte im Projekt: ein Punkt in Akzentfarbe mit Puls */
+.facts .mini-map { height: 240px; margin-top: 28px; }
+.mini-map .pin { width: 16px; height: 16px; background: var(--accent) !important; border: 3px solid #0c0c0b; box-shadow: 0 0 0 2px rgba(241,93,48,.9); position: relative; }
+.mini-map .pin::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 2px solid var(--accent); animation: pinPuls 2.4s var(--ease) infinite; }
+@keyframes pinPuls { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(1.9); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mini-map .pin::after { animation: none; opacity: .5; } }
+.mini-map .map-switch button { padding: 5px 10px; }
+/* 3D-Zugang unter der Mini-Karte: als Textlink im Stil der Seite */
+.btn-3d { justify-content: flex-start; gap: 12px; margin-top: 12px; padding: 12px 2px; border: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; background: none; font-size: 15px; }
+.btn-3d span { width: auto; height: auto; padding: 3px 7px; border-radius: 3px; background: none; border: 1px solid var(--accent); color: var(--accent); font-size: 10px; letter-spacing: .06em; }
+.btn-3d i { margin-left: auto; font-style: normal; transition: transform .3s var(--ease); }
+.btn-3d:hover { background: none; color: var(--accent); }
+.btn-3d:hover i { transform: translateX(4px); }
+/* Popups im Kartenstil */
+.map .leaflet-popup-content-wrapper, .map .leaflet-popup-tip { background: #1a1a18 !important; color: #edebe6; }
+.map .leaflet-popup-content-wrapper { border-radius: 6px; border: 1px solid rgba(255,255,255,.1); box-shadow: 0 14px 40px rgba(0,0,0,.55); }
+.map .leaflet-popup-content a, .map .pop span { color: #edebe6; }
+.map .pop span { color: rgba(237,235,230,.6); }
+.map .leaflet-popup-close-button { color: #edebe6 !important; }
+.map-legend { background: rgba(14,14,13,.78) !important; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; color: #edebe6; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+.map-legend i { border-radius: 50% !important; }
+.pin-buero { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px; background: rgba(14,14,13,.62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 6px 18px rgba(0,0,0,.55); transition: transform .3s var(--ease), border-color .3s; }
+.pin-buero img { width: 34px; height: 34px; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,.8)); }
+.pin-hit:hover .pin-buero { transform: scale(1.08); border-color: var(--accent); }
+.map-legend .leg-buero { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; }
