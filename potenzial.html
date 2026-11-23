@@ -17,7 +17,7 @@
 <link rel="icon" href="assets/img/favicon.png" type="image/png">
 <link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
 
-<link rel="stylesheet" href="assets/css/style.css?v=c7a97296">
+<link rel="stylesheet" href="assets/css/style.css?v=83425870">
 
 <script>try{if(sessionStorage.getItem('apb-pt')){document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}catch(e){}</script>
 
@@ -60,16 +60,23 @@
         <button class="btn" type="submit">Anmelden<span class="arr"></span></button>
       </form>
       <div class="pz-app" data-pz-app hidden>
-        <div class="pz-top"><span class="pz-badge">In Bearbeitung</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
-        <h2 class="pz-h2" tabindex="-1">Das Werkzeug entsteht gerade.</h2>
-        <p class="lead">Bald zeigt diese Seite für jede Parzelle im Kanton Zürich, was baurechtlich möglich ist – als Grundlage für das erste Gespräch mit der Bauherrschaft.</p>
+        <div class="pz-top"><span class="pz-badge">Beta · Etappe 1</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
+        <h2 class="pz-h2" tabindex="-1">Was steht auf dieser Parzelle drin?</h2>
+        <div class="pz-tool" data-pz-tool>
+          <form class="pz-such" role="search" autocomplete="off">
+            <label class="pz-f"><span>Adresse oder Parzelle (z. B. «Seestrasse 110a Uster» oder «Uster B5618»)</span><input class="pz-q" type="search" placeholder="Adresse oder Gemeinde + Parzellennummer" aria-describedby="pz-st"></label>
+            <ul class="pz-liste" aria-label="Suchresultate"></ul>
+            <label class="pz-f pz-f-std"><span>Ausbaustandard</span><select class="pz-std"><option value="einfach">einfach</option><option value="mittel" selected>mittel</option><option value="gehoben">gehoben</option></select></label>
+          </form>
+          <p class="pz-status" id="pz-st" role="status"></p>
+          <div class="pz-res" hidden></div>
+        </div>
         <ol class="pz-steps">
-          <li><b>01</b><h3>Parzelle wählen</h3><p>Adresse oder Katasternummer eingeben, Grundstück direkt auf der Karte markieren.</p></li>
-          <li><b>02</b><h3>Baurecht prüfen</h3><p>Zone, Ausnützung, Grenzabstände und Gebäudehöhen aus Zonenplan und Bauordnung.</p></li>
-          <li><b>03</b><h3>Volumen ausloten</h3><p>Mögliche Geschossfläche und eine erste Volumenstudie in 3D – mit Varianten.</p></li>
-          <li><b>04</b><h3>Bericht erstellen</h3><p>Kompakte Potenzialanalyse als PDF für Bauherrschaft und Gemeinde.</p></li>
+          <li class="ok"><b>01</b><h3>Parzelle wählen</h3><p>Adresse oder Parzellennummer – Grundstück aus der amtlichen Vermessung.</p></li>
+          <li class="ok"><b>02</b><h3>Baurecht prüfen</h3><p>ÖREB-Kataster live, Zonenwerte aus der BZO-Tabelle (12 Gemeinden), Baufeld in 3D.</p></li>
+          <li><b>03</b><h3>Volumen ausloten</h3><p>In Bearbeitung: 1–5 Volumen mit Dachformen, Setzung nach Besonnung und Lärm.</p></li>
+          <li><b>04</b><h3>Wohnungsmix &amp; Bericht</h3><p>In Bearbeitung: Mix farbig im 3D, Kennzahlen, PDF im apb-Layout.</p></li>
         </ol>
-        <div class="pz-ph" aria-hidden="true"><div class="pz-ph-map"></div><div class="pz-ph-side"><i></i><i></i><i></i><i class="s"></i><i></i><i class="s"></i></div></div>
       </div>
     </div>
   </div>
@@ -88,6 +95,7 @@
   box.querySelector("[data-pz-out]").addEventListener("click",function(){try{sessionStorage.removeItem(K)}catch(x){}zeig(false,true)});
 })();
 </script>
+<script src="assets/js/potenzial.js?v=31d71d49" defer></script>
 
 </main>
 <footer class="site-footer">
@@ -105,7 +113,7 @@
 
 
 <script src="assets/js/data.js?v=356326b0" defer></script>
-<script>window.APB_3D="assets/js/map3d.js?v=ff91ba14";</script>
+<script>window.APB_3D="assets/js/map3d.js?v=fd6ffa0e";</script>
 <script src="assets/js/main.js?v=fe77ddd4" defer></script>
 <script src="assets/js/experience.js?v=064f8b10" defer></script>
 </body>

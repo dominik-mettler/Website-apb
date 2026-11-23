@@ -90,7 +90,7 @@
     opts = opts || {};
     var list = opts.projects || (window.APB && window.APB.projects) || [];
     var focus = opts.focus || null;
-    ui(focus ? focus.name + ", " + focus.ort : "Projekte von apb architekten");
+    ui(opts.titel || (focus ? focus.name + ", " + focus.ort : "Projekte von apb architekten"));
     load().then(function () {
       if (!box) return;
       Cesium.Ion.defaultAccessToken = "";
@@ -241,7 +241,9 @@
       bb.addEventListener("click", function () { if (!trees) return; trees.show = !trees.show; bb.setAttribute("aria-pressed", trees.show); sc.requestRender(); });
       grundlage("modell");
 
-      if (focus) { fly(focus, true); card(focus); }
+      if (opts.zeichne) { try { opts.zeichne(viewer, Cesium, groundAt); } catch (e) { if (window.console) console.error(e); } }
+      if (opts.ort) { fly({ geo: [opts.ort.lat, opts.ort.lon], geoExakt: true }, true); }
+      else if (focus) { fly(focus, true); card(focus); }
       else {
         var c = opts.center || [47.30, 8.69], z = opts.zoom || 10;
         var alt = Math.max(600, Math.min(30000, 22000000 / Math.pow(2, z)));

@@ -737,16 +737,23 @@ potenzial = """
         <button class="btn" type="submit">Anmelden<span class="arr"></span></button>
       </form>
       <div class="pz-app" data-pz-app hidden>
-        <div class="pz-top"><span class="pz-badge">In Bearbeitung</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
-        <h2 class="pz-h2" tabindex="-1">Das Werkzeug entsteht gerade.</h2>
-        <p class="lead">Bald zeigt diese Seite für jede Parzelle im Kanton Zürich, was baurechtlich möglich ist – als Grundlage für das erste Gespräch mit der Bauherrschaft.</p>
+        <div class="pz-top"><span class="pz-badge">Beta · Etappe 1</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
+        <h2 class="pz-h2" tabindex="-1">Was steht auf dieser Parzelle drin?</h2>
+        <div class="pz-tool" data-pz-tool>
+          <form class="pz-such" role="search" autocomplete="off">
+            <label class="pz-f"><span>Adresse oder Parzelle (z. B. «Seestrasse 110a Uster» oder «Uster B5618»)</span><input class="pz-q" type="search" placeholder="Adresse oder Gemeinde + Parzellennummer" aria-describedby="pz-st"></label>
+            <ul class="pz-liste" aria-label="Suchresultate"></ul>
+            <label class="pz-f pz-f-std"><span>Ausbaustandard</span><select class="pz-std"><option value="einfach">einfach</option><option value="mittel" selected>mittel</option><option value="gehoben">gehoben</option></select></label>
+          </form>
+          <p class="pz-status" id="pz-st" role="status"></p>
+          <div class="pz-res" hidden></div>
+        </div>
         <ol class="pz-steps">
-          <li><b>01</b><h3>Parzelle wählen</h3><p>Adresse oder Katasternummer eingeben, Grundstück direkt auf der Karte markieren.</p></li>
-          <li><b>02</b><h3>Baurecht prüfen</h3><p>Zone, Ausnützung, Grenzabstände und Gebäudehöhen aus Zonenplan und Bauordnung.</p></li>
-          <li><b>03</b><h3>Volumen ausloten</h3><p>Mögliche Geschossfläche und eine erste Volumenstudie in 3D – mit Varianten.</p></li>
-          <li><b>04</b><h3>Bericht erstellen</h3><p>Kompakte Potenzialanalyse als PDF für Bauherrschaft und Gemeinde.</p></li>
+          <li class="ok"><b>01</b><h3>Parzelle wählen</h3><p>Adresse oder Parzellennummer – Grundstück aus der amtlichen Vermessung.</p></li>
+          <li class="ok"><b>02</b><h3>Baurecht prüfen</h3><p>ÖREB-Kataster live, Zonenwerte aus der BZO-Tabelle (12 Gemeinden), Baufeld in 3D.</p></li>
+          <li><b>03</b><h3>Volumen ausloten</h3><p>In Bearbeitung: 1–5 Volumen mit Dachformen, Setzung nach Besonnung und Lärm.</p></li>
+          <li><b>04</b><h3>Wohnungsmix &amp; Bericht</h3><p>In Bearbeitung: Mix farbig im 3D, Kennzahlen, PDF im apb-Layout.</p></li>
         </ol>
-        <div class="pz-ph" aria-hidden="true"><div class="pz-ph-map"></div><div class="pz-ph-side"><i></i><i></i><i></i><i class="s"></i><i></i><i class="s"></i></div></div>
       </div>
     </div>
   </div>
@@ -766,6 +773,7 @@ potenzial = """
 })();
 </script>
 """
+potenzial += '<script src="' + V('assets/js/potenzial.js') + '" defer></script>\n'
 page('potenzial.html', 'potenzial.html', 'Potenzial – Machbarkeit & Areal-Check · apb architekten', 'Interner Bereich der apb architekten ag: Machbarkeitsstudien und Potenzialanalysen für Grundstücke.', potenzial, 'potenzial', extra_head='' if PREVIEW else '<meta name="robots" content="noindex, nofollow">')
 
 # ---------------------------------------------------------------- IMPRESSUM
@@ -832,7 +840,7 @@ for _path, _target in REDIRECTS.items():
 ''')
 print('redirects', len(REDIRECTS))
 
-CSP = """default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wmts.geo.admin.ch https://3d.geo.admin.ch; connect-src 'self' https://wmts.geo.admin.ch https://3d.geo.admin.ch; worker-src 'self' blob:; font-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"""
+CSP = """default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wmts.geo.admin.ch https://3d.geo.admin.ch; connect-src 'self' https://wmts.geo.admin.ch https://3d.geo.admin.ch https://api3.geo.admin.ch https://maps.zh.ch; worker-src 'self' blob:; font-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"""
 # 301-Weiterleitungen der alten Adressen für den Live-Server (Apache .htaccess); erhält das Google-Ranking
 with open(os.path.join(OUT, '.htaccess'), 'w') as _h:
     _h.write('''# Sicherheit (getestet: Karten, 3D-Ansicht, Video, alle Seiten laufen mit diesen Regeln)

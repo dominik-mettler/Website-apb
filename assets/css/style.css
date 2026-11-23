@@ -1350,3 +1350,41 @@ body.variant-c .site-header .logo { transition: opacity .4s; }
 .nav a { white-space: nowrap; }
 @media (max-width: 1320px) { .nav { gap: clamp(14px, 1.6vw, 24px); } }
 @media (max-width: 1200px) { .nav a.nav-lock { font-size: 0; gap: 0; padding: 6px 4px; } .nav a.nav-lock::before { width: 12px; height: 14px; opacity: 1; } }
+/* Potenzial – Etappe 1 (Werkzeug) */
+.pz-tool { margin-top: clamp(28px, 4vw, 48px); }
+.pz-such { display: grid; grid-template-columns: 1fr 200px; gap: 12px 16px; align-items: end; position: relative; }
+.pz-liste { grid-column: 1; list-style: none; margin: 0; padding: 0; border-radius: 10px; overflow: hidden; background: var(--stone); }
+.pz-liste:empty { display: none; }
+.pz-liste button { display: flex; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 12px 16px; color: var(--ink); border-top: 1px solid var(--line-2); font: inherit; font-size: 15px; }
+.pz-liste li:first-child button { border-top: 0; }
+.pz-liste button:hover, .pz-liste button:focus-visible { background: var(--stone-2); }
+.pz-liste small { color: var(--mute); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.pz-f select { font: inherit; font-size: 16px; color: var(--ink); background: var(--stone); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.pz-f-std { grid-column: 2; grid-row: 1; }
+.pz-status { min-height: 1.4em; margin: 14px 0 0; color: var(--ink-2); font-size: 14px; }
+.pz-status.err { color: #ff8a66; }
+.pz-res { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 28px; }
+.pz-kopf { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.pz-kopf h3 { font-size: clamp(24px, 2.6vw, 36px); font-weight: 500; letter-spacing: -.02em; margin: 10px 0 6px; }
+.pz-kopf a { color: inherit; }
+.pz-3d { border: 0; cursor: pointer; }
+.pz-3d[disabled] { opacity: .4; cursor: not-allowed; }
+.pz-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 4vw, 64px); }
+.pz-grid h4 { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); margin: 0 0 12px; }
+.pz-kv { display: grid; grid-template-columns: 180px 1fr; gap: 2px 16px; padding: 10px 0; border-top: 1px solid var(--line-2); }
+.pz-kv span { color: var(--ink-2); font-size: 14px; }
+.pz-kv b { font-weight: 500; }
+.pz-kv small { grid-column: 2; color: var(--mute); font-size: 12.5px; line-height: 1.45; }
+.pz-sep { height: 1px; background: var(--line); margin: 8px 0; }
+.pz-hint { font-size: 14px; color: var(--ink-2); background: var(--stone); border-left: 3px solid #6cc08b; padding: 10px 14px; border-radius: 4px; margin: 14px 0; }
+.pz-hint.warn { border-left-color: #e2b04a; }
+.pz-ampel ul { list-style: none; margin: 0; padding: 0; }
+.pz-ampel li { display: grid; grid-template-columns: 14px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line-2); }
+.pz-ampel li i { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; background: var(--mute); }
+.pz-ampel .a-gruen i { background: #6cc08b; } .pz-ampel .a-gelb i { background: #e2b04a; } .pz-ampel .a-rot i { background: #e5484d; } .pz-ampel .a-info i { background: #8fb7d6; }
+.pz-ampel b { display: block; font-weight: 500; font-size: 15px; }
+.pz-ampel small { display: block; color: var(--mute); font-size: 12.5px; line-height: 1.45; }
+.pz-ampel small a { color: var(--ink-2); }
+.pz-disc { margin-top: 28px; font-size: 12.5px; color: var(--mute); max-width: 60em; }
+.pz-steps li.ok b::after { content: " ✓"; }
+@media (max-width: 900px) { .pz-grid { grid-template-columns: 1fr; } .pz-such { grid-template-columns: 1fr; } .pz-f-std { grid-column: 1; grid-row: auto; } .pz-kv { grid-template-columns: 1fr; } .pz-kv small { grid-column: 1; } }

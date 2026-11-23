@@ -3,7 +3,7 @@ Werte nur für Regelbauweise der Wohnzonen. Masse in m, Ziffern: az = Ausnützun
 uez = Überbauungsziffer, gfz_gruen = Grünflächenziffer min. vg/dg/ug = Voll-/Dach-/anrechenbare Untergeschosse max.
 fh = Fassadenhöhe traufseitig max., fh_giebel = giebelseitig max., fh_attika = fassadenbündig bei Attika, gh = Gebäudehöhe (alt, vor IVHB),
 laenge = Gebäude-/Gesamtlänge max., ga_k / ga_g = kleiner / grosser Grundabstand min., mlz = Mehrlängenzuschlag (Anteil, ab Länge).
-Ausgabe: python3 content/potenzial/bzo_daten.py -> content/potenzial/bzo.json
+Ausgabe: python3 content/potenzial/bzo_daten.py -> content/potenzial/bzo.json + assets/data/bzo.json
 """
 import json, os
 G = {}
@@ -106,4 +106,6 @@ G['seegraeben'] = {'name': 'Seegräben', 'stand': 'OFFEN – BZO-PDF auf seegrae
 if __name__ == '__main__':
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bzo.json')
     json.dump(G, open(out, 'w'), ensure_ascii=False, indent=1)
+    web = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'data', 'bzo.json')   # für das Tool im Browser
+    json.dump(G, open(web, 'w'), ensure_ascii=False, separators=(',', ':'))
     print(len(G), 'Gemeinden,', sum(len(g['zonen']) for g in G.values()), 'Wohnzonen')
