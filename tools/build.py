@@ -3,12 +3,12 @@ OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 S = os.path.join(os.path.dirname(os.path.abspath(__file__)), '')
 jobs = json.load(open(S + 'jobs.json'))
 
-NAV = [('projekte.html', 'Projekte'), ('aktuell.html', 'Aktuell'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere')]
+NAV = [('projekte.html', 'Projekte'), ('aktuell.html', 'Aktuell'), ('leistungen.html', 'Leistungen'), ('buero.html', 'Büro'), ('chronik.html', '30 Jahre'), ('karriere.html', 'Karriere'), ('potenzial.html', 'Potenzial')]
 MARK_OLD = '''<svg width="126" height="65" viewBox="0 0 252 130" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">  <path pathLength="1" style="--i:1" d="M6 90.5 Q20 89 30 90.2 M28 90 Q30 86.5 32 88 M37 90 Q55 89.6 74 90.4 M79 90.2 L82 90"/>  <path pathLength="1" style="--i:2" d="M84 15.5 Q140 13.5 196 13"/>  <path pathLength="1" style="--i:3" d="M93 5 Q91.5 60 92.5 121"/>  <path pathLength="1" style="--i:4" d="M191 2 Q189 60 191.5 124"/>  <path pathLength="1" style="--i:5" d="M83 118.5 Q140 116 197 116.5 L198 125"/>  <path pathLength="1" style="--i:6" d="M95 21 Q108 33 121.5 47"/>  <path pathLength="1" style="--i:7" d="M188 18 Q181 32 174 45"/>  <path pathLength="1" style="--i:8" d="M120 48.5 Q148 47.6 176 48"/>  <path pathLength="1" style="--i:9" d="M121 46 Q119.5 75 121 104"/>  <path pathLength="1" style="--i:10" d="M172 42 Q171 77 173 112"/>  <path pathLength="1" style="--i:11" d="M99 110 Q110 101 120.5 94"/>  <path pathLength="1" style="--i:12" d="M176 101 Q184 109 192 118"/>  <path pathLength="1" style="--i:13" d="M129 88.5 Q139 88 148 88.3 M137 95.5 Q152 95 168 95.4"/>  <path pathLength="1" style="--i:14" d="M155.5 69 L155.8 78" stroke-width="6.5"/><path pathLength="1" style="--i:15" d="M155.5 79 Q154.8 93 155.8 107"/>  <path pathLength="1" style="--i:16" d="M196 88.5 Q220 88 243 89.5"/></svg>'''
 
 OHNE_EN = {'praesentation.html', '404.html'}
 def header(cur, fn=''):
-    links = ''.join(f'<a href="{h}"{" aria-current=page" if h == cur else ""}>{t}</a>' for h, t in NAV)
+    links = ''.join(f'<a href="{h}"{" aria-current=page" if h == cur else ""}{" class=nav-lock title=\"Interner Bereich mit Login\"" if h == "potenzial.html" else ""}>{t}</a>' for h, t in NAV)
     mlinks = ''.join(f'<li><a href="{h}">{t}</a></li>' for h, t in NAV + [('kontakt.html', 'Kontakt')])
     lang = '' if fn in OHNE_EN else f'<a class="lang" href="en/{fn}" hreflang="en" lang="en" aria-label="English version" title="English version">EN</a>'
     return f'''<a class="skip" href="#main">Zum Inhalt springen</a>
@@ -32,7 +32,7 @@ FOOTER = '''<footer class="site-footer">
       <p class="claim">Präzision.<br>Flexibilität.<br>Professionalität.</p>
       <div class="col"><h2 class="f-h">Atelier</h2>apb architekten ag<br>Seestrasse 110a<br>8610 Uster</div>
       <div class="col"><h2 class="f-h">Kontakt</h2><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
-      <div class="col"><h2 class="f-h">Navigation</h2><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a></div>
+      <div class="col"><h2 class="f-h">Navigation</h2><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a><br><a href="potenzial.html">Potenzial (Login)</a></div>
     </div>
     <div class="giant" aria-hidden="true"><img src="assets/img/logo-light.svg" alt="" width="729" height="126" loading="lazy"></div>
     <div class="bottom"><span>© <span data-year>2026</span> apb architekten ag · Mitglied SIA · MINERGIE®-Fachpartner</span><span><a href="impressum.html">Impressum &amp; Datenschutz</a></span></div>
@@ -714,6 +714,59 @@ kontakt = '''
 </section>
 '''
 page('kontakt.html', 'kontakt.html', 'Kontakt – apb architekten ag, Uster', 'apb architekten ag, Seestrasse 110a, 8610 Uster. Telefon +41 (0)44 944 60 80, info@apb-architekten.ch', kontakt, 'kontakt', leaflet=True)
+
+# ---------------------------------------------------------------- POTENZIAL (Machbarkeit, mit Login)
+# Hinweis: Login auf statischem Hosting ist nur eine Sichtsperre (Inhalt liegt im HTML). Für echte Daten serverseitig schützen.
+potenzial = """
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Intern · Machbarkeit &amp; Potenzial</span>
+    <h1 class="display" data-split>Was steckt in<br>Ihrem Grundstück?</h1>
+    <div class="page-hero-grid"><p class="lead rv">Machbarkeitsstudien und Potenzialanalysen auf einen Blick: Baurecht, Ausnützung und mögliches Volumen – als Arbeitswerkzeug für Bauherrschaften und das apb-Team.</p></div>
+  </div>
+</section>
+<section class="section tight" style="padding-top:0">
+  <div class="wrap">
+    <div class="pz" data-pz>
+      <form class="pz-login" data-pz-login autocomplete="on" novalidate>
+        <h2 class="pz-h">Anmelden</h2>
+        <p class="muted">Der Bereich ist geschützt. Zugangsdaten erhalten Sie von apb architekten.</p>
+        <label class="pz-f"><span>Benutzername</span><input name="u" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label class="pz-f"><span>Passwort</span><input name="p" type="password" autocomplete="current-password" required></label>
+        <p class="pz-err" role="alert" hidden>Benutzername oder Passwort stimmt nicht.</p>
+        <button class="btn" type="submit">Anmelden<span class="arr"></span></button>
+      </form>
+      <div class="pz-app" data-pz-app hidden>
+        <div class="pz-top"><span class="pz-badge">In Bearbeitung</span><button type="button" class="btn ghost pz-out" data-pz-out>Abmelden</button></div>
+        <h2 class="pz-h2" tabindex="-1">Das Werkzeug entsteht gerade.</h2>
+        <p class="lead">Bald zeigt diese Seite für jede Parzelle im Kanton Zürich, was baurechtlich möglich ist – als Grundlage für das erste Gespräch mit der Bauherrschaft.</p>
+        <ol class="pz-steps">
+          <li><b>01</b><h3>Parzelle wählen</h3><p>Adresse oder Katasternummer eingeben, Grundstück direkt auf der Karte markieren.</p></li>
+          <li><b>02</b><h3>Baurecht prüfen</h3><p>Zone, Ausnützung, Grenzabstände und Gebäudehöhen aus Zonenplan und Bauordnung.</p></li>
+          <li><b>03</b><h3>Volumen ausloten</h3><p>Mögliche Geschossfläche und eine erste Volumenstudie in 3D – mit Varianten.</p></li>
+          <li><b>04</b><h3>Bericht erstellen</h3><p>Kompakte Potenzialanalyse als PDF für Bauherrschaft und Gemeinde.</p></li>
+        </ol>
+        <div class="pz-ph" aria-hidden="true"><div class="pz-ph-map"></div><div class="pz-ph-side"><i></i><i></i><i></i><i class="s"></i><i></i><i class="s"></i></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var H="76ca705cf50bdf7e8fadd4c47ebe6ee61c84d5c7ef99a57abb565d18ad04ef8d",K="apb-pz";
+  var box=document.querySelector("[data-pz]"),f=box.querySelector("[data-pz-login]"),app=box.querySelector("[data-pz-app]"),err=f.querySelector(".pz-err");
+  function zeig(an,fokus){f.hidden=an;app.hidden=!an;if(fokus)(an?app.querySelector(".pz-h2"):f.u).focus();}
+  try{if(sessionStorage.getItem(K)===H)zeig(true)}catch(e){}
+  async function hash(t){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+  f.addEventListener("submit",async function(e){e.preventDefault();
+    var h=await hash(f.u.value.trim().toLowerCase()+":"+f.p.value);
+    if(h===H){err.hidden=true;try{sessionStorage.setItem(K,H)}catch(x){}f.reset();zeig(true,true)}
+    else{err.hidden=false;f.p.value="";f.p.focus();f.classList.remove("pz-shake");void f.offsetWidth;f.classList.add("pz-shake")}});
+  box.querySelector("[data-pz-out]").addEventListener("click",function(){try{sessionStorage.removeItem(K)}catch(x){}zeig(false,true)});
+})();
+</script>
+"""
+page('potenzial.html', 'potenzial.html', 'Potenzial – Machbarkeit & Areal-Check · apb architekten', 'Interner Bereich der apb architekten ag: Machbarkeitsstudien und Potenzialanalysen für Grundstücke.', potenzial, 'potenzial', extra_head='' if PREVIEW else '<meta name="robots" content="noindex, nofollow">')
 
 # ---------------------------------------------------------------- IMPRESSUM
 imp = '''

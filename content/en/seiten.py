@@ -3,6 +3,34 @@
 # MUSTER: (regex, ersatz) für Texte mit Zahlen  ·  IGNOR: bleibt unverändert (Namen, Adressen …)
 
 SEITEN = {
+
+# ------------------------------------------------------------------ Potenzial (interner Bereich)
+'Potenzial': 'Potential',
+'Potenzial (Login)': 'Potential (login)',
+'Interner Bereich mit Login': 'Internal area – login required',
+'Potenzial – Machbarkeit & Areal-Check · apb architekten': 'Potential – Feasibility & Site Check · apb architekten',
+'Interner Bereich der apb architekten ag: Machbarkeitsstudien und Potenzialanalysen für Grundstücke.': 'Internal area of apb architekten ag: feasibility studies and development potential analyses for building plots.',
+'Intern · Machbarkeit & Potenzial': 'Internal · Feasibility & potential',
+'Was steckt in': 'What can your',
+'Ihrem Grundstück?': 'site hold?',
+'Machbarkeitsstudien und Potenzialanalysen auf einen Blick: Baurecht, Ausnützung und mögliches Volumen – als Arbeitswerkzeug für Bauherrschaften und das apb-Team.': 'Feasibility studies and development potential at a glance: building regulations, permitted floor area and possible massing – a working tool for clients and the apb team.',
+'Anmelden': 'Sign in',
+'Der Bereich ist geschützt. Zugangsdaten erhalten Sie von apb architekten.': 'This area is protected. Please ask apb architekten for access details.',
+'Benutzername': 'Username',
+'Passwort': 'Password',
+'Benutzername oder Passwort stimmt nicht.': 'Username or password is incorrect.',
+'In Bearbeitung': 'Work in progress',
+'Abmelden': 'Sign out',
+'Das Werkzeug entsteht gerade.': 'The tool is being built.',
+'Bald zeigt diese Seite für jede Parzelle im Kanton Zürich, was baurechtlich möglich ist – als Grundlage für das erste Gespräch mit der Bauherrschaft.': 'Soon this page will show what the building regulations allow on any plot in the Canton of Zurich – as a basis for the first conversation with the client.',
+'Parzelle wählen': 'Select the plot',
+'Adresse oder Katasternummer eingeben, Grundstück direkt auf der Karte markieren.': 'Enter an address or cadastral number, or mark the plot directly on the map.',
+'Baurecht prüfen': 'Check the regulations',
+'Zone, Ausnützung, Grenzabstände und Gebäudehöhen aus Zonenplan und Bauordnung.': 'Zone, floor area ratio, boundary distances and building heights from the zoning plan and building code.',
+'Volumen ausloten': 'Explore the massing',
+'Mögliche Geschossfläche und eine erste Volumenstudie in 3D – mit Varianten.': 'Achievable floor area and an initial massing study in 3D – with variants.',
+'Bericht erstellen': 'Create the report',
+'Kompakte Potenzialanalyse als PDF für Bauherrschaft und Gemeinde.': 'A concise potential analysis as a PDF for the client and the municipality.',
 # ------------------------------------------------------------------ Kopf, Fuss, Navigation
 'Zum Inhalt springen': 'Skip to content',
 'apb architekten ag – Startseite': 'apb architekten ag – Home',
