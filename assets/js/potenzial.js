@@ -216,11 +216,11 @@
             var i0 = i; while (i < R.nx && R.m[j * R.nx + i]) i++;
             if (i > i0) {
               var x0 = R.x0 + i0 * R.h - R.h / 2, x1 = R.x0 + (i - 1) * R.h + R.h / 2, y0 = R.y0 + j * R.h - R.h / 2, y1 = y0 + schritt * R.h;
-              ds.entities.add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])), material: orange.withAlpha(0.22), classificationType: C.ClassificationType.TERRAIN } });
+              ds.entities.add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])), material: orange.withAlpha(0.22), classificationType: C.ClassificationType.TERRAIN } })._pzArbeit = 1;
             }
           }
         }
-        R.kanten.forEach(function (e) { if (e.strasse) ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(llArr([e.a, e.b])), width: 5, material: C.Color.fromCssColorString("#8fb7d6"), clampToGround: true } }); });
+        R.kanten.forEach(function (e) { if (e.strasse) ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(llArr([e.a, e.b])), width: 5, material: C.Color.fromCssColorString("#8fb7d6"), clampToGround: true } })._pzArbeit = 1; });
       } else if (k.bf) {
         var b = llArr(k.bf); b.push(b[0], b[1]);
         ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(b), width: 2, material: new C.PolylineDashMaterialProperty({ color: orange, dashLength: 10 }), clampToGround: true } });
@@ -233,7 +233,7 @@
       var bb = (k.bf || k.ring).map(function (p) { return wgs(p[0], p[1]); });
       window.APB3D.ausblenden([Math.min.apply(null, bb.map(function (q) { return q[0]; })), Math.max.apply(null, bb.map(function (q) { return q[0]; })), Math.min.apply(null, bb.map(function (q) { return q[1]; })), Math.max.apply(null, bb.map(function (q) { return q[1]; }))]);
       window.APB3D.flyTo(cw[1], cw[0], Math.max(110, Math.min(520, Math.sqrt(a.re.LandRegistryArea) * 3.2)));
-      window.APB3D.boden(cw[0], cw[1]).then(function (h) { bodenH = h; if (letzte) zeigeVolumen(letzte.v, letzte.mix); });
+      window.APB3D.boden(cw[0], cw[1]).then(function (h) { bodenH = h; if (letzte) zeigeVolumen(letzte.v, letzte.mix, letzte.opt); });
     });
   }
 
@@ -422,12 +422,22 @@
   /* ---------- 3D-Darstellung der Volumen (Dach, Lukarnen, Fenster, Balkone, Eingang) ---------- */
   var FARBE = { "2.5": "#8fb7d6", "3.5": "#6cc08b", "4.5": "#e2b04a", "5.5": "#e0708f", kern: "#9a978f" };
   var NEIGUNG = 35 * Math.PI / 180;
-  function zeigeVolumen(v, mix) {
-    letzte = { v: v, mix: mix };
+  var PRAES_FARBE = { "2.5": "#a9bfcf", "3.5": "#b7c9a6", "4.5": "#e2c388", "5.5": "#d8a293", kern: "#8f8c85" };
+  function zeigeVolumen(v, mix, opt) {
+    opt = opt || {};
+    letzte = { v: v, mix: mix, opt: opt };
+    var P = !!opt.praes, X = opt.explo ? 2.8 : 0, PAL = P ? PRAES_FARBE : FARBE;
     karte().then(function () {
       var C = C3; ds.entities.values.filter(function (e) { return e._pzVol; }).forEach(function (e) { ds.entities.remove(e); });
       function add(o) { var e = ds.entities.add(o); e._pzVol = 1; return e; }
       var b0 = bodenH, R = aktuellR;
+      function zOf(g) { return b0 + g * GH + g * X; }
+      ds.entities.values.forEach(function (e) { if (e._pzArbeit) e.show = !P; });
+      if (P && aktuell && aktuell.k && aktuell.k.ring) {      // Grundstück als helle Modellplatte mit feiner Kante
+        var ring = aktuell.k.ring, rr = llArr(ring); rr.push(rr[0], rr[1]);
+        add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ring)), material: C.Color.WHITE, classificationType: C.ClassificationType.TERRAIN } });
+        add({ polyline: { positions: C.Cartesian3.fromDegreesArray(rr), width: 1.5, material: C.Color.fromCssColorString("#2f2d29"), clampToGround: true } });
+      }
       var WEISS = C.Color.fromCssColorString("#fbfaf7"), GLAS = C.Color.fromCssColorString("#3d4b57"), BAND = C.Color.fromCssColorString("#cfcac0"), DACH = C.Color.fromCssColorString("#b9b2a6"), ORANGE = C.Color.fromCssColorString("#f15d30");
       function quad(p1, p2, z1, z2, farbe, off, n) {          // senkrechte Fläche p1–p2 von z1 bis z2, um off nach aussen versetzt
         var o = n ? [n[0] * off, n[1] * off] : [0, 0];
@@ -441,17 +451,17 @@
         // Körper (oder Wohnungen geschossweise)
         if (mix && mix.teile[ti]) {
           mix.teile[ti].forEach(function (st) { st.felder.forEach(function (f) {
-            add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(f.r)), height: b0 + st.g * GH + 0.12, extrudedHeight: b0 + (st.g + 1) * GH - 0.12, material: C.Color.fromCssColorString(FARBE[f.typ]).withAlpha(0.96), outline: true, outlineColor: C.Color.WHITE.withAlpha(0.9) } });
+            add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(f.r)), height: zOf(st.g) + 0.12, extrudedHeight: zOf(st.g) + GH - 0.12, material: C.Color.fromCssColorString(PAL[f.typ]).withAlpha(P ? 1 : 0.96), outline: true, outlineColor: P ? C.Color.fromCssColorString("#2f2d29").withAlpha(0.75) : C.Color.WHITE.withAlpha(0.9) } });
           }); });
         } else add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: b0, extrudedHeight: b0 + H, material: WEISS } });
-        // Geschossbänder
-        for (var g = 1; g <= v.n; g++) {
+        // Geschossbänder (in der Präsentation: nur Kanten)
+        for (var g = 1; g <= (P ? 0 : v.n); g++) {
           var gr = r.map(function (q) { return [cz[0] + (q[0] - cz[0]) * 1.004, cz[1] + (q[1] - cz[1]) * 1.004]; });
           add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(gr)), height: b0 + g * GH - 0.28, extrudedHeight: b0 + g * GH, material: BAND } });
         }
         // Fassaden: Fenster, Balkone (Süd), Eingang (Strasse)
         var seiten = [[r[0], r[1]], [r[1], r[2]], [r[2], r[3]], [r[3], r[0]]];
-        seiten.forEach(function (sd) {
+        if (!P) seiten.forEach(function (sd) {
           var n = aussenNormale(sd[0], sd[1], cz), Ls = Math.hypot(sd[1][0] - sd[0][0], sd[1][1] - sd[0][1]), e = [(sd[1][0] - sd[0][0]) / Ls, (sd[1][1] - sd[0][1]) / Ls];
           var sued = n[1] < -0.5, schritt = sued ? 3.0 : 3.4, anz = Math.floor((Ls - 1.6) / schritt);
           var start = (Ls - (anz - 1) * schritt) / 2;
@@ -486,13 +496,13 @@
           }
         });
         // Dach
-        var z0 = b0 + H;
+        var z0 = P ? zOf(v.n) : b0 + H;
         if (v.dach === "flach" || (v.dach === "attika" && !v.dg)) {
           add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: z0, extrudedHeight: z0 + 0.5, material: WEISS } });
         } else if (v.dach === "attika") {
           var u0 = [Math.cos(p.ang), Math.sin(p.ang)], vv = [-u0[1], u0[0]], nordV = vv[1] >= 0 ? 1 : -1;
           var att = { c: [p.c[0] + vv[0] * nordV * p.T * 0.12, p.c[1] + vv[1] * nordV * p.T * 0.12], L: p.L * 0.82, T: p.T * 0.7, ang: p.ang };
-          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0, extrudedHeight: z0 + GH, material: mix ? C.Color.fromCssColorString(FARBE["4.5"]).withAlpha(0.96) : WEISS } });
+          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0, extrudedHeight: z0 + GH, material: mix ? C.Color.fromCssColorString(PAL["4.5"]) : WEISS, outline: P, outlineColor: C.Color.fromCssColorString("#2f2d29").withAlpha(0.75) } });
           add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0 + GH, extrudedHeight: z0 + GH + 0.35, material: BAND } });
           r.forEach(function (q, i) { quad(q, r[(i + 1) % 4], z0, z0 + 1.0, C.Color.WHITE.withAlpha(0.5), 0, null); });   // Geländer
           var ae = ecken(att);
@@ -565,13 +575,35 @@
     if (v.dg && v.dach !== "attika") v.teile.forEach(function (p) { var k2 = Math.max(1, Math.round(p.L * p.T * 0.55 * EFF / nwf["3.5"])); zaehl["3.5"] += k2; total += k2; flaecheSum += k2 * nwf["3.5"]; });
     return { teile: teile, zaehl: zaehl, total: total, nwf: flaecheSum };
   }
+  /* ---------- Präsentation: Volumen freigestellt als Axonometrie ---------- */
+  var praesAn = false, explo = false, blick = 35;
+  function praesentation(an, v, m) {
+    var host = document.querySelector("[data-pz-karte]"), leg = host.querySelector(".pz-legende");
+    ["pz-res", "pz-vol", "pz-edit"].forEach(function (c) { var e = root.querySelector("." + c); if (e && e.innerHTML) e.hidden = an; });
+    root.querySelector(".pz-such").hidden = an; var h2 = document.querySelector(".pz-side .pz-h2"); if (h2) h2.hidden = an;
+    if (!an) { if (leg) leg.remove(); if (praesAn && window.APB3D && window.APB3D.praesentation) window.APB3D.praesentation(false); praesAn = false; return; }
+    praesAn = true;
+    var k = aktuell.k, ring = k.ring, c = ring.reduce(function (s2, q) { return [s2[0] + q[0] / ring.length, s2[1] + q[1] / ring.length]; }, [0, 0]), cw = wgs(c[0], c[1]);
+    var rad = Math.max.apply(null, ring.map(function (q) { return Math.hypot(q[0] - c[0], q[1] - c[1]); }));
+    karte().then(function () { window.APB3D.praesentation(true, { lat: cw[1], lon: cw[0], h: bodenH + v.n * GH / 2, r: Math.max(25, rad * 1.05), heading: blick }); });
+    if (!leg) { leg = el('<div class="pz-legende" aria-live="polite"></div>'); host.appendChild(leg); }
+    var nwf = NWF[standard];
+    leg.innerHTML = '<span class="eyebrow">' + t("Potenzialstudie", "Potential study") + '</span><b>' + esc(aktuell.re.MunicipalityName) + " · " + t("Parzelle ", "Plot ") + esc(aktuell.re.Number) + "</b><small>" + esc(aktuell.zoneKey || aktuell.zoneTxt) + " · " + esc(v.name) + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + "</small>" +
+      "<ul>" + Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return '<li><i style="background:' + PRAES_FARBE[x] + '"></i>' + x + " Zi. <span>" + m.zaehl[x] + " × " + nwf[x] + " m²</span></li>"; }).join("") + '<li><i style="background:' + PRAES_FARBE.kern + '"></i>' + t("Erschliessung", "Circulation") + "</li></ul>" +
+      "<small>" + m.total + " " + t("Wohnungen", "apartments") + " · NWF " + zahl(m.nwf) + " m² · GF " + zahl(v.gf) + " m²</small>";
+  }
   function renderMix(v) {
     var box = root.querySelector(".pz-mix"), m = mixRechnen(v), nwf = NWF[standard];
-    var regler = Object.keys(mixAnteile).map(function (x) { return '<label><span><i style="background:' + FARBE[x] + '"></i>' + x + ' Zi.</span><input type="range" min="0" max="100" step="5" value="' + mixAnteile[x] + '" data-typ="' + x + '" aria-label="' + t("Anteil ", "Share ") + x + ' Zi."><b>' + mixAnteile[x] + " %</b></label>"; }).join("");
-    var zeilen = Object.keys(m.zaehl).map(function (x) { return m.zaehl[x] ? "<tr><td><i style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:" + FARBE[x] + ";margin-right:6px\"></i>" + x + " Zi.</td><td>" + m.zaehl[x] + "</td><td>" + nwf[x] + " m²</td><td>" + zahl(m.zaehl[x] * nwf[x]) + " m²</td></tr>" : ""; }).join("");
-    box.innerHTML = '<div class="pz-sek"><h4>' + t("4 · Wohnungsmix", "4 · Unit mix") + '</h4><p class="muted small">' + t("Anteile ergeben immer 100 % – die übrigen passen sich an.", "Shares always add up to 100 %.") + '</p><div class="pz-regler">' + regler + "</div>" +
+    var regler = Object.keys(mixAnteile).map(function (x) { return '<label><span><i style="background:' + PRAES_FARBE[x] + '"></i>' + x + ' Zi.</span><input type="range" min="0" max="100" step="5" value="' + mixAnteile[x] + '" data-typ="' + x + '" aria-label="' + t("Anteil ", "Share ") + x + ' Zi."><b>' + mixAnteile[x] + " %</b></label>"; }).join("");
+    var zeilen = Object.keys(m.zaehl).map(function (x) { return m.zaehl[x] ? "<tr><td><i style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:" + PRAES_FARBE[x] + ";margin-right:6px\"></i>" + x + " Zi.</td><td>" + m.zaehl[x] + "</td><td>" + nwf[x] + " m²</td><td>" + zahl(m.zaehl[x] * nwf[x]) + " m²</td></tr>" : ""; }).join("");
+    box.innerHTML = '<div class="pz-sek pz-praes"><h4>' + t("4 · Präsentation &amp; Wohnungsmix", "4 · Presentation &amp; unit mix") + '</h4>' +
+      '<div class="pz-ansicht" role="group" aria-label="' + t("Ansicht", "View") + '">' +
+      '<label class="pz-chkbox"><input type="checkbox" class="pz-explo"' + (explo ? " checked" : "") + "> " + t("Explosionsaxo (Geschosse auseinander)", "Exploded axonometric") + "</label>" +
+      '<div class="pz-blick">' + [[35, "SW"], [-35, "SO"], [145, "NW"], [-145, "NO"]].map(function (b2) { return '<button type="button" data-h="' + b2[0] + '" aria-pressed="' + (blick === b2[0]) + '">' + t("von ", "from ") + b2[1] + "</button>"; }).join("") + "</div></div>" +
+      '<p class="muted small">' + t("Anteile ergeben immer 100 % – die übrigen passen sich an.", "Shares always add up to 100 %.") + '</p><div class="pz-regler">' + regler + "</div>" +
       '<table class="pz-tab"><thead><tr><th>' + t("Typ", "Type") + "</th><th>" + t("Anz.", "No.") + "</th><th>Ø NWF</th><th>Total</th></tr></thead><tbody>" + zeilen + "</tbody><tfoot><tr><td>Total</td><td>" + m.total + "</td><td></td><td>" + zahl(m.nwf) + " m²</td></tr></tfoot></table>" +
-      '<p class="muted small">' + t("Geschossfläche ", "Floor area ") + zahl(v.gf) + " m² · NWF/GF " + Math.round(m.nwf / v.gf * 100) + " % · " + t("Ausbaustandard ", "Standard ") + standard + ". " + t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord), Kerne grau. Werte vorläufig – Kalibrierung mit apb-Studien folgt.", "Provisional values.") + '</p><button type="button" class="btn ghost pz-mix-aus">' + t("Zurück zum Volumen", "Back to massing") + "</button></div>";
+      '<p class="muted small">' + t("Geschossfläche ", "Floor area ") + zahl(v.gf) + " m² · NWF/GF " + Math.round(m.nwf / v.gf * 100) + " % · " + t("Ausbaustandard ", "Standard ") + standard + ". " + t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord). Werte vorläufig – Kalibrierung mit apb-Studien folgt.", "Provisional values.") + "</p>" +
+      '<div class="pz-knoepfe"><button type="button" class="btn pz-png">' + t("Bild speichern (PNG)", "Save image (PNG)") + '</button><button type="button" class="btn ghost pz-mix-aus">' + t("← Zurück zum Entwerfen", "← Back to design") + "</button></div></div>";
     box.hidden = false;
     Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (inp) {
       inp.addEventListener("input", function () {
@@ -585,8 +617,15 @@
       });
       inp.addEventListener("change", function () { renderMix(v); });
     });
-    box.querySelector(".pz-mix-aus").addEventListener("click", function () { box.hidden = true; zeigeVolumen(v, null); });
-    zeigeVolumen(v, m);
+    box.querySelector(".pz-explo").addEventListener("change", function (e) { explo = e.target.checked; zeigeVolumen(v, m, { praes: true, explo: explo }); });
+    Array.prototype.forEach.call(box.querySelectorAll(".pz-blick button"), function (b2) { b2.addEventListener("click", function () { blick = +b2.dataset.h; renderMix(v); }); });
+    box.querySelector(".pz-png").addEventListener("click", function () {
+      window.APB3D.bild().then(function (u) { if (!u) return; var l = document.createElement("a"); l.href = u; l.download = "apb-potenzial-" + (aktuell.re.MunicipalityName + "-" + aktuell.re.Number).replace(/[^\w-]+/g, "-") + ".png"; document.body.appendChild(l); l.click(); l.remove(); });
+    });
+    box.querySelector(".pz-mix-aus").addEventListener("click", function () { box.hidden = true; praesentation(false); zeigeVolumen(v, null); root.querySelector(".pz-edit").scrollIntoView({ block: "start" }); });
+    praesentation(true, v, m);
+    zeigeVolumen(v, m, { praes: true, explo: explo });
+    var sd = document.querySelector(".pz-side"); if (sd) sd.scrollTop = 0;
   }
 
   /* ---------- Entwerfen: Volumen weiterbearbeiten ---------- */
@@ -703,13 +742,14 @@
     root.querySelector(".pz-liste").innerHTML = "";
     root.querySelector(".pz-q").value = treffer.label;
     meldung(t("Parzelle und ÖREB-Kataster werden abgefragt …", "Querying plot and PLR cadastre …"));
+    praesentation(false);
     root.querySelector(".pz-res").hidden = true; root.querySelector(".pz-vol").hidden = true; root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true;
     parzelleAn(treffer.lat, treffer.lon).then(function (p) {
       if (!p.egris_egrid) throw new Error("ohne EGRID");
       return Promise.all([oereb(p.egris_egrid), bzo()]);
     }).then(function (r) {
       var a = auswerten(r[0], r[1]); aktuell = a; meldung("");
-      render(a, kennwerte(a));
+      a.k = kennwerte(a); render(a, a.k);
     }).catch(function (e) {
       meldung(t("Für diesen Ort konnte kein ÖREB-Auszug geladen werden (nur Kanton Zürich). ", "No PLR extract for this location (Canton of Zurich only). ") + "(" + e.message + ")", true);
     });
@@ -726,7 +766,7 @@
     }, 250);
   });
   form.addEventListener("submit", function (e) { e.preventDefault(); var b = liste.querySelector("button"); if (b) b.click(); });
-  root.querySelector(".pz-std").addEventListener("change", function (e) { standard = e.target.value; if (aktuell) render(aktuell, kennwerte(aktuell)); });
+  root.querySelector(".pz-std").addEventListener("change", function (e) { standard = e.target.value; if (aktuell) { praesentation(false); aktuell.k = kennwerte(aktuell); render(aktuell, aktuell.k); } });
   // 3D starten, sobald eingeloggt
   if (document.documentElement.classList.contains("pz-on")) karte();
   document.addEventListener("pz-login", function () { karte(); });

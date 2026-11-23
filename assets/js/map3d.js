@@ -187,7 +187,7 @@
         sc.requestRender();
       }
       function gebStil() {
-        var basis = modus === "luft" ? "color('#f3f1ec', 0.95)" : "color('#f7f4ee', 1.0)";
+        var basis = modus === "luft" ? "color('#f3f1ec', 0.95)" : modus === "praes" ? "color('#fbfaf7', 1.0)" : "color('#f7f4ee', 1.0)";
         var st = { show: "true", color: { conditions: [] } };
         if (fokusBox) {
           st.color.conditions.push([fokusBox, "color('#f15d30', 1.0)"]);
@@ -262,6 +262,41 @@
       var bb = box.querySelector(".m3d-b");
       bb.addEventListener("click", function () { if (!trees) return; trees.show = !trees.show; bb.setAttribute("aria-pressed", trees.show); sc.requestRender(); });
       grundlage("modell");
+      // Präsentation: Axonometrie (Parallelprojektion), weisses Modell ohne Luftbild/Himmel, Bäume als weisse Kugeln
+      var vorher = null;
+      api.praesentation = function (an, ziel) {
+        if (!viewer) return;
+        var top = box.querySelector(".m3d-top");
+        if (an) {
+          if (!vorher) vorher = { modus: modus, bg: sc.backgroundColor.clone(), base: sc.globe.baseColor.clone() };
+          modus = "praes"; layers.luft.show = false; layers.av.show = false;
+          sc.globe.baseColor = Cesium.Color.fromCssColorString("#ebe8e1"); sc.globe.enableLighting = true;
+          sc.skyAtmosphere.show = false; sc.skyBox && (sc.skyBox.show = false); sc.sun && (sc.sun.show = false); sc.moon && (sc.moon.show = false);
+          sc.backgroundColor = Cesium.Color.fromCssColorString("#ebe8e1"); sc.fog.enabled = false;
+          if (tileset) tileset.style = gebStil();
+          if (trees) { trees.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE; trees.style = new Cesium.Cesium3DTileStyle({ color: "color('#ffffff', 1.0)" }); }
+          if (top) top.hidden = true;
+          if (ziel) {
+            viewer.camera.switchToOrthographicFrustum();
+            var bs = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(ziel.lon, ziel.lat, ziel.h || 450), ziel.r || 40);
+            viewer.camera.flyToBoundingSphere(bs, { offset: new Cesium.HeadingPitchRange(Cesium.Math.toRadians(ziel.heading != null ? ziel.heading : 35), Cesium.Math.toRadians(-32), (ziel.r || 40) * 3.2), duration: 1.4 });
+          }
+        } else if (vorher) {
+          viewer.camera.switchToPerspectiveFrustum();
+          sc.skyAtmosphere.show = true; sc.skyBox && (sc.skyBox.show = true); sc.sun && (sc.sun.show = true); sc.moon && (sc.moon.show = true);
+          sc.backgroundColor = vorher.bg; sc.globe.baseColor = vorher.base; sc.fog.enabled = true;
+          if (trees) { trees.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.MIX; trees.style = new Cesium.Cesium3DTileStyle({ color: "color('#a9bb98', 1.0)" }); }
+          if (top) top.hidden = false;
+          grundlage(vorher.modus); vorher = null;
+        }
+        sc.requestRender();
+      };
+      api.bild = function () {                         // aktuelles Bild als PNG (Daten-URL)
+        return new Promise(function (res) {
+          var fn = function () { sc.postRender.removeEventListener(fn); try { res(sc.canvas.toDataURL("image/png")); } catch (e) { res(null); } };
+          sc.postRender.addEventListener(fn); sc.requestRender();
+        });
+      };
 
       if (opts.zeichne) { try { opts.zeichne(viewer, Cesium, groundAt); } catch (e) { if (window.console) console.error(e); } }
       if (opts.ort) { fly({ geo: [opts.ort.lat, opts.ort.lon], geoExakt: true, distanz: opts.ort.distanz }, true); }

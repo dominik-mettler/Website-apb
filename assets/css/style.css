@@ -1452,3 +1452,18 @@ html.pz-on .pz { border: 0; padding: 0; }
 .pz-edit .pz-f { margin-bottom: 10px; }
 .pz-chk li.m::before { content: "✕"; color: #e5484d; }
 .pz-chk li::before { content: "✓"; }
+/* Potenzial – Präsentation (Axo) */
+.pz-legende { position: absolute; left: 18px; bottom: 18px; z-index: 4; width: 270px; padding: 16px 18px; background: rgba(251,250,247,.94); color: #1d1c1a; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,.12); font-size: 13px; line-height: 1.4; }
+.pz-legende .eyebrow { color: #7b776f; font-size: 10.5px; }
+.pz-legende b { display: block; font-size: 16px; font-weight: 600; margin: 6px 0 2px; letter-spacing: -.01em; }
+.pz-legende small { display: block; color: #6b675f; font-size: 12px; }
+.pz-legende ul { list-style: none; margin: 12px 0; padding: 10px 0 0; border-top: 1px solid rgba(0,0,0,.1); display: grid; gap: 6px; }
+.pz-legende li { display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center; }
+.pz-legende li i { width: 12px; height: 12px; border: 1px solid rgba(0,0,0,.35); }
+.pz-legende li span { color: #6b675f; font-variant-numeric: tabular-nums; }
+.pz-blick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 12px; }
+.pz-blick button { padding: 8px 0; border-radius: 8px; background: var(--stone); border: 1px solid var(--line); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.pz-blick button[aria-pressed="true"] { border-color: var(--accent); background: rgba(241,93,48,.1); }
+.pz-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.pz-knoepfe .btn { border: 0; cursor: pointer; }
+.pz-praes { border-top: 0; margin-top: 0; padding-top: 0; }
