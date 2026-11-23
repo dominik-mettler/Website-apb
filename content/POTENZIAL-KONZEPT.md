@@ -43,3 +43,14 @@ Abgrenzung zu portrealestate.ch/de/bewertung: dort steht der Marktwert im Vorder
 - Sonderregeln (Arealüberbauung, Gestaltungsplan) nur als Hinweis anzeigen, nicht rechnen.
 
 Quellen: zh.ch ÖREB-Auszug-Anleitung; geolion.zh.ch Geodatensatz 3153; opendata.swiss WFS ÖREB-Kataster ZH; HSLU-Bachelorarbeiten (automatisierte Volumenstudien); portrealestate.ch.
+
+## 6. Entscheide (23.11.2026)
+- **Einzugsgebiet BZO-Tabelle** (Reihenfolge): Uster (mit Aussenwachten Nänikon, Werrikon, Wermatswil, Freudwil, Riedikon), Gossau ZH (mit Bertschikon, Grüt, Herschmettlen, Ottikon), Volketswil, Greifensee, Schwerzenbach, Fällanden, Mönchaltorf, Egg, Maur, Seegräben, Wetzikon, Grüningen, Pfäffikon.
+- **Ausbaustandard als Auswahl im Tool**: einfach / mittel (Standard) / gehoben. Flächen und Mix nach aktuellem nationalem Standard für mittleren Ausbau (Wohnbau-Richtwerte, z. B. WBS des BWO; nach dem Reset recherchieren).
+- **Entwurfsregeln für die Setzung** (Hinweise und Bewertung der Varianten), nach Entwurfspraxis Schweizer Hochschulen recherchieren:
+  - Volumen eher an die Nordgrenze, damit südlich ein Aussenraum mit Sonne entsteht (v. a. EFH/kleines MFH)
+  - Erschliessung von Norden; Wohnräume und Balkone nach Süden bzw. Westen
+  - Zeile/Riegel Ost–West ausrichten (Balkone nach Süden), Punkthaus für Rundum-Orientierung
+  - Bezug zur Strasse, Adressbildung, Topografie und Hanglage, Abstand zu Nachbarn, Lärmseite mit Nebenräumen, Erhalt der Bäume
+  - Arealüberbauung, Gewässerabstand und Lärm als Hinweise
+- **Pendent, Dominik liefert**: 2–3 eigene Machbarkeitsstudien von apb (PDF) zur Kalibrierung. **Erinnern bei jeder Arbeit am Tool.**
