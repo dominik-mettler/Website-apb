@@ -93,20 +93,21 @@ for pid in sorted(os.listdir(C)):
     plans = []
     for k, f in enumerate(sel['plaene'], 1):
         target = f'{out}/plan-%02d.webp' % k; orig = os.path.join(src, f['datei'])
-        zs = os.path.join(src, 'plaene-zuschnitt', os.path.basename(f['datei']))   # Rasterbild im Projektformat (tools/plaene_zuschneiden.py)
-        klein = zs if os.path.exists(zs) else orig
-        if not os.path.exists(target) or os.path.getmtime(target) < max(os.path.getmtime(orig), os.path.getmtime(klein)):
-            # gross (Lightbox): ganzer Plan, nur Weissrand entfernt – nie beschnitten
-            im = Image.open(orig).convert('L'); a = np.asarray(im); ys, xs = np.nonzero(a < 245)
-            if len(xs):
-                r = int(max(xs.max() - xs.min(), ys.max() - ys.min()) * 0.03)
-                im = im.crop((max(0, xs.min() - r), max(0, ys.min() - r), min(im.width, xs.max() + 1 + r), min(im.height, ys.max() + 1 + r)))
-            save(im, target, 2400, 'WEBP', 90)
-            save(Image.open(klein).convert('L'), f'{out}/plan-%02d-s.webp' % k, 1200, 'WEBP', 88)
+        # Pläne werden nie zugeschnitten: Original 1:1, die einheitliche Darstellung regelt das Layout (CSS)
+        if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(orig) or os.path.getmtime(target) < os.path.getmtime(__file__):
+            im = Image.open(orig).convert('L')
+            save(im, target, 2400, 'WEBP', 90); save(im, f'{out}/plan-%02d-s.webp' % k, 1200, 'WEBP', 88)
         plans.append(f['unterschrift'])
     p = byid[pid]
     p['base'] = f'assets/img/p2/{pid}/'; p['img'] = dims; p['cap'] = cap; p['plans'] = plans
-    if sel.get('plan_format'): p['planAr'] = sel['plan_format']
+    # Versionskennung der Planbilder: neue Fassung -> neue Adresse (sonst zeigt der Browser alte Bilder aus dem Cache)
+    import hashlib
+    _h = hashlib.md5()
+    for k in range(1, len(plans) + 1):
+        for suf in ('', '-s'):
+            fp = f'{out}/plan-%02d{suf}.webp' % k
+            if os.path.exists(fp): _h.update(open(fp, 'rb').read())
+    if plans: p['pv'] = _h.hexdigest()[:8]
 
 # 5: manuell geprüfte Angaben
 for pid, d in DATEN.items():
