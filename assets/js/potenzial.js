@@ -100,10 +100,13 @@
     var gem = null;
     Object.keys(b).forEach(function (k) { if (norm(b[k].name) === norm(re.MunicipalityName)) gem = b[k]; });
     var zoneTxt = "", zone = null, zoneKey = "";
-    beschr.forEach(function (r) {
-      if (/Grundnutzung/.test(r.Theme.SubCode || "") && r.Theme.code === "ch.Nutzungsplanung" && !zoneTxt) zoneTxt = txt(r.LegendText);
-    });
-    var m = zoneTxt.match(/\(([^)]+)\)\s*$/), kurz = m ? m[1] : zoneTxt;
+    // Grundnutzung: Eintrag mit Zonencode in Klammern bevorzugen (grösster Flächenanteil); manche Gemeinden liefern Erklärungssätze
+    var gn = beschr.filter(function (r) { return /Grundnutzung/.test(r.Theme.SubCode || "") && r.Theme.code === "ch.Nutzungsplanung"; });
+    gn.sort(function (x, y) { var cx = /\([^)]{1,14}\)\s*$/.test(txt(x.LegendText)) ? 1 : 0, cy = /\([^)]{1,14}\)\s*$/.test(txt(y.LegendText)) ? 1 : 0; return (cy - cx) || ((y.AreaShare || 0) - (x.AreaShare || 0)); });
+    if (gn.length) zoneTxt = txt(gn[0].LegendText);
+    var m = zoneTxt.match(/\(([^)]{1,14})\)\s*$/), kurz = m ? m[1] : "";
+    if (!kurz) { var m2 = zoneTxt.match(/\b((?:WG|W|L|E|Z|K)\s?\d+(?:[.\/]\d+)?[A-Z]?)\b/); kurz = m2 ? m2[1] : zoneTxt; }
+    if (zoneTxt.length > 70) zoneTxt = zoneTxt.slice(0, 68) + " …";
     if (gem) Object.keys(gem.zonen).forEach(function (k) { if (norm(k) === norm(kurz)) { zone = gem.zonen[k]; zoneKey = k; } });
     if (gem && !zone) Object.keys(gem.zonen).forEach(function (k) { if (!zone && norm(k) === norm(kurz).replace(/g$/, "")) { zone = gem.zonen[k]; zoneKey = k; } });
     var eintraege = beschr.map(function (r) {
