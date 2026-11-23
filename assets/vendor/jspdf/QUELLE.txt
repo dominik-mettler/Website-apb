@@ -1,0 +1,1 @@
+jsPDF 2.5.2 (MIT) – https://github.com/parallax/jsPDF – unverändert aus dem npm-Paket
