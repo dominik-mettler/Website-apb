@@ -1407,7 +1407,7 @@ html.pz-on .pz { border: 0; padding: 0; }
 .pz-karte { position: relative; min-height: 0; background: #e4e1da; }
 .m3d.m3d-inline { position: absolute; inset: 0; z-index: auto; opacity: 1; background: #e4e1da; }
 .m3d-inline .m3d-top-inline { position: absolute; top: 12px; right: 12px; z-index: 3; padding: 0; border: 0; justify-content: flex-end; }
-.m3d-inline .m3d-top-inline .map-switch, .m3d-inline .m3d-b { background: rgba(12,12,11,.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.m3d-inline .m3d-top-inline .map-switch, .m3d-inline .m3d-b:not([aria-pressed="true"]) { background: rgba(12,12,11,.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .m3d-inline .m3d-stage { position: absolute; inset: 0; }
 .m3d-inline .m3d-help { right: 12px; bottom: 12px; }
 /* Abschnitte Volumen / Mix */
