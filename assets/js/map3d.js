@@ -152,7 +152,7 @@
       }
       function gebStil() {
         var basis = modus === "luft" ? "color('#f3f1ec', 0.95)" : "color('#f7f4ee', 1.0)";
-        var st = { color: { conditions: [] } };
+        var st = { show: "true", color: { conditions: [] } };
         if (fokusBox) {
           st.color.conditions.push([fokusBox, "color('#f15d30', 1.0)"]);
           if (ersetzt) st.show = "!(" + fokusBox + ")";
