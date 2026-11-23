@@ -698,7 +698,7 @@
     var PAL = PRAES_FARBE;
     v.teile.forEach(function (p, ti) {
       if (mix && mix.teile[ti]) mix.teile[ti].forEach(function (st) { st.felder.forEach(function (f) {
-        prismen.push({ pts: f.r.map(L), z0: st.g * GH + st.g * X, z1: (st.g + 1) * GH + st.g * X - 0.05, farbe: PAL[f.typ], kante: "rgba(35,33,30,.8)", grp: ti, lvl: st.g });
+        prismen.push({ pts: f.r.map(L), z0: st.g * GH + st.g * X, z1: (st.g + 1) * GH + st.g * X - 0.05, farbe: PAL[f.typ], kante: "rgba(35,33,30,.8)", grp: ti, lvl: st.g, aussen: ecken(p).map(L) });
       }); });
       else prismen.push({ pts: ecken(p).map(L), z0: 0, z1: v.n * GH, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)", grp: ti, lvl: 0 });
       var z0 = v.n * GH + v.n * X;
@@ -818,13 +818,14 @@
       for (var e = 0; e < n; e++) {
         var a4 = pts[e], b4 = pts[(e + 1) % n], dx = b4[0] - a4[0], dy = b4[1] - a4[1], nn = ccw ? [dy, -dx] : [-dy, dx], ln = Math.hypot(nn[0], nn[1]) || 1; nn = [nn[0] / ln, nn[1] / ln];
         if (nn[0] * away[0] + nn[1] * away[1] >= 0) continue;              // Rückseite
+        if (p.aussen && distRing([(a4[0] + b4[0]) / 2, (a4[1] + b4[1]) / 2], p.aussen) > 0.08) continue;   // Trennwand zwischen Wohnungen: unsichtbar
         var hell = 0.66 + 0.34 * Math.max(0, nn[0] * SONNE[0] + nn[1] * SONNE[1]);
         var mw = ((a4[0] + b4[0]) / 2) * away[0] + ((a4[1] + b4[1]) / 2) * away[1];
         seiten.push({ w: mw, p3: [[a4[0], a4[1], p.z0], [b4[0], b4[1], p.z0], [b4[0], b4[1], p.z1], [a4[0], a4[1], p.z1]], fill: ton(p.farbe, hell) });
       }
       seiten.sort(function (x, y) { return y.w - x.w; });
       seiten.push({ p3: pts.map(function (q) { return [q[0], q[1], p.z1]; }), fill: p.farbe });
-      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, z1: p.z1, poly: pts, faces: seiten, stroke: p.kante, grp: p.grp, lvl: p.lvl });
+      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, z1: p.z1, poly: p.kontext ? huelle2(pts) : pts, faces: seiten, stroke: p.kante, grp: p.grp, lvl: p.lvl });
     });
     // Dachflächen je Baukörper als eigene Gruppe über dem obersten Geschoss
     var dachGruppen = {};
@@ -852,7 +853,9 @@
       var stufen = {}; lst.forEach(function (it) { (stufen[it.lvl] = stufen[it.lvl] || []).push(it); });
       var faces = [];
       Object.keys(stufen).map(Number).sort(function (a7, b7) { return a7 - b7; }).forEach(function (lv) {
-        ordnen(stufen[lv], away).forEach(function (it) { it.faces.forEach(function (f) { faces.push({ f: f, stroke: it.stroke }); }); });
+        var wand = [], deckel = [];
+        ordnen(stufen[lv], away).forEach(function (it) { it.faces.forEach(function (f) { var flach = f.p3.every(function (q) { return Math.abs(q[2] - f.p3[0][2]) < 1e-6; }); (flach && lv < 1500 ? deckel : wand).push({ f: f, stroke: it.stroke }); }); });
+        faces.push.apply(faces, wand); faces.push.apply(faces, deckel);       // im Geschoss: erst alle Aussenwände, dann alle Deckel
       });
       kontext.push({ d: 0, z: z0, z1: z1, poly: huelle2(pts), bb: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)], gruppe: faces });
     });
