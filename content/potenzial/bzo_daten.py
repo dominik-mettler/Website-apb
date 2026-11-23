@@ -7,17 +7,18 @@ Ausgabe: python3 content/potenzial/bzo_daten.py -> content/potenzial/bzo.json + 
 """
 import json, os
 G = {}
-G['uster'] = {'name': 'Uster', 'stand': 'BZO 1999, teilrevidiert 2021 (vor IVHB: Ausnützungsziffer, Vollgeschosse)', 'quelle': 'https://oerebdocs.zh.ch/getDoc?docid=9309', 'artikel': 'Art. 29',
-  'grosser_abstand': 'kantonal (§ 260 ff. PBG): grosser Grundabstand vor der Hauptwohnseite',
+G['uster'] = {'name': 'Uster', 'stand': 'Teilrevision Nutzungsplanung, festgesetzt 13.4.2026 (IVHB; gilt mit Vorwirkung, Genehmigung ausstehend)', 'quelle': 'https://oerebdocs.zh.ch/getDoc?docid=17301', 'artikel': 'Art. 29 + 33',
+  'grosser_abstand': 'kein grosser/kleiner Abstand: Grundabstand + Mehrlängenzuschlag 1/3 bis Höchstmass',
   'areal': 'Art. 40–41: ab 4000 m²; W3/W4 +2 Vollgeschosse (W2 nicht), Gebäudelänge frei, Abstände arealintern nach kantonalem Recht',
-  'zonen': {
-    'L2/30': {'az': .30, 'vg': 2, 'dg': 1, 'ug': 1, 'laenge': 30, 'ga_k': 5, 'mlz': [1/3, None], 'ga_max': 9},
-    'W2/30': {'az': .30, 'vg': 2, 'dg': 1, 'ug': 1, 'laenge': 30, 'ga_k': 5, 'mlz': [1/3, None], 'ga_max': 9},
-    'W2/40': {'az': .40, 'vg': 2, 'dg': 1, 'ug': 1, 'laenge': 30, 'ga_k': 5, 'mlz': [1/3, None], 'ga_max': 9},
-    'W2/50': {'az': .50, 'vg': 2, 'dg': 1, 'ug': 1, 'laenge': 40, 'ga_k': 4, 'mlz': [1/3, None], 'ga_max': 9},
-    'W3/50': {'az': .50, 'vg': 3, 'dg': 2, 'ug': 1, 'laenge': 40, 'ga_k': 5, 'mlz': [1/3, None], 'ga_max': 10},
-    'W3/70': {'az': .70, 'vg': 3, 'dg': 1, 'ug': 1, 'laenge': 60, 'ga_k': 4, 'mlz': [1/3, None], 'ga_max': 10},
-    'W4/70': {'az': .70, 'vg': 4, 'dg': 2, 'ug': 1, 'laenge': 60, 'ga_k': 5, 'mlz': [1/3, None], 'ga_max': 12}}}
+  'gewerbe_bonus': 'Zonen …G (Art. 33): Ausnützung +1/5, sofern die Mehrfläche dauernd gewerblich genutzt wird',
+  'zonen': {}}
+_u = {'L2/30': (.30, 2, 1, 30, 5, 9, 8.1), 'W2/30': (.30, 2, 1, 30, 5, 9, 8.1), 'W2/40': (.40, 2, 1, 30, 5, 9, 8.1),
+      'W2/50': (.50, 2, 1, 40, 4, 9, 8.1), 'W3/50': (.50, 3, 2, 40, 5, 10, 11.4), 'W3/70': (.70, 3, 1, 60, 4, 10, 11.4), 'W4/70': (.70, 4, 2, 60, 5, 12, 14.7)}
+for _k, (_az, _vg, _dg, _l, _ga, _gmax, _fh) in _u.items():
+    _z = {'az': _az, 'vg': _vg, 'dg': _dg, 'attika': 1, 'ug': 1, 'laenge': _l, 'ga_k': _ga, 'ga_max': _gmax, 'mlz': [1/3, None], 'fh': _fh, 'fh_flach': round(_fh + 1, 1)}
+    G['uster']['zonen'][_k] = _z
+    if _k != 'L2/30':
+        G['uster']['zonen'][_k + 'G'] = dict(_z, gewerbe=True, az_bonus=1/5)
 G['gossau'] = {'name': 'Gossau ZH', 'stand': 'BZO Teilrevision 17.11.2025, in Kraft 1.9.2026 (IVHB)', 'quelle': 'https://oerebdocs.zh.ch/getDoc?docid=6888', 'artikel': 'Art. 10',
   'areal': 'Art. 20–22: W/WG 1.7 ab 4000 m², W/WG 2.4 ab 6000 m²; BMZ +0.7, FH +3.3 m, +1 Vollgeschoss, Länge bis 2×',
   'zonen': {

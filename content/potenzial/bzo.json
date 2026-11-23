@@ -1,102 +1,232 @@
 {
  "uster": {
   "name": "Uster",
-  "stand": "BZO 1999, teilrevidiert 2021 (vor IVHB: Ausnützungsziffer, Vollgeschosse)",
-  "quelle": "https://oerebdocs.zh.ch/getDoc?docid=9309",
-  "artikel": "Art. 29",
-  "grosser_abstand": "kantonal (§ 260 ff. PBG): grosser Grundabstand vor der Hauptwohnseite",
+  "stand": "Teilrevision Nutzungsplanung, festgesetzt 13.4.2026 (IVHB; gilt mit Vorwirkung, Genehmigung ausstehend)",
+  "quelle": "https://oerebdocs.zh.ch/getDoc?docid=17301",
+  "artikel": "Art. 29 + 33",
+  "grosser_abstand": "kein grosser/kleiner Abstand: Grundabstand + Mehrlängenzuschlag 1/3 bis Höchstmass",
   "areal": "Art. 40–41: ab 4000 m²; W3/W4 +2 Vollgeschosse (W2 nicht), Gebäudelänge frei, Abstände arealintern nach kantonalem Recht",
+  "gewerbe_bonus": "Zonen …G (Art. 33): Ausnützung +1/5, sofern die Mehrfläche dauernd gewerblich genutzt wird",
   "zonen": {
    "L2/30": {
     "az": 0.3,
     "vg": 2,
     "dg": 1,
+    "attika": 1,
     "ug": 1,
     "laenge": 30,
     "ga_k": 5,
+    "ga_max": 9,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 9
+    "fh": 8.1,
+    "fh_flach": 9.1
    },
    "W2/30": {
     "az": 0.3,
     "vg": 2,
     "dg": 1,
+    "attika": 1,
     "ug": 1,
     "laenge": 30,
     "ga_k": 5,
+    "ga_max": 9,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 9
+    "fh": 8.1,
+    "fh_flach": 9.1
+   },
+   "W2/30G": {
+    "az": 0.3,
+    "vg": 2,
+    "dg": 1,
+    "attika": 1,
+    "ug": 1,
+    "laenge": 30,
+    "ga_k": 5,
+    "ga_max": 9,
+    "mlz": [
+     0.3333333333333333,
+     null
+    ],
+    "fh": 8.1,
+    "fh_flach": 9.1,
+    "gewerbe": true,
+    "az_bonus": 0.2
    },
    "W2/40": {
     "az": 0.4,
     "vg": 2,
     "dg": 1,
+    "attika": 1,
     "ug": 1,
     "laenge": 30,
     "ga_k": 5,
+    "ga_max": 9,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 9
+    "fh": 8.1,
+    "fh_flach": 9.1
+   },
+   "W2/40G": {
+    "az": 0.4,
+    "vg": 2,
+    "dg": 1,
+    "attika": 1,
+    "ug": 1,
+    "laenge": 30,
+    "ga_k": 5,
+    "ga_max": 9,
+    "mlz": [
+     0.3333333333333333,
+     null
+    ],
+    "fh": 8.1,
+    "fh_flach": 9.1,
+    "gewerbe": true,
+    "az_bonus": 0.2
    },
    "W2/50": {
     "az": 0.5,
     "vg": 2,
     "dg": 1,
+    "attika": 1,
     "ug": 1,
     "laenge": 40,
     "ga_k": 4,
+    "ga_max": 9,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 9
+    "fh": 8.1,
+    "fh_flach": 9.1
+   },
+   "W2/50G": {
+    "az": 0.5,
+    "vg": 2,
+    "dg": 1,
+    "attika": 1,
+    "ug": 1,
+    "laenge": 40,
+    "ga_k": 4,
+    "ga_max": 9,
+    "mlz": [
+     0.3333333333333333,
+     null
+    ],
+    "fh": 8.1,
+    "fh_flach": 9.1,
+    "gewerbe": true,
+    "az_bonus": 0.2
    },
    "W3/50": {
     "az": 0.5,
     "vg": 3,
     "dg": 2,
+    "attika": 1,
     "ug": 1,
     "laenge": 40,
     "ga_k": 5,
+    "ga_max": 10,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 10
+    "fh": 11.4,
+    "fh_flach": 12.4
+   },
+   "W3/50G": {
+    "az": 0.5,
+    "vg": 3,
+    "dg": 2,
+    "attika": 1,
+    "ug": 1,
+    "laenge": 40,
+    "ga_k": 5,
+    "ga_max": 10,
+    "mlz": [
+     0.3333333333333333,
+     null
+    ],
+    "fh": 11.4,
+    "fh_flach": 12.4,
+    "gewerbe": true,
+    "az_bonus": 0.2
    },
    "W3/70": {
     "az": 0.7,
     "vg": 3,
     "dg": 1,
+    "attika": 1,
     "ug": 1,
     "laenge": 60,
     "ga_k": 4,
+    "ga_max": 10,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 10
+    "fh": 11.4,
+    "fh_flach": 12.4
+   },
+   "W3/70G": {
+    "az": 0.7,
+    "vg": 3,
+    "dg": 1,
+    "attika": 1,
+    "ug": 1,
+    "laenge": 60,
+    "ga_k": 4,
+    "ga_max": 10,
+    "mlz": [
+     0.3333333333333333,
+     null
+    ],
+    "fh": 11.4,
+    "fh_flach": 12.4,
+    "gewerbe": true,
+    "az_bonus": 0.2
    },
    "W4/70": {
     "az": 0.7,
     "vg": 4,
     "dg": 2,
+    "attika": 1,
     "ug": 1,
     "laenge": 60,
     "ga_k": 5,
+    "ga_max": 12,
     "mlz": [
      0.3333333333333333,
      null
     ],
-    "ga_max": 12
+    "fh": 14.7,
+    "fh_flach": 15.7
+   },
+   "W4/70G": {
+    "az": 0.7,
+    "vg": 4,
+    "dg": 2,
+    "attika": 1,
+    "ug": 1,
+    "laenge": 60,
+    "ga_k": 5,
+    "ga_max": 12,
+    "mlz": [
+     0.3333333333333333,
+     null
+    ],
+    "fh": 14.7,
+    "fh_flach": 15.7,
+    "gewerbe": true,
+    "az_bonus": 0.2
    }
   }
  },

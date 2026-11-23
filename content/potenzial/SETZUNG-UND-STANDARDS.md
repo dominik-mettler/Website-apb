@@ -66,7 +66,7 @@ Im Tool als **Auswahl Ausbaustandard** (Nettowohnfläche m², Startwerte **[A]**
 ## 4. Offene Punkte
 - Seegräben: BZO-PDF nicht abrufbar → nachtragen.
 - Wetzikon: nur der Entwurf 2025 ist erfasst → geltende BZO prüfen.
-- Uster: BZO 1999/2021 ohne Unterscheidung grosser/kleiner Grundabstand (Grundabstand + Höchstmass); prüfen, ob eine Revision läuft.
+- Uster: erledigt – Teilrevision 13.4.2026 (IVHB, Vorwirkung) erfasst, inkl. G-Zonen (+1/5 Ausnützung).
 - ÖREB-JSON (maps.zh.ch) und WFS-Geometrien (Zonen, Abstandslinien) testen.
 - Flächenwerte «mittel/gehoben» mit Marktdaten (Wüest Partner) bzw. apb-Studien belegen.
 
