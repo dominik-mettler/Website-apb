@@ -15,7 +15,7 @@ from PIL import Image, ImageFilter
 
 R = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 C = os.path.join(R, 'content/projekte')
-MAX_SCHNITT = 0.04     # höchstens 4 % der Zeichnung pro Richtung anschneiden
+MAX_SCHNITT = 0.0      # Zeichnungen nie anschneiden (nur Weiss auffüllen) – Wunsch: Gebäude nie zerschneiden
 RAND = 0.025           # kleiner Rand um die Zeichnung (Anteil der längeren Seite)
 
 def ink(a, t=200):
@@ -107,21 +107,19 @@ def situation(a, ar):
     dy, dx = np.nonzero(weich < 120)
     hx, hy = np.mean([p[0] for p in poly]), np.mean([p[1] for p in poly])
     fx, fy = (dx.mean(), dy.mean()) if len(dx) > 50 else (hx, hy)
-    best = None
-    for t in np.linspace(0, 1, 11):                       # Mittelpunkt zwischen Gebäude und Planmitte
-        cx, cy = fx + (hx - fx) * t, fy + (hy - fy) * t
-        lo, hi = 10.0, float(max(w, h))
-        while hi - lo > 2:
-            hw = (lo + hi) / 2; hh = hw / ar
-            ok = all(innen(poly, cx + sx * hw, cy + sy * hh) for sx in (-1, 1) for sy in (-1, 1))
-            lo, hi = (hw, hi) if ok else (lo, hw)
-        hw = lo; hh = hw / ar
-        enthaelt = abs(fx - cx) < hw * 0.45 and abs(fy - cy) < hh * 0.45
-        if enthaelt and (best is None or hw > best[2]): best = (cx, cy, hw)
-    if best is None: return zuschnitt(a, ar)
-    cx, cy, hw = best; hh = hw / ar
+    # Ausschnitt immer genau auf das Projektgebäude zentriert (Wunsch: Projekt sitzt mittig)
+    cx, cy = fx, fy
+    lo, hi = 10.0, float(max(w, h))
+    while hi - lo > 2:
+        hw = (lo + hi) / 2; hh = hw / ar
+        ok = all(innen(poly, cx + sx * hw, cy + sy * hh) for sx in (-1, 1) for sy in (-1, 1))
+        lo, hi = (hw, hi) if ok else (lo, hw)
+    hw = max(lo, min(w, h * ar) * 0.32)          # nie zu eng: lieber etwas Weiss in einer Ecke als ein Briefmarken-Ausschnitt
+    hh = hw / ar
     x0, y0, x1, y1 = [int(round(v)) for v in (cx - hw, cy - hh, cx + hw, cy + hh)]
-    return a[max(0, y0):min(h, y1), max(0, x0):min(w, x1)]
+    p = np.pad(a, ((max(0, -y0), max(0, y1 - h)), (max(0, -x0), max(0, x1 - w))), constant_values=255)
+    ox, oy = max(0, -x0), max(0, -y0)
+    return p[y0 + oy:y1 + oy, x0 + ox:x1 + ox]
 
 def projekt(pid):
     d = os.path.join(C, pid); f = os.path.join(d, 'auswahl.json')
@@ -134,8 +132,7 @@ def projekt(pid):
         a = np.asarray(Image.open(os.path.join(d, pl['datei'])).convert('L'))
         b = bbox(ink(a, 245)); a = a[b[1]:b[3], b[0]:b[2]] if b else a
         sit = pl['unterschrift'].lower().startswith('situation')
-        if not sit and any(k in pl['unterschrift'].lower() for k in ('schnitt', 'ansicht')):
-            a = gelaende_kuerzen(a)
+        # Gelände nicht mehr kürzen: schnitt sonst Untergeschosse ab
         roh.append((pl, a, sit))
     asp = [x[1].shape[1] / x[1].shape[0] for x in roh if not x[2]]
     ar = float(np.clip(np.exp(np.mean(np.log(asp))) if asp else 1.5, 1.4, 1.9))

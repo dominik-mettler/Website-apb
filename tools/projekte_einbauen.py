@@ -9,6 +9,7 @@
 
 Aufruf: python3 tools/projekte_einbauen.py   (danach: HOME_VARIANT=A python3 tools/build.py)
 """
+import numpy as np
 import os, json, re, sys
 from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -91,12 +92,17 @@ for pid in sorted(os.listdir(C)):
         if f['unterschrift']: cap[str(i)] = f['unterschrift']
     plans = []
     for k, f in enumerate(sel['plaene'], 1):
-        target = f'{out}/plan-%02d.webp' % k; srcf = os.path.join(src, f['datei'])
-        zs = os.path.join(src, 'plaene-zuschnitt', os.path.basename(f['datei']))   # zugeschnittene Fassung (tools/plaene_zuschneiden.py)
-        if os.path.exists(zs): srcf = zs
-        if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(srcf):
-            im = Image.open(srcf).convert('L')
-            save(im, target, 2400, 'WEBP', 90); save(im, f'{out}/plan-%02d-s.webp' % k, 1200, 'WEBP', 88)
+        target = f'{out}/plan-%02d.webp' % k; orig = os.path.join(src, f['datei'])
+        zs = os.path.join(src, 'plaene-zuschnitt', os.path.basename(f['datei']))   # Rasterbild im Projektformat (tools/plaene_zuschneiden.py)
+        klein = zs if os.path.exists(zs) else orig
+        if not os.path.exists(target) or os.path.getmtime(target) < max(os.path.getmtime(orig), os.path.getmtime(klein)):
+            # gross (Lightbox): ganzer Plan, nur Weissrand entfernt – nie beschnitten
+            im = Image.open(orig).convert('L'); a = np.asarray(im); ys, xs = np.nonzero(a < 245)
+            if len(xs):
+                r = int(max(xs.max() - xs.min(), ys.max() - ys.min()) * 0.03)
+                im = im.crop((max(0, xs.min() - r), max(0, ys.min() - r), min(im.width, xs.max() + 1 + r), min(im.height, ys.max() + 1 + r)))
+            save(im, target, 2400, 'WEBP', 90)
+            save(Image.open(klein).convert('L'), f'{out}/plan-%02d-s.webp' % k, 1200, 'WEBP', 88)
         plans.append(f['unterschrift'])
     p = byid[pid]
     p['base'] = f'assets/img/p2/{pid}/'; p['img'] = dims; p['cap'] = cap; p['plans'] = plans
