@@ -92,12 +92,15 @@ for pid in sorted(os.listdir(C)):
     plans = []
     for k, f in enumerate(sel['plaene'], 1):
         target = f'{out}/plan-%02d.webp' % k; srcf = os.path.join(src, f['datei'])
+        zs = os.path.join(src, 'plaene-zuschnitt', os.path.basename(f['datei']))   # zugeschnittene Fassung (tools/plaene_zuschneiden.py)
+        if os.path.exists(zs): srcf = zs
         if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(srcf):
             im = Image.open(srcf).convert('L')
             save(im, target, 2400, 'WEBP', 90); save(im, f'{out}/plan-%02d-s.webp' % k, 1200, 'WEBP', 88)
         plans.append(f['unterschrift'])
     p = byid[pid]
     p['base'] = f'assets/img/p2/{pid}/'; p['img'] = dims; p['cap'] = cap; p['plans'] = plans
+    if sel.get('plan_format'): p['planAr'] = sel['plan_format']
 
 # 5: manuell geprüfte Angaben
 for pid, d in DATEN.items():

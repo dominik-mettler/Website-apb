@@ -60,9 +60,9 @@
   "Wagerenstrasse 20 8610 Uster"
  ],
  "266-sku": [
-  47.351078,
-  8.7068,
-  "Krämerackerstrasse 31 8610 Uster"
+  47.351293,
+  8.708386,
+  "Schulareal Krämeracker, Uster (swissNAMES3D)"
  ],
  "270-bsb": [
   47.325901,
@@ -135,9 +135,9 @@
   "Pündtstrasse 8 8610 Uster"
  ],
  "319-sag": [
-  47.278923,
-  8.757814,
-  "Aussergass 1 8627 Grüningen (Schulanlage)"
+  47.27756,
+  8.75692,
+  "Schulanlage Grüningen (Neubau Aussergass, abgeglichen mit Situation)"
  ],
  "321-pbv": [
   47.38834,
@@ -155,9 +155,9 @@
   "Jonastrasse 47 8636 Wald ZH"
  ],
  "326-shu": [
-  47.353954,
-  8.722825,
-  "Hasenbühlstrasse 3.1 8610 Uster"
+  47.35483,
+  8.72162,
+  "Schulhaus Hasenbühl, Uster (abgeglichen mit Situation)"
  ],
  "327-sdu": [
   47.346645,
@@ -165,9 +165,9 @@
   "Schulweg 6 8610 Uster"
  ],
  "329-sam": [
-  47.326775,
-  8.655597,
-  "Aeschstrasse 17 8127 Forch"
+  47.326962,
+  8.655603,
+  "Schulhaus Aesch, Maur (swissNAMES3D)"
  ],
  "333-kff": [
   47.371071,
@@ -175,9 +175,9 @@
   "Sunnetalstrasse 6 8117 Fällanden"
  ],
  "334-sbg": [
-  47.30061,
-  8.764584,
-  "Bergstrasse 37 8625 Gossau ZH"
+  47.30085,
+  8.76745,
+  "Sekundarschulanlage Berg, Gossau ZH (abgeglichen mit Situation)"
  ],
  "338-ebw": [
   47.280624,
@@ -185,14 +185,14 @@
   "Binzholzstrasse 17 8636 Wald ZH"
  ],
  "341-spu": [
-  47.348862,
-  8.711581,
-  "Wilstrasse 30 8610 Uster"
+  47.3493,
+  8.7121,
+  "Schulhaus Pünt, Uster (abgeglichen mit Situation)"
  ],
  "344-miu": [
-  47.351238,
-  8.718082,
-  "Industriestrasse 3 8610 Uster"
+  47.3517,
+  8.718,
+  "Industriestrasse, Uster – Baufeld nördlich Gleise (abgeglichen mit Situation)"
  ],
  "347-gtv": [
   47.391201,
@@ -203,5 +203,30 @@
   47.38269,
   8.654203,
   "Hegger 4, 8603 Schwerzenbach"
+ ],
+ "016-kpf": [
+  47.37143,
+  8.64412,
+  "Kath. Kirche St. Katharina, Fällanden (neben Kinderhospiz)"
+ ],
+ "312-gok": [
+  47.317471,
+  8.584161,
+  "Obere Dorfstrasse 32 8700 Küsnacht ZH (Gemeindehaus)"
+ ],
+ "299-bssc": [
+  47.399175,
+  8.447242,
+  "Bahnhof Schlieren (BAV-Haltestelle)"
+ ],
+ "275-bsaf": [
+  47.420913,
+  8.508578,
+  "Bahnhof Zürich Affoltern (BAV-Haltestelle)"
+ ],
+ "245-anw": [
+  47.511198,
+  8.369633,
+  "Bahnhof Niederweningen (BAV-Haltestelle)"
  ]
 }
