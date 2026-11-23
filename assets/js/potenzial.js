@@ -232,7 +232,7 @@
       });
       var bb = (k.bf || k.ring).map(function (p) { return wgs(p[0], p[1]); });
       window.APB3D.ausblenden([Math.min.apply(null, bb.map(function (q) { return q[0]; })), Math.max.apply(null, bb.map(function (q) { return q[0]; })), Math.min.apply(null, bb.map(function (q) { return q[1]; })), Math.max.apply(null, bb.map(function (q) { return q[1]; }))]);
-      window.APB3D.flyTo(cw[1], cw[0], Math.max(170, Math.min(650, Math.sqrt(a.re.LandRegistryArea) * 5)));
+      window.APB3D.flyTo(cw[1], cw[0], Math.max(110, Math.min(520, Math.sqrt(a.re.LandRegistryArea) * 3.2)));
       window.APB3D.boden(cw[0], cw[1]).then(function (h) { bodenH = h; if (letzte) zeigeVolumen(letzte.v, letzte.mix); });
     });
   }
@@ -356,7 +356,7 @@
     var umf = v.teile.reduce(function (s, p) { return s + 2 * (p.L + p.T); }, 0);
     v.kompakt = Math.min(1, v.fuss * 4 / (umf * TIEFE));
     v.ok = v.teile.every(R.passt);
-    v.score = Math.round(100 * (0.26 * Math.min(1, v.aus) + 0.14 * v.nord + 0.14 * v.ow + 0.16 * v.strasse + 0.10 * v.rand + 0.12 * v.sued + 0.08 * v.kompakt));
+    v.score = Math.round(100 * (0.25 * Math.min(1, v.aus) + 0.12 * v.nord + 0.13 * v.ow + 0.16 * v.strasse + 0.14 * v.rand + 0.12 * v.sued + 0.08 * v.kompakt));
     if (!v.ok) v.score = Math.min(v.score, 20);
     return v;
   }
