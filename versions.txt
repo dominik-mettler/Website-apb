@@ -29,3 +29,4 @@ v28        30af25a  Variante A + Pläne zugeschnitten, Kartenpunkte korrigiert
 v29        d7384d9  Variante A + Seite Potenzial (Login, in Bearbeitung)
 v30        6d8c6ec  Variante A + Pläne unbeschnitten, Situation zentriert
 v31        ae8d486  Variante A + Pläne im Original (kein Zuschnitt)
+v32        0c61075  Variante A + 3D Modell-Look mit Projektvolumen, Fachplaner ergänzt
