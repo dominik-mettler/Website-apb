@@ -698,29 +698,29 @@
     var PAL = PRAES_FARBE;
     v.teile.forEach(function (p, ti) {
       if (mix && mix.teile[ti]) mix.teile[ti].forEach(function (st) { st.felder.forEach(function (f) {
-        prismen.push({ pts: f.r.map(L), z0: st.g * GH + st.g * X, z1: (st.g + 1) * GH + st.g * X - 0.05, farbe: PAL[f.typ], kante: "rgba(35,33,30,.8)" });
+        prismen.push({ pts: f.r.map(L), z0: st.g * GH + st.g * X, z1: (st.g + 1) * GH + st.g * X - 0.05, farbe: PAL[f.typ], kante: "rgba(35,33,30,.8)", grp: ti, lvl: st.g });
       }); });
-      else prismen.push({ pts: ecken(p).map(L), z0: 0, z1: v.n * GH, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)" });
+      else prismen.push({ pts: ecken(p).map(L), z0: 0, z1: v.n * GH, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)", grp: ti, lvl: 0 });
       var z0 = v.n * GH + v.n * X;
       if (v.dach === "attika" && v.dg) {
         var u0 = [Math.cos(p.ang), Math.sin(p.ang)], vv = [-u0[1], u0[0]], nordV = vv[1] >= 0 ? 1 : -1;
         var att = { c: [p.c[0] + vv[0] * nordV * p.T * 0.12, p.c[1] + vv[1] * nordV * p.T * 0.12], L: p.L * 0.82, T: p.T * 0.7, ang: p.ang };
-        prismen.push({ pts: ecken(att).map(L), z0: z0, z1: z0 + GH, farbe: mix ? PAL["4.5"] : "#fbfaf7", kante: "rgba(35,33,30,.8)" });
+        prismen.push({ pts: ecken(att).map(L), z0: z0, z1: z0 + GH, farbe: mix ? PAL["4.5"] : "#fbfaf7", kante: "rgba(35,33,30,.8)", grp: ti, lvl: 999 });
       } else if (v.dach === "sattel" || v.dach === "walm") {
         var lang = p.L >= p.T, Lr = lang ? p.L : p.T, Tr = lang ? p.T : p.L, ang2 = lang ? p.ang : p.ang + Math.PI / 2;
         var u1 = [Math.cos(ang2), Math.sin(ang2)], v1 = [-u1[1], u1[0]], ue = 0.5, fh = Tr / 2 * Math.tan(NEIGUNG), walm = v.dach === "walm";
         var P = function (s2, t2, z) { var q = L([p.c[0] + u1[0] * s2 + v1[0] * t2, p.c[1] + u1[1] * s2 + v1[1] * t2]); return [q[0], q[1], z]; };
         var hl = Lr / 2 + ue, ht = Tr / 2 + ue, zt = z0 - ue * Math.tan(NEIGUNG), fA = walm ? Lr / 2 - Tr / 2 : hl, D = "#c9c2b6";
-        flaechen.push({ p3: [P(-hl, -ht, zt), P(hl, -ht, zt), P(fA, 0, z0 + fh), P(-fA, 0, z0 + fh)], farbe: D });
-        flaechen.push({ p3: [P(-hl, ht, zt), P(hl, ht, zt), P(fA, 0, z0 + fh), P(-fA, 0, z0 + fh)], farbe: D });
-        if (walm) { flaechen.push({ p3: [P(-hl, -ht, zt), P(-hl, ht, zt), P(-fA, 0, z0 + fh)], farbe: D }); flaechen.push({ p3: [P(hl, -ht, zt), P(hl, ht, zt), P(fA, 0, z0 + fh)], farbe: D }); }
-        else { flaechen.push({ p3: [P(-Lr / 2, -Tr / 2, z0), P(-Lr / 2, Tr / 2, z0), P(-Lr / 2, 0, z0 + fh)], farbe: "#fbfaf7" }); flaechen.push({ p3: [P(Lr / 2, -Tr / 2, z0), P(Lr / 2, Tr / 2, z0), P(Lr / 2, 0, z0 + fh)], farbe: "#fbfaf7" }); }
+        flaechen.push({ p3: [P(-hl, -ht, zt), P(hl, -ht, zt), P(fA, 0, z0 + fh), P(-fA, 0, z0 + fh)], farbe: D, grp: ti });
+        flaechen.push({ p3: [P(-hl, ht, zt), P(hl, ht, zt), P(fA, 0, z0 + fh), P(-fA, 0, z0 + fh)], farbe: D, grp: ti });
+        if (walm) { flaechen.push({ p3: [P(-hl, -ht, zt), P(-hl, ht, zt), P(-fA, 0, z0 + fh)], farbe: D, grp: ti }); flaechen.push({ p3: [P(hl, -ht, zt), P(hl, ht, zt), P(fA, 0, z0 + fh)], farbe: D, grp: ti }); }
+        else { flaechen.push({ p3: [P(-Lr / 2, -Tr / 2, z0), P(-Lr / 2, Tr / 2, z0), P(-Lr / 2, 0, z0 + fh)], farbe: "#fbfaf7", grp: ti }); flaechen.push({ p3: [P(Lr / 2, -Tr / 2, z0), P(Lr / 2, Tr / 2, z0), P(Lr / 2, 0, z0 + fh)], farbe: "#fbfaf7", grp: ti }); }
         if (v.lukarnen && v.dg) {
           var suedT = (v1[1] < 0 ? 1 : -1) * Tr / 2, anzL = Math.max(1, Math.floor(Lr / 3 / 2.6)), ab = Lr / (anzL + 1);
           for (var li = 1; li <= anzL; li++) {
             var s0 = -Lr / 2 + li * ab, tf = suedT * 0.55, zf = z0 + (Tr / 2 - Math.abs(tf)) * Math.tan(NEIGUNG);
             var b2 = [P(s0 - 1.1, tf, 0), P(s0 + 1.1, tf, 0), P(s0 + 1.1, suedT * 0.05, 0), P(s0 - 1.1, suedT * 0.05, 0)].map(function (q) { return [q[0], q[1]]; });
-            prismen.push({ pts: b2, z0: zf - 0.2, z1: zf + 1.7, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)", ueber: true });
+            prismen.push({ pts: b2, z0: zf - 0.2, z1: zf + 1.7, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)", ueber: true, grp: ti, lvl: 2000 });
           }
         }
       }
@@ -824,7 +824,7 @@
       }
       seiten.sort(function (x, y) { return y.w - x.w; });
       seiten.push({ p3: pts.map(function (q) { return [q[0], q[1], p.z1]; }), fill: p.farbe });
-      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, z1: p.z1, poly: pts, faces: seiten, stroke: p.kante });
+      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, z1: p.z1, poly: pts, faces: seiten, stroke: p.kante, grp: p.grp, lvl: p.lvl });
     });
     // Dachflächen je Baukörper als eigene Gruppe über dem obersten Geschoss
     var dachGruppen = {};
@@ -833,22 +833,34 @@
       var a5 = f.p3[0], b5 = f.p3[1], c5 = f.p3[2], u = [b5[0] - a5[0], b5[1] - a5[1], b5[2] - a5[2]], w2 = [c5[0] - a5[0], c5[1] - a5[1], c5[2] - a5[2]];
       var nn = [u[1] * w2[2] - u[2] * w2[1], u[2] * w2[0] - u[0] * w2[2], u[0] * w2[1] - u[1] * w2[0]], ln = Math.hypot(nn[0], nn[1], nn[2]) || 1; nn = nn.map(function (x) { return x / ln; }); if (nn[2] < 0) nn = nn.map(function (x) { return -x; });
       var hell = 0.7 + 0.3 * Math.max(0, nn[0] * SONNE[0] + nn[1] * SONNE[1] + nn[2] * SONNE[2]);
-      var key = Math.round(m3[0] / 4) + ":" + Math.round(m3[1] / 4);
-      var gk = Object.keys(dachGruppen).filter(function (kk) { var g = dachGruppen[kk]; return Math.hypot(g.cx - m3[0], g.cy - m3[1]) < 12; })[0];
-      var g = gk ? dachGruppen[gk] : (dachGruppen[key] = { cx: m3[0], cy: m3[1], z: m3[2], faces: [] });
+      var key = "d" + f.grp;
+      var g = dachGruppen[key] || (dachGruppen[key] = { cx: m3[0], cy: m3[1], z: m3[2], faces: [], grp: f.grp });
       g.faces.push({ w: m3[0] * away[0] + m3[1] * away[1] - m3[2] * 0.01, p3: f.p3, fill: ton(f.farbe, hell) });
       g.punkte = (g.punkte || []).concat(f.p3); g.zmin = Math.min(g.zmin == null ? 1e9 : g.zmin, Math.min.apply(null, f.p3.map(function (q) { return q[2]; }))); g.zmax = Math.max(g.zmax || -1e9, Math.max.apply(null, f.p3.map(function (q) { return q[2]; })));
     });
-    Object.keys(dachGruppen).forEach(function (kk) { var g = dachGruppen[kk]; g.faces.sort(function (x, y) { return y.w - x.w; }); items.push({ d: tiefe(g.cx, g.cy, g.z) - 0.5, z: g.zmin, z1: g.zmax, poly: huelle2(g.punkte.map(function (q) { return [q[0], q[1]]; })), faces: g.faces, stroke: "rgba(35,33,30,.8)" }); });
+    Object.keys(dachGruppen).forEach(function (kk) { var g = dachGruppen[kk]; g.faces.sort(function (x, y) { return y.w - x.w; }); items.push({ d: tiefe(g.cx, g.cy, g.z) - 0.5, z: g.zmin, z1: g.zmax, poly: huelle2(g.punkte.map(function (q) { return [q[0], q[1]]; })), faces: g.faces, stroke: "rgba(35,33,30,.8)", grp: g.grp, lvl: 1500 }); });
     items.forEach(function (it) {            // Bildschirm-Ausdehnung je Körper (nur überlappende Paare werden geordnet)
       var xs = [], ys = []; it.faces.forEach(function (f) { f.p3.forEach(function (q) { var sp = pr(q[0], q[1], q[2]); xs.push(sp[0]); ys.push(sp[1]); }); });
       it.bb = [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)];
     });
-    items = ordnen(items, away);
+    var kontext = items.filter(function (it) { return it.grp == null; }), teile = {};
+    items.forEach(function (it) { if (it.grp != null) (teile[it.grp] = teile[it.grp] || []).push(it); });
+    Object.keys(teile).forEach(function (gk) {
+      var lst = teile[gk], pts = [], z0 = 1e9, z1 = -1e9, xs = [], ys = [];
+      lst.forEach(function (it) { it.poly.forEach(function (q) { pts.push(q); }); z0 = Math.min(z0, it.z); z1 = Math.max(z1, it.z1); xs.push(it.bb[0], it.bb[2]); ys.push(it.bb[1], it.bb[3]); });
+      // innerhalb des Baukörpers: Geschoss für Geschoss von unten, im Geschoss nach Trennachsen, Attika/Dach/Lukarnen zuletzt
+      var stufen = {}; lst.forEach(function (it) { (stufen[it.lvl] = stufen[it.lvl] || []).push(it); });
+      var faces = [];
+      Object.keys(stufen).map(Number).sort(function (a7, b7) { return a7 - b7; }).forEach(function (lv) {
+        ordnen(stufen[lv], away).forEach(function (it) { it.faces.forEach(function (f) { faces.push({ f: f, stroke: it.stroke }); }); });
+      });
+      kontext.push({ d: 0, z: z0, z1: z1, poly: huelle2(pts), bb: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)], gruppe: faces });
+    });
+    items = ordnen(kontext, away);
     items.forEach(function (it) {
-      it.faces.forEach(function (f) {
-        pfad(f.p3.map(function (q) { return pr(q[0], q[1], q[2]); }));
-        ctx.fillStyle = f.fill; ctx.fill(); ctx.lineJoin = "round"; ctx.lineWidth = Math.max(0.6, sk * 0.045); ctx.strokeStyle = it.stroke; ctx.stroke();
+      (it.gruppe || it.faces.map(function (f) { return { f: f, stroke: it.stroke }; })).forEach(function (x) {
+        pfad(x.f.p3.map(function (q) { return pr(q[0], q[1], q[2]); }));
+        ctx.fillStyle = x.f.fill; ctx.fill(); ctx.lineJoin = "round"; ctx.lineWidth = Math.max(0.6, sk * 0.045); ctx.strokeStyle = x.stroke; ctx.stroke();
       });
     });
     // Nordpfeil
