@@ -128,7 +128,7 @@
           var xs = v[0].map(function (q) { return q[0]; }), ys = v[0].map(function (q) { return q[1]; });
           var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
           teile.push("(${Longitude} > " + x0 + " && ${Longitude} < " + x1 + " && ${Latitude} > " + y0 + " && ${Latitude} < " + y1 + ")");
-          if ((v[2] || 0) >= 2013) {
+          if ((v[2] || 0) >= 2013 && !focus.umg) {
             ersetzt = true;
             viewer.entities.add({ polygon: {
               hierarchy: Cesium.Cartesian3.fromDegreesArray([].concat.apply([], v[0])),
@@ -137,6 +137,26 @@
           }
         });
         fokusBox = teile.join(" || ");
+      }
+      // Lücke im swisstopo-Gebäudemodell: Ersatzumgebung aus amtlicher Vermessung + GWR (tools/umgebung_luecke.py)
+      if (focus && focus.umg) {
+        var boxen = (focus.vol || []).map(function (v) {
+          var xs = v[0].map(function (q) { return q[0]; }), ys = v[0].map(function (q) { return q[1]; });
+          return [Math.min.apply(null, xs), Math.max.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, ys)];
+        });
+        fetch((window.APB_ROOT || "") + focus.umg).then(function (r) { return r.json(); }).then(function (geb) {
+          if (!viewer) return;
+          var weiss = Cesium.Color.fromCssColorString("#f7f4ee"), orange = Cesium.Color.fromCssColorString("#f15d30");
+          geb.forEach(function (g) {
+            var cx = 0, cy = 0; g[0].forEach(function (q) { cx += q[0]; cy += q[1]; }); cx /= g[0].length; cy /= g[0].length;
+            var istProjekt = boxen.some(function (b) { return cx > b[0] && cx < b[1] && cy > b[2] && cy < b[3]; });
+            viewer.entities.add({ polygon: {
+              hierarchy: Cesium.Cartesian3.fromDegreesArray([].concat.apply([], g[0])),
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, extrudedHeight: g[1], extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+              material: istProjekt ? orange : weiss, outline: false } });
+          });
+          sc.requestRender();
+        }).catch(function () {});
       }
       function grundlage(m) {
         modus = m;

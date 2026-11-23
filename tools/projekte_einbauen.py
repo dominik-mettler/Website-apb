@@ -73,6 +73,7 @@ for pid, p in byid.items():
 VOL = json.load(open(os.path.join(R, 'content/volumen.json'))) if os.path.exists(os.path.join(R, 'content/volumen.json')) else {}
 for pid, p in byid.items():
     if pid in VOL and p.get('geoExakt'): p['vol'] = [[t['ring'], t['h'], t.get('jahr') or 0] for t in VOL[pid]]
+    if os.path.exists(os.path.join(R, 'assets/data/umgebung-%s.json' % pid)): p['umg'] = 'assets/data/umgebung-%s.json' % pid   # Lücke swissBUILDINGS3D
 
 # 4: Fotos und Pläne
 def save(im, path, w, fmt='JPEG', q=80):
