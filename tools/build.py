@@ -750,6 +750,7 @@ potenzial = """
           <p class="pz-status" id="pz-st" role="status"></p>
           <div class="pz-res" hidden></div>
           <div class="pz-vol" hidden></div>
+          <div class="pz-edit" hidden></div>
           <div class="pz-mix" hidden></div>
         </div>
         <p class="pz-disc">Ersteinschätzung auf Basis öffentlicher Daten (amtliche Vermessung, ÖREB-Kataster Kanton Zürich, BZO der Gemeinden) – ersetzt keine Vorabklärung beim Bauamt.</p>

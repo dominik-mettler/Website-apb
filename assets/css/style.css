@@ -1443,3 +1443,12 @@ html.pz-on .pz { border: 0; padding: 0; }
   .pz-karte { height: 62vh; }
   .pz-side { border-right: 0; overflow: visible; }
 }
+.pz-move { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 14px; }
+.pz-move button { padding: 9px 0; border-radius: 8px; background: var(--stone); border: 1px solid var(--line); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.pz-move button:hover { border-color: var(--accent); }
+.pz-chkbox { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-2); margin: 10px 0; }
+.pz-chkbox input { accent-color: var(--accent); }
+.pz-edit-kz { margin: 14px 0 4px; font-weight: 500; }
+.pz-edit .pz-f { margin-bottom: 10px; }
+.pz-chk li.m::before { content: "✕"; color: #e5484d; }
+.pz-chk li::before { content: "✓"; }

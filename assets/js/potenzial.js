@@ -176,13 +176,13 @@
       '<div class="pz-ampel"><h4>' + t("ÖREB-Kataster", "PLR cadastre") + "</h4><ul>" + amp + "</ul><p class=\"muted small\">" + a.nicht + t(" weitere Themen nicht betroffen (z. B. Gewässerraum, Wald, belastete Standorte).", " further topics not affected.") + "</p></div></div>" +
       '<p class="pz-disc">' + t("Ersteinschätzung auf Basis öffentlicher Daten – ersetzt keine Vorabklärung beim Bauamt. Baufeld vereinfacht: Grenzabstände ohne Mehrlängenzuschlag und Baulinien, grosser Abstand vor südorientierten Grenzen.", "Initial assessment based on public data – no substitute for a preliminary enquiry with the building authority.") + "</p>";
     res.hidden = false;
+    aktuellR = null; letzteParzelle = null; letzte = null;
     zeichneParzelle(a, k);
-    letzte = null;
     renderVolumen(a, k);
   }
 
   /* ---------- 3D (eingebettet, ganze Fläche rechts) ---------- */
-  var V3 = null, C3 = null, ds = null, karteBereit = null, bodenH = 450, letzte = null;
+  var V3 = null, C3 = null, ds = null, karteBereit = null, bodenH = 450, letzte = null, aktuellR = null, letzteParzelle = null;
   function karte() {
     if (karteBereit) return karteBereit;
     var host = document.querySelector("[data-pz-karte]");
@@ -206,7 +206,22 @@
       var c = k.ring.reduce(function (s, p) { return [s[0] + p[0] / k.ring.length, s[1] + p[1] / k.ring.length]; }, [0, 0]), cw = wgs(c[0], c[1]);
       var g = llArr(k.ring); g.push(g[0], g[1]);
       ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(g), width: 3, material: weiss, clampToGround: true } });
-      if (k.bf) {
+      letzteParzelle = true;
+      if (aktuellR) {                                     // zulässiges Baufeld als Fläche (Rasterzeilen à 1 m)
+        var R = aktuellR, schritt = 2;
+        for (var j = 0; j < R.ny; j += schritt) {
+          var i = 0;
+          while (i < R.nx) {
+            while (i < R.nx && !R.m[j * R.nx + i]) i++;
+            var i0 = i; while (i < R.nx && R.m[j * R.nx + i]) i++;
+            if (i > i0) {
+              var x0 = R.x0 + i0 * R.h - R.h / 2, x1 = R.x0 + (i - 1) * R.h + R.h / 2, y0 = R.y0 + j * R.h - R.h / 2, y1 = y0 + schritt * R.h;
+              ds.entities.add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])), material: orange.withAlpha(0.22), classificationType: C.ClassificationType.TERRAIN } });
+            }
+          }
+        }
+        R.kanten.forEach(function (e) { if (e.strasse) ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(llArr([e.a, e.b])), width: 5, material: C.Color.fromCssColorString("#8fb7d6"), clampToGround: true } }); });
+      } else if (k.bf) {
         var b = llArr(k.bf); b.push(b[0], b[1]);
         ds.entities.add({ polyline: { positions: C.Cartesian3.fromDegreesArray(b), width: 2, material: new C.PolylineDashMaterialProperty({ color: orange, dashLength: 10 }), clampToGround: true } });
       }
@@ -222,234 +237,421 @@
     });
   }
 
-  /* ---------- Volumen-Generator ---------- */
-  // Regeln (content/potenzial/SETZUNG-UND-STANDARDS.md): Volumen nach Norden, Riegel Ost–West, Erschliessung Nord,
-  // Besonnung (Aussenraum Süd), Ausschöpfung, Kompaktheit. Lärm/Strasse folgen mit dem Lärmkataster.
-  var TIEFE = 13, PUNKT = 17;
-  function intervalle(poly, t) {           // Schnitt der Waagrechten t mit dem Polygon (lokale s/t-Koordinaten)
-    var xs = [];
-    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      var a = poly[j], b = poly[i];
-      if ((a[1] > t) !== (b[1] > t)) xs.push(a[0] + (t - a[1]) * (b[0] - a[0]) / (b[1] - a[1]));
-    }
-    xs.sort(function (x, y) { return x - y; });
-    var out = []; for (var k = 0; k + 1 < xs.length; k += 2) out.push([xs[k], xs[k + 1]]);
-    return out;
-  }
-  function schnitt(A, B) { var o = []; A.forEach(function (a) { B.forEach(function (b) { var lo = Math.max(a[0], b[0]), hi = Math.min(a[1], b[1]); if (hi - lo > 0.01) o.push([lo, hi]); }); }); return o; }
-  function band(poly, t0, t1) { var iv = null; for (var t = t0 + 0.05; t <= t1 - 0.05 + 1e-9; t += Math.max(0.5, (t1 - t0) / 12)) { var x = intervalle(poly, t); iv = iv ? schnitt(iv, x) : x; if (!iv.length) return []; } var e = intervalle(poly, t1 - 0.05); return schnitt(iv || e, e); }
-  function rot(p, th) { var c = Math.cos(th), s = Math.sin(th); return [p[0] * c + p[1] * s, -p[0] * s + p[1] * c]; }
-  function zurueck(p, th) { var c = Math.cos(th), s = Math.sin(th); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; }
-  function rechteck(s0, s1, t0, t1, th, o) { return [[s0, t0], [s1, t0], [s1, t1], [s0, t1]].map(function (p) { var q = zurueck(p, th); return [q[0] + o[0], q[1] + o[1]]; }); }
-  // bestes Band (Länge, Lage) für ein Rechteck der Tiefe T; t von "oben" (Norden im gedrehten System) nach unten
-  function besterRiegel(poly, T, Lmax, Lmin, tmax, tmin) {
-    var best = null;
-    for (var t1 = tmax; t1 - T >= tmin - 1e-9; t1 -= 1) {
-      band(poly, t1 - T, t1).forEach(function (iv) {
-        var L = Math.min(Lmax, iv[1] - iv[0]); if (L < Lmin) return;
-        var s0 = iv[0] + (iv[1] - iv[0] - L) / 2;
-        var sc = L * 2 + (t1 - tmin) * 0.6;              // lang und möglichst weit "nördlich"
-        if (!best || sc > best.sc) best = { s0: s0, s1: s0 + L, t0: t1 - T, t1: t1, L: L, sc: sc };
+  /* ---------- Umgebung: Strassen und Nachbarbauten (amtliche Vermessung, geodienste.ch) ---------- */
+  function umgebung(ring) {
+    var xs = ring.map(function (p) { return p[0]; }), ys = ring.map(function (p) { return p[1]; });
+    var a = wgs(Math.min.apply(null, xs) - 40, Math.min.apply(null, ys) - 40), b = wgs(Math.max.apply(null, xs) + 40, Math.max.apply(null, ys) + 40);
+    var u = "https://geodienste.ch/db/av_0/deu?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ms:LCSF&SRSNAME=EPSG:2056&OUTPUTFORMAT=geojson&COUNT=800&BBOX=" + [a[1], a[0], b[1], b[0]].join(",") + ",EPSG:4326";
+    return json(u).then(function (j) {
+      var s = [], g = [];
+      (j.features || []).forEach(function (f) {
+        if (!f.geometry || f.geometry.type !== "Polygon") return;
+        var art = f.properties.Art, r = f.geometry.coordinates[0];
+        if (/Strasse|Trottoir|Verkehrsinsel/i.test(art)) s.push(r); else if (art === "Gebaeude") g.push(r);
       });
-    }
-    return best;
+      return { strassen: s, gebaeude: g };
+    }).catch(function () { return { strassen: [], gebaeude: [] }; });
   }
-  function generieren(a, k) {
-    var z = a.zone || {}, bf = k.bf; if (!bf || !k.gf) return [];
-    var o = bf.reduce(function (s, p) { return [s[0] + p[0] / bf.length, s[1] + p[1] / bf.length]; }, [0, 0]);
-    var lokal = bf.map(function (p) { return [p[0] - o[0], p[1] - o[1]]; });
-    var nMax = Math.max(1, Math.min(z.vg || 99, Math.floor((k.hoehe || GH * 3) / GH)));
-    var Lmax = z.laenge || 40, dach = /Giebeldächer|nur Giebel/i.test((a.gem || {}).dach || "") ? "sattel" : (z.attika || z.dg ? "attika" : "flach");
-    var kandidaten = [];
-    for (var deg = -75; deg <= 90; deg += 15) {
-      var th = deg * Math.PI / 180, poly = lokal.map(function (p) { return rot(p, th); });
-      var ts = poly.map(function (p) { return p[1]; }), tmin = Math.min.apply(null, ts), tmax = Math.max.apply(null, ts);
-      var nordOben = Math.cos(th) > 0.2;                 // gedrehte t-Achse zeigt nach Norden
-      if (!nordOben) continue;
-      var r = besterRiegel(poly, TIEFE, Lmax, 12, tmax, tmin);
-      if (r) {
-        kandidaten.push({ typ: "zeile", th: th, deg: deg, teile: [rechteck(r.s0, r.s1, r.t0, r.t1, th, o)], L: r.L });
-        // Winkel: Flügel am West- oder Ostende nach Süden
-        [0, 1].forEach(function (seite) {
-          var s0 = seite ? r.s1 - TIEFE : r.s0, s1 = s0 + TIEFE, best = 0;
-          for (var W = 8; W <= Lmax; W += 1) { if (band(poly.map(function (p) { return [p[0], p[1]]; }), r.t0 - W, r.t0).some(function (iv) { return iv[0] <= s0 + 0.01 && iv[1] >= s1 - 0.01; })) best = W; else break; }
-          if (best >= 8) kandidaten.push({ typ: "winkel", th: th, deg: deg, teile: [rechteck(r.s0, r.s1, r.t0, r.t1, th, o), rechteck(s0, s1, r.t0 - best, r.t0, th, o)], L: r.L + best });
-        });
-        // Hof/U: Flügel an beiden Enden
-        if (r.L >= 30) {
-          var wl = 0, wr = 0;
-          for (var W2 = 8; W2 <= Lmax; W2 += 1) { var ok = band(poly, r.t0 - W2, r.t0); if (ok.some(function (iv) { return iv[0] <= r.s0 + 0.01 && iv[1] >= r.s0 + TIEFE - 0.01; }) && ok.some(function (iv) { return iv[0] <= r.s1 - TIEFE + 0.01 && iv[1] >= r.s1 - 0.01; })) wl = wr = W2; else break; }
-          if (wl >= 10) kandidaten.push({ typ: "hof", th: th, deg: deg, teile: [rechteck(r.s0, r.s1, r.t0, r.t1, th, o), rechteck(r.s0, r.s0 + TIEFE, r.t0 - wl, r.t0, th, o), rechteck(r.s1 - TIEFE, r.s1, r.t0 - wr, r.t0, th, o)], L: r.L + 2 * wl });
-        }
-        // Kombination: Riegel Nord + Punkthaus Süd (Gebäudeabstand ≥ 2 × Grenzabstand)
-        var abst = 2 * (z.ga_k || 5), p2 = besterRiegel(poly, PUNKT, PUNKT, PUNKT, r.t0 - abst, tmin);
-        if (p2) kandidaten.push({ typ: "kombi", th: th, deg: deg, teile: [rechteck(r.s0, r.s1, r.t0, r.t1, th, o), rechteck(p2.s0, p2.s1, p2.t0, p2.t1, th, o)], L: r.L });
+
+  /* ---------- Geometrie-Hilfen ---------- */
+  function distSeg(p, a, b) { var dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1e-9, t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); }
+  function distRing(p, r) { var d = 1e9; for (var i = 0; i < r.length; i++) d = Math.min(d, distSeg(p, r[i], r[(i + 1) % r.length])); return d; }
+  function ecken(p) {                       // Bauteil {c, L, T, ang} -> 4 Ecken; p0->p1 Längsseite, p0->p3 Tiefe
+    var u = [Math.cos(p.ang), Math.sin(p.ang)], v = [-u[1], u[0]], hl = p.L / 2, ht = p.T / 2;
+    return [[-hl, -ht], [hl, -ht], [hl, ht], [-hl, ht]].map(function (q) { return [p.c[0] + u[0] * q[0] + v[0] * q[1], p.c[1] + u[1] * q[0] + v[1] * q[1]]; });
+  }
+  function aussenNormale(a, b, c) { var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), n = [dy / L, -dx / L]; var m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; if ((m[0] - c[0]) * n[0] + (m[1] - c[1]) * n[1] < 0) n = [-n[0], -n[1]]; return n; }
+
+  /* ---------- Raster des zulässigen Baufelds ---------- */
+  // Zelle zulässig: innerhalb der Parzelle, Grenzabstand je Kante (gross vor Süd), Vorzone zur Strasse, hinter Baulinien.
+  var VORZONE = 6;
+  function raster(a, k, umg) {
+    var z = a.zone || {}, ring = k.ring; if (!ring) return null;
+    var c = ring.reduce(function (s, p) { return [s[0] + p[0] / ring.length, s[1] + p[1] / ring.length]; }, [0, 0]);
+    var kanten = ring.map(function (p, i) {
+      var q = ring[(i + 1) % ring.length], n = aussenNormale(p, q, c), m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+      var strasse = umg.strassen.some(function (s) { return innen(s, m[0] + n[0] * 1.5, m[1] + n[1] * 1.5) || distRing(m, s) < 1.2; });
+      var d = (z.ga_g && n[1] < -Math.SQRT1_2) ? z.ga_g : (z.ga_k || 4);
+      if (strasse) d = Math.max(d, VORZONE);
+      return { a: p, b: q, n: n, d: d, strasse: strasse, len: Math.hypot(q[0] - p[0], q[1] - p[1]) };
+    });
+    // Baulinien: verbotene Seite = Seite der Strasse
+    var linien = [];
+    a.eintraege.forEach(function (e) {
+      if (!/Baulinie/i.test(e.code + e.legende) || !e.geo) return;
+      e.geo.forEach(function (gg) { var l = gg.Line || gg.line; if (l && l.coordinates) linien.push(l.coordinates); });
+    });
+    function seite(l, p) { var best = 1e9, sg = 0; for (var i = 0; i + 1 < l.length; i++) { var d = distSeg(p, l[i], l[i + 1]); if (d < best) { best = d; sg = (l[i + 1][0] - l[i][0]) * (p[1] - l[i][1]) - (l[i + 1][1] - l[i][1]) * (p[0] - l[i][0]) > 0 ? 1 : -1; } } return sg; }
+    var verbot = linien.map(function (l) {
+      var sk = kanten.filter(function (e) { return e.strasse; });
+      var probe = sk.length ? [(sk[0].a[0] + sk[0].b[0]) / 2 + sk[0].n[0] * 3, (sk[0].a[1] + sk[0].b[1]) / 2 + sk[0].n[1] * 3] : null;
+      if (!probe) { var pts = umg.strassen.length ? umg.strassen[0] : null; probe = pts ? pts[0] : null; }
+      return probe ? seite(l, probe) : 0;
+    });
+    var xs = ring.map(function (p) { return p[0]; }), ys = ring.map(function (p) { return p[1]; });
+    var R = { x0: Math.min.apply(null, xs), y0: Math.min.apply(null, ys), h: 0.5 };
+    R.nx = Math.ceil((Math.max.apply(null, xs) - R.x0) / R.h) + 1; R.ny = Math.ceil((Math.max.apply(null, ys) - R.y0) / R.h) + 1;
+    R.m = new Uint8Array(R.nx * R.ny); var anz = 0;
+    for (var j = 0; j < R.ny; j++) for (var i = 0; i < R.nx; i++) {
+      var p = [R.x0 + i * R.h, R.y0 + j * R.h];
+      if (!innen(ring, p[0], p[1])) continue;
+      var ok = kanten.every(function (e) { return distSeg(p, e.a, e.b) >= e.d - 0.01; });
+      if (ok) ok = linien.every(function (l, li) { return !verbot[li] || seite(l, p) !== verbot[li]; });
+      if (ok) { R.m[j * R.nx + i] = 1; anz++; }
+    }
+    R.flaeche = anz * R.h * R.h; R.kanten = kanten; R.c = c;
+    R.frei = function (x, y) { var i = Math.round((x - R.x0) / R.h), j = Math.round((y - R.y0) / R.h); return i >= 0 && j >= 0 && i < R.nx && j < R.ny && R.m[j * R.nx + i] === 1; };
+    R.passt = function (p) {                // Rechteck liegt vollständig im zulässigen Raster (Rand dicht, Inneres grob)
+      var u = [Math.cos(p.ang), Math.sin(p.ang)], v = [-u[1], u[0]];
+      for (var s = -p.L / 2; s <= p.L / 2 + 1e-6; s += Math.min(1, p.L / 2)) for (var t = -p.T / 2; t <= p.T / 2 + 1e-6; t += (Math.abs(s) >= p.L / 2 - 1e-6 ? 1 : p.T / 2)) {
+        if (!R.frei(p.c[0] + u[0] * s + v[0] * t, p.c[1] + u[1] * s + v[1] * t)) return false;
       }
-      // Punkthäuser (1–3), nach Norden gestaffelt
-      var p1 = besterRiegel(poly, PUNKT, PUNKT, PUNKT, tmax, tmin);
-      if (p1) {
-        var teile = [rechteck(p1.s0, p1.s1, p1.t0, p1.t1, th, o)], gap = 2 * (z.ga_k || 5);
-        var neben = band(poly, p1.t0, p1.t1).filter(function (iv) { return iv[1] - iv[0] >= PUNKT; });
-        neben.forEach(function (iv) {
-          if (teile.length >= 3) return;
-          [[iv[0], iv[0] + PUNKT], [iv[1] - PUNKT, iv[1]]].forEach(function (s) {
-            if (teile.length >= 3) return;
-            if (s[0] >= p1.s1 + gap - 0.01 || s[1] <= p1.s0 - gap + 0.01) {
-              var dupl = teile.length > 1 && Math.abs(s[0] - teile.s0x) < 1; if (dupl) return;
-              teile.push(rechteck(s[0], s[1], p1.t0, p1.t1, th, o)); teile.s0x = s[0];
-            }
-          });
+      return true;
+    };
+    var sz = Math.max(3, Math.ceil(Math.sqrt(anz / 450)));      // höchstens ca. 450 Stützpunkte
+    var zc = null;
+    R.zellen = function () { if (zc) return zc; zc = []; for (var j2 = 0; j2 < R.ny; j2 += sz) for (var i2 = 0; i2 < R.nx; i2 += sz) if (R.m[j2 * R.nx + i2]) zc.push([R.x0 + i2 * R.h, R.y0 + j2 * R.h]); return zc; };
+    return R;
+  }
+
+  /* ---------- Volumen-Generator ---------- */
+  // Regeln (content/potenzial/SETZUNG-UND-STANDARDS.md): im zulässigen Baufeld, Vorzone/Zugang von der Strasse,
+  // Volumen nach Norden, Längsfassade nach Süden, besonnter Aussenraum, nicht an den Rand gedrückt, kompakt.
+  var TIEFE = 13, PUNKT = 17;
+  function abstandTeile(p, q) { var a = ecken(p), b = ecken(q), d = 1e9; a.forEach(function (x) { d = Math.min(d, distRing(x, b)); }); b.forEach(function (x) { d = Math.min(d, distRing(x, a)); }); var ov = a.some(function (x) { return innen(b, x[0], x[1]); }) || b.some(function (x) { return innen(a, x[0], x[1]); }); return ov ? -1 : d; }
+  function bewerten(v, a, k, R) {
+    var z = a.zone || {}, nMax = Math.max(1, Math.min(z.vg || 99, Math.floor((k.hoehe || GH * 3) / GH)));
+    v.fuss = v.teile.reduce(function (s, p) { return s + p.L * p.T; }, 0);
+    var dgA = (v.dach === "attika" && (z.attika || z.dg)) ? 0.6 : (v.dach === "sattel" && z.dg ? 0.55 : 0);
+    if (!v.fest) v.n = Math.max(1, Math.min(nMax, Math.floor(k.gf / v.fuss - dgA + 1e-9)));
+    v.nMax = nMax;
+    v.dg = (v.n >= nMax && k.gf >= v.fuss * (v.n + dgA)) || v.fest ? dgA : 0;
+    v.gf = v.fuss * (v.n + v.dg); v.aus = Math.min(1.2, v.gf / k.gf);
+    var alle = []; v.teile.forEach(function (p) { ecken(p).forEach(function (q) { alle.push(q); }); });
+    var cy = alle.reduce(function (s, q) { return s + q[1]; }, 0) / alle.length;
+    var bfy = R.zellen().map(function (q) { return q[1]; }), y0 = Math.min.apply(null, bfy), y1 = Math.max.apply(null, bfy);
+    v.nord = y1 > y0 ? Math.max(0, Math.min(1, (cy - y0) / (y1 - y0))) : 0.5;
+    v.ow = v.teile.reduce(function (s, p) { return s + (p.L > p.T * 1.2 ? Math.pow(Math.cos(p.ang), 2) : 0.8); }, 0) / v.teile.length;
+    // Strassenbezug: Fassade parallel zur Strasse, Abstand 6–15 m
+    var sk = R.kanten.filter(function (e) { return e.strasse; });
+    if (sk.length) {
+      var best = 0;
+      v.teile.forEach(function (p) {
+        sk.forEach(function (e) {
+          var ea = Math.atan2(e.b[1] - e.a[1], e.b[0] - e.a[0]), par = Math.abs(Math.cos(p.ang - ea)), parT = Math.abs(Math.sin(p.ang - ea));
+          var d = Math.min.apply(null, ecken(p).map(function (q) { return distSeg(q, e.a, e.b); }));
+          var ds = d < 5.5 ? 0.3 : d <= 15 ? 1 : Math.max(0, 1 - (d - 15) / 20);
+          best = Math.max(best, Math.max(par, parT * 0.8) * ds);
         });
-        kandidaten.push({ typ: "punkt", th: th, deg: deg, teile: teile, L: PUNKT });
+      });
+      v.strasse = best;
+    } else v.strasse = 0.6;
+    // nicht an den Rand: Reserve über den Mindestabstand hinaus (ausser zur Strasse)
+    var reserve = 1e9;
+    v.teile.forEach(function (p) { ecken(p).forEach(function (q) { R.kanten.forEach(function (e) { if (!e.strasse) reserve = Math.min(reserve, distSeg(q, e.a, e.b) - e.d); }); }); });
+    v.rand = Math.max(0, Math.min(1, reserve / 4));
+    // besonnter Aussenraum: freie Rasterfläche südlich der Bauten
+    var miny = Math.min.apply(null, alle.map(function (q) { return q[1]; })), sued = R.zellen().filter(function (q) { return q[1] < miny - 2; }).length, tot = R.zellen().length || 1;
+    v.sued = Math.min(1, sued / tot * 1.6);
+    var umf = v.teile.reduce(function (s, p) { return s + 2 * (p.L + p.T); }, 0);
+    v.kompakt = Math.min(1, v.fuss * 4 / (umf * TIEFE));
+    v.ok = v.teile.every(R.passt);
+    v.score = Math.round(100 * (0.26 * Math.min(1, v.aus) + 0.14 * v.nord + 0.14 * v.ow + 0.16 * v.strasse + 0.10 * v.rand + 0.12 * v.sued + 0.08 * v.kompakt));
+    if (!v.ok) v.score = Math.min(v.score, 20);
+    return v;
+  }
+  function generieren(a, k, R) {
+    var z = a.zone || {}; if (!R || !k.gf || R.flaeche < 80) return [];
+    var Lmax = z.laenge || 40, gap = 2 * (z.ga_k || 5);
+    var dach = /Giebeldächer|nur Giebel/i.test((a.gem || {}).dach || "") ? "sattel" : (z.attika || z.dg ? "attika" : "flach");
+    var zellen = R.zellen(), kand = [];
+    function maxLaenge(c, T, ang, Lmin, Lcap) { for (var L = Lcap; L >= Lmin; L -= 2) { var p = { c: c, L: L, T: T, ang: ang }; if (R.passt(p)) return p; } return null; }
+    for (var deg = -60; deg <= 90; deg += 15) {
+      var ang = deg * Math.PI / 180, riegel = [];
+      zellen.forEach(function (c) { var p = maxLaenge(c, TIEFE, ang, 14, Lmax); if (p) riegel.push(p); });
+      riegel.sort(function (x, y) { return y.L - x.L || y.c[1] - x.c[1]; });
+      riegel.slice(0, 6).forEach(function (r) {
+        kand.push({ typ: "zeile", teile: [r] });
+        var u = [Math.cos(ang), Math.sin(ang)], v = [-u[1], u[0]];
+        // Winkel und Hof: Flügel an den Enden, Richtung Süden
+        var sv = v[1] < 0 ? 1 : -1;            // v so, dass Flügel nach Süden zeigen
+        [-1, 1].forEach(function (ende) {
+          for (var W = Math.min(Lmax, 30); W >= 10; W -= 2) {
+            var c = [r.c[0] + u[0] * ende * (r.L / 2 - TIEFE / 2) - v[0] * sv * (TIEFE / 2 + W / 2), r.c[1] + u[1] * ende * (r.L / 2 - TIEFE / 2) - v[1] * sv * (TIEFE / 2 + W / 2)];
+            var f = { c: c, L: W, T: TIEFE, ang: ang + Math.PI / 2 };
+            if (R.passt(f)) { kand.push({ typ: "winkel", teile: [r, f] }); break; }
+          }
+        });
+        if (r.L >= 32) for (var W2 = Math.min(Lmax, 28); W2 >= 10; W2 -= 2) {
+          var f1 = { c: [r.c[0] - u[0] * (r.L / 2 - TIEFE / 2) - v[0] * sv * (TIEFE / 2 + W2 / 2), r.c[1] - u[1] * (r.L / 2 - TIEFE / 2) - v[1] * sv * (TIEFE / 2 + W2 / 2)], L: W2, T: TIEFE, ang: ang + Math.PI / 2 };
+          var f2 = { c: [r.c[0] + u[0] * (r.L / 2 - TIEFE / 2) - v[0] * sv * (TIEFE / 2 + W2 / 2), r.c[1] + u[1] * (r.L / 2 - TIEFE / 2) - v[1] * sv * (TIEFE / 2 + W2 / 2)], L: W2, T: TIEFE, ang: ang + Math.PI / 2 };
+          if (R.passt(f1) && R.passt(f2)) { kand.push({ typ: "hof", teile: [r, f1, f2] }); break; }
+        }
+        // Riegel + Punkthaus südlich
+        zellen.forEach(function (c) {
+          var p = { c: c, L: PUNKT, T: PUNKT, ang: ang };
+          if (c[1] < r.c[1] && R.passt(p) && abstandTeile(r, p) >= gap) kand.push({ typ: "kombi", teile: [r, p] });
+        });
+      });
+      // Punkthäuser: 1–3 mit Gebäudeabstand
+      var punkte = zellen.map(function (c) { return { c: c, L: PUNKT, T: PUNKT, ang: ang }; }).filter(R.passt);
+      punkte.sort(function (x, y) { return y.c[1] - x.c[1]; });
+      if (punkte.length) {
+        var gew = [punkte[0]];
+        punkte.forEach(function (p) { if (gew.length < 3 && gew.every(function (q) { return abstandTeile(p, q) >= gap; })) gew.push(p); });
+        kand.push({ typ: "punkt", teile: gew.slice(0, 1) });
+        if (gew.length > 1) kand.push({ typ: "punkt", teile: gew });
       }
     }
-    // Geschosse nach Dichte, Kennzahlen, Bewertung
-    kandidaten.forEach(function (v) {
-      v.fuss = v.teile.reduce(function (s, r) { return s + Math.abs(flaeche(r)); }, 0);
-      var dg = (dach === "attika" && (z.attika || z.dg)) ? 0.6 : (dach === "sattel" && z.dg ? 0.55 : 0);
-      v.n = Math.max(1, Math.min(nMax, Math.floor(k.gf / v.fuss - dg + 1e-9)));
-      v.dg = (v.n === nMax && k.gf >= v.fuss * (v.n + dg)) ? dg : 0;
-      v.gf = v.fuss * (v.n + v.dg); v.dach = dach;
-      v.aus = Math.min(1, v.gf / k.gf);
-      var ns = []; v.teile.forEach(function (r) { r.forEach(function (p) { ns.push(p[1]); }); });
-      var bfN = bf.map(function (p) { return p[1]; }), nMin = Math.min.apply(null, bfN), nMx = Math.max.apply(null, bfN);
-      var mitte = ns.reduce(function (s, x) { return s + x; }, 0) / ns.length;
-      v.nord = nMx > nMin ? (mitte - nMin) / (nMx - nMin) : 0.5;
-      v.suedRaum = nMx > nMin ? (Math.min.apply(null, ns) - nMin) / (nMx - nMin) : 0;
-      v.ow = v.typ === "punkt" ? 0.8 : Math.pow(Math.cos(v.th), 2);         // Längsachse Ost–West
-      var umf = v.teile.reduce(function (s, r) { return s + 2 * (Math.hypot(r[1][0] - r[0][0], r[1][1] - r[0][1]) + Math.hypot(r[2][0] - r[1][0], r[2][1] - r[1][1])); }, 0);
-      v.kompakt = Math.min(1, (v.fuss * 4) / (umf * TIEFE));
-      v.score = Math.round(100 * (0.30 * v.aus + 0.20 * v.nord + 0.15 * v.ow + 0.15 * v.suedRaum + 0.10 * v.kompakt + 0.10 * (v.typ === "kombi" || v.typ === "punkt" ? 0.7 : 0.8)));
-    });
     var NAMEN = { zeile: t("Zeile / Riegel", "Row / slab"), punkt: t("Punkthaus", "Point block"), winkel: t("Winkel", "L-shape"), hof: t("Hof / U-Form", "Courtyard / U"), kombi: t("Riegel + Punkt", "Slab + point") };
     var beste = {};
-    kandidaten.forEach(function (v) { v.name = NAMEN[v.typ]; if (!beste[v.typ] || v.score > beste[v.typ].score) beste[v.typ] = v; });
-    return Object.keys(beste).map(function (k2) { return beste[k2]; }).sort(function (x, y) { return y.score - x.score; }).slice(0, 5);
+    kand.forEach(function (v) { v.dach = dach; v.name = NAMEN[v.typ]; bewerten(v, a, k, R); if (v.ok && (!beste[v.typ] || v.score > beste[v.typ].score)) beste[v.typ] = v; });
+    return Object.keys(beste).map(function (x) { return beste[x]; }).sort(function (x, y) { return y.score - x.score; }).slice(0, 5);
   }
   function gruende(v) {
     var g = [];
-    g.push([v.aus > 0.9, t("Ausnützung ", "Density used ") + Math.round(v.aus * 100) + " %"]);
-    g.push([v.nord > 0.6, v.nord > 0.6 ? t("Volumen im Norden – Aussenraum im Süden", "Building to the north – garden to the south") : t("Volumen nicht an der Nordseite", "Building not on the north side")]);
-    if (v.typ !== "punkt") g.push([v.ow > 0.7, v.ow > 0.7 ? t("Längsfassade nach Süden (Ost–West-Riegel)", "Long facade facing south") : t("Längsachse Nord–Süd: Ost-/Westwohnungen", "North–south axis: east/west units")]);
-    else g.push([true, t("Rundum orientiert, 2–4 Wohnungen pro Geschoss", "All-round orientation, 2–4 units per floor")]);
-    g.push([v.suedRaum > 0.25, t("Besonnter Aussenraum Süd: ", "Sunny southern open space: ") + Math.round(v.suedRaum * 100) + " %"]);
+    g.push([v.aus > 0.85 && v.aus <= 1.001, t("Ausnützung ", "Density used ") + Math.round(v.aus * 100) + " %" + (v.aus > 1.001 ? t(" – überschritten!", " – exceeded!") : "")]);
+    g.push([v.strasse > 0.7, v.strasse > 0.7 ? t("Adresse zur Strasse, Vorplatz und Zugang", "Address to the street, forecourt and access") : t("Bezug zur Strasse schwach", "Weak relation to the street")]);
+    g.push([v.nord > 0.55, v.nord > 0.55 ? t("Volumen im Norden – Aussenraum im Süden", "Building to the north – garden to the south") : t("Volumen eher im Süden der Parzelle", "Building rather to the south")]);
+    g.push([v.ow > 0.7, v.ow > 0.7 ? t("Hauptfassaden nach Süden", "Main facades facing south") : t("Ost-/Westorientierung", "East/west orientation")]);
+    g.push([v.rand > 0.5, v.rand > 0.5 ? t("Luft zu den Nachbarn (mehr als Mindestabstand)", "Space to neighbours beyond minimum") : t("Am Mindestabstand zu den Nachbarn", "At minimum distance to neighbours")]);
+    g.push([v.sued > 0.4, t("Besonnter Aussenraum Süd ", "Sunny southern open space ") + Math.round(v.sued * 100) + " %"]);
     return '<ul class="pz-gruende">' + g.map(function (x) { return '<li class="' + (x[0] ? "" : "m") + '">' + esc(x[1]) + "</li>"; }).join("") + "</ul>";
   }
+
+  /* ---------- 3D-Darstellung der Volumen (Dach, Lukarnen, Fenster, Balkone, Eingang) ---------- */
   var FARBE = { "2.5": "#8fb7d6", "3.5": "#6cc08b", "4.5": "#e2b04a", "5.5": "#e0708f", kern: "#9a978f" };
+  var NEIGUNG = 35 * Math.PI / 180;
   function zeigeVolumen(v, mix) {
     letzte = { v: v, mix: mix };
     karte().then(function () {
-      var C = C3, alt = ds.entities.values.filter(function (e) { return e._pzVol; }); alt.forEach(function (e) { ds.entities.remove(e); });
+      var C = C3; ds.entities.values.filter(function (e) { return e._pzVol; }).forEach(function (e) { ds.entities.remove(e); });
       function add(o) { var e = ds.entities.add(o); e._pzVol = 1; return e; }
-      var weiss = C.Color.fromCssColorString("#fbfaf7"), orange = C.Color.fromCssColorString("#f15d30"), b0 = bodenH;
-      v.teile.forEach(function (r, ti) {
-        var H = v.n * GH;
+      var b0 = bodenH, R = aktuellR;
+      var WEISS = C.Color.fromCssColorString("#fbfaf7"), GLAS = C.Color.fromCssColorString("#3d4b57"), BAND = C.Color.fromCssColorString("#cfcac0"), DACH = C.Color.fromCssColorString("#b9b2a6"), ORANGE = C.Color.fromCssColorString("#f15d30");
+      function quad(p1, p2, z1, z2, farbe, off, n) {          // senkrechte Fläche p1–p2 von z1 bis z2, um off nach aussen versetzt
+        var o = n ? [n[0] * off, n[1] * off] : [0, 0];
+        var a1 = [p1[0] + o[0], p1[1] + o[1]], a2 = [p2[0] + o[0], p2[1] + o[1]];
+        add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArrayHeights(llArr([a1], z1).concat(llArr([a2], z1), llArr([a2], z2), llArr([a1], z2))), perPositionHeight: true, material: farbe } });
+      }
+      function flaecheH(pts, hs, farbe) { var arr = []; pts.forEach(function (p, i) { arr = arr.concat(llArr([p], hs[i])); }); add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArrayHeights(arr), perPositionHeight: true, material: farbe } }); }
+      var strasseKanten = R ? R.kanten.filter(function (e) { return e.strasse; }) : [];
+      v.teile.forEach(function (p, ti) {
+        var r = ecken(p), H = v.n * GH, cz = p.c;
+        // Körper (oder Wohnungen geschossweise)
         if (mix && mix.teile[ti]) {
-          mix.teile[ti].forEach(function (st) {                // Wohnungen geschossweise als farbige Scheiben
-            st.felder.forEach(function (f) {
-              add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(f.r)), height: b0 + st.g * GH + 0.15, extrudedHeight: b0 + (st.g + 1) * GH - 0.15,
-                material: C.Color.fromCssColorString(FARBE[f.typ]).withAlpha(0.95), outline: true, outlineColor: C.Color.WHITE.withAlpha(0.8) } });
-            });
-          });
-        } else {
-          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: b0, extrudedHeight: b0 + H, material: weiss, outline: true, outlineColor: orange } });
+          mix.teile[ti].forEach(function (st) { st.felder.forEach(function (f) {
+            add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(f.r)), height: b0 + st.g * GH + 0.12, extrudedHeight: b0 + (st.g + 1) * GH - 0.12, material: C.Color.fromCssColorString(FARBE[f.typ]).withAlpha(0.96), outline: true, outlineColor: C.Color.WHITE.withAlpha(0.9) } });
+          }); });
+        } else add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: b0, extrudedHeight: b0 + H, material: WEISS } });
+        // Geschossbänder
+        for (var g = 1; g <= v.n; g++) {
+          var gr = r.map(function (q) { return [cz[0] + (q[0] - cz[0]) * 1.004, cz[1] + (q[1] - cz[1]) * 1.004]; });
+          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(gr)), height: b0 + g * GH - 0.28, extrudedHeight: b0 + g * GH, material: BAND } });
         }
+        // Fassaden: Fenster, Balkone (Süd), Eingang (Strasse)
+        var seiten = [[r[0], r[1]], [r[1], r[2]], [r[2], r[3]], [r[3], r[0]]];
+        seiten.forEach(function (sd) {
+          var n = aussenNormale(sd[0], sd[1], cz), Ls = Math.hypot(sd[1][0] - sd[0][0], sd[1][1] - sd[0][1]), e = [(sd[1][0] - sd[0][0]) / Ls, (sd[1][1] - sd[0][1]) / Ls];
+          var sued = n[1] < -0.5, schritt = sued ? 3.0 : 3.4, anz = Math.floor((Ls - 1.6) / schritt);
+          var start = (Ls - (anz - 1) * schritt) / 2;
+          for (var g2 = 0; g2 < v.n; g2++) {
+            for (var w = 0; w < anz; w++) {
+              var m = start + w * schritt, wb = sued ? 1.9 : 1.3, z1 = b0 + g2 * GH + (sued ? 0.15 : 0.95), z2 = b0 + g2 * GH + 2.35;
+              if (g2 === 0 && !mix && strasseKanten.length && w === Math.floor(anz / 2) && isStrassenSeite(sd, n)) { z1 = b0 + 0.05; z2 = b0 + 2.6; wb = 2.2; }
+              quad([sd[0][0] + e[0] * (m - wb / 2), sd[0][1] + e[1] * (m - wb / 2)], [sd[0][0] + e[0] * (m + wb / 2), sd[0][1] + e[1] * (m + wb / 2)], z1, z2, GLAS, 0.06, n);
+            }
+            // Balkone an der Südfassade (je ca. 9 m eine Loggia/Balkonplatte)
+            if (sued && g2 > 0 && Ls > 8) {
+              for (var bk = 4.5; bk + 2.2 < Ls; bk += 9) {
+                var a1 = [sd[0][0] + e[0] * (bk - 2.2), sd[0][1] + e[1] * (bk - 2.2)], a2 = [sd[0][0] + e[0] * (bk + 2.2), sd[0][1] + e[1] * (bk + 2.2)];
+                var pl = [a1, a2, [a2[0] + n[0] * 2, a2[1] + n[1] * 2], [a1[0] + n[0] * 2, a1[1] + n[1] * 2]];
+                add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(pl)), height: b0 + g2 * GH - 0.22, extrudedHeight: b0 + g2 * GH, material: WEISS } });
+                quad(pl[3], pl[2], b0 + g2 * GH, b0 + g2 * GH + 1.0, C.Color.WHITE.withAlpha(0.55), 0, null);
+              }
+            }
+          }
+          // Eingang: Vordach zur Strasse
+          if (!mix && isStrassenSeite(sd, n) && ti === 0) {
+            var mm = Ls / 2, c1 = [sd[0][0] + e[0] * (mm - 1.8), sd[0][1] + e[1] * (mm - 1.8)], c2 = [sd[0][0] + e[0] * (mm + 1.8), sd[0][1] + e[1] * (mm + 1.8)];
+            var vd = [c1, c2, [c2[0] + n[0] * 1.6, c2[1] + n[1] * 1.6], [c1[0] + n[0] * 1.6, c1[1] + n[1] * 1.6]];
+            add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(vd)), height: b0 + 2.7, extrudedHeight: b0 + 2.9, material: ORANGE } });
+            var tuer = [sd[0][0] + e[0] * mm + n[0] * 0.5, sd[0][1] + e[1] * mm + n[1] * 0.5];
+            var se = strasseKanten.reduce(function (bst, k2) { var d = distSeg(tuer, k2.a, k2.b); return !bst || d < bst.d ? { d: d, k: k2 } : bst; }, null);
+            if (se) {
+              var kk = se.k, dx = kk.b[0] - kk.a[0], dy = kk.b[1] - kk.a[1], L2 = dx * dx + dy * dy, tt = Math.max(0, Math.min(1, ((tuer[0] - kk.a[0]) * dx + (tuer[1] - kk.a[1]) * dy) / L2));
+              var sp = [kk.a[0] + dx * tt + kk.n[0] * 0.5, kk.a[1] + dy * tt + kk.n[1] * 0.5];
+              add({ polyline: { positions: C.Cartesian3.fromDegreesArray(llArr([sp, tuer])), width: 7, material: C.Color.fromCssColorString("#d6d1c7"), clampToGround: true } });
+            }
+          }
+        });
         // Dach
-        if (v.dg && v.dach === "attika") {
-          var c = r.reduce(function (s, p) { return [s[0] + p[0] / 4, s[1] + p[1] / 4]; }, [0, 0]);
-          var att = r.map(function (p) { return [c[0] + (p[0] - c[0]) * 0.86, c[1] + (p[1] - c[1]) * 0.86]; });
-          // Attika nach Norden schieben (Terrasse Süd)
-          var dy = (Math.max.apply(null, r.map(function (p) { return p[1]; })) - Math.max.apply(null, att.map(function (p) { return p[1]; })));
-          att = att.map(function (p) { return [p[0], p[1] + dy * 0.9]; });
-          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(att)), height: b0 + H, extrudedHeight: b0 + H + GH, material: mix ? C.Color.fromCssColorString(FARBE["4.5"]).withAlpha(0.95) : weiss, outline: true, outlineColor: orange } });
-        } else if (v.dach === "sattel") {
-          var lang = Math.hypot(r[1][0] - r[0][0], r[1][1] - r[0][1]) >= Math.hypot(r[2][0] - r[1][0], r[2][1] - r[1][1]);
-          var A = lang ? r : [r[1], r[2], r[3], r[0]], m1 = [(A[0][0] + A[3][0]) / 2, (A[0][1] + A[3][1]) / 2], m2 = [(A[1][0] + A[2][0]) / 2, (A[1][1] + A[2][1]) / 2];
-          var fh = TIEFE / 2 * Math.tan(35 * Math.PI / 180);
-          [[A[0], A[1], m2, m1], [A[3], A[2], m2, m1]].forEach(function (fl) {
-            add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArrayHeights(llArr([fl[0], fl[1]], b0 + H).concat(llArr([fl[2], fl[3]], b0 + H + fh))), perPositionHeight: true, material: C.Color.fromCssColorString("#d9d4ca"), outline: true, outlineColor: orange } });
-          });
+        var z0 = b0 + H;
+        if (v.dach === "flach" || (v.dach === "attika" && !v.dg)) {
+          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: z0, extrudedHeight: z0 + 0.5, material: WEISS } });
+        } else if (v.dach === "attika") {
+          var u0 = [Math.cos(p.ang), Math.sin(p.ang)], vv = [-u0[1], u0[0]], nordV = vv[1] >= 0 ? 1 : -1;
+          var att = { c: [p.c[0] + vv[0] * nordV * p.T * 0.12, p.c[1] + vv[1] * nordV * p.T * 0.12], L: p.L * 0.82, T: p.T * 0.7, ang: p.ang };
+          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0, extrudedHeight: z0 + GH, material: mix ? C.Color.fromCssColorString(FARBE["4.5"]).withAlpha(0.96) : WEISS } });
+          add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(ecken(att))), height: z0 + GH, extrudedHeight: z0 + GH + 0.35, material: BAND } });
+          r.forEach(function (q, i) { quad(q, r[(i + 1) % 4], z0, z0 + 1.0, C.Color.WHITE.withAlpha(0.5), 0, null); });   // Geländer
+          var ae = ecken(att);
+          [[ae[0], ae[1]], [ae[2], ae[3]]].forEach(function (sd) { var n = aussenNormale(sd[0], sd[1], att.c); if (n[1] < -0.3) { var Ls = Math.hypot(sd[1][0] - sd[0][0], sd[1][1] - sd[0][1]); quad([sd[0][0] + (sd[1][0] - sd[0][0]) * 0.08, sd[0][1] + (sd[1][1] - sd[0][1]) * 0.08], [sd[0][0] + (sd[1][0] - sd[0][0]) * 0.92, sd[0][1] + (sd[1][1] - sd[0][1]) * 0.92], z0 + 0.1, z0 + 2.4, GLAS, 0.06, n); } });
+        } else {
+          // Sattel- oder Walmdach mit Vordach; First parallel zur Längsseite
+          var lang = p.L >= p.T, Lr = lang ? p.L : p.T, Tr = lang ? p.T : p.L, ang2 = lang ? p.ang : p.ang + Math.PI / 2;
+          var u1 = [Math.cos(ang2), Math.sin(ang2)], v1 = [-u1[1], u1[0]], ue = 0.6;
+          function P(s, t2) { return [p.c[0] + u1[0] * s + v1[0] * t2, p.c[1] + u1[1] * s + v1[1] * t2]; }
+          var hl = Lr / 2 + ue, ht = Tr / 2 + ue, fh = (Tr / 2) * Math.tan(NEIGUNG), zt = z0 - ue * Math.tan(NEIGUNG), walm = v.dach === "walm";
+          var fA = walm ? Lr / 2 - Tr / 2 : hl;
+          flaecheH([P(-hl, -ht), P(hl, -ht), P(fA, 0), P(-fA, 0)], [zt, zt, z0 + fh, z0 + fh], DACH);
+          flaecheH([P(-hl, ht), P(hl, ht), P(fA, 0), P(-fA, 0)], [zt, zt, z0 + fh, z0 + fh], DACH);
+          if (walm) {
+            flaecheH([P(-hl, -ht), P(-hl, ht), P(-fA, 0)], [zt, zt, z0 + fh], DACH);
+            flaecheH([P(hl, -ht), P(hl, ht), P(fA, 0)], [zt, zt, z0 + fh], DACH);
+          } else {
+            flaecheH([P(-Lr / 2, -Tr / 2), P(-Lr / 2, Tr / 2), P(-Lr / 2, 0)], [z0, z0, z0 + fh], WEISS);   // Giebel
+            flaecheH([P(Lr / 2, -Tr / 2), P(Lr / 2, Tr / 2), P(Lr / 2, 0)], [z0, z0, z0 + fh], WEISS);
+          }
+          // Lukarnen auf der Südseite (gesamt höchstens 1/3 der Fassadenlänge)
+          if (v.lukarnen && v.dg) {
+            var suedT = (v1[1] < 0 ? 1 : -1) * Tr / 2, anzL = Math.max(1, Math.floor(Lr / 3 / 2.6)), bL = 2.2, abst = Lr / (anzL + 1);
+            for (var li = 1; li <= anzL; li++) {
+              var s0 = -Lr / 2 + li * abst, tf = suedT * 0.55, zf = z0 + (Tr / 2 - Math.abs(tf)) * Math.tan(NEIGUNG);
+              var tb = suedT * 0.05, sg = suedT > 0 ? 1 : -1;
+              var basis = [P(s0 - bL / 2, tf), P(s0 + bL / 2, tf), P(s0 + bL / 2, tb), P(s0 - bL / 2, tb)];
+              add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(basis)), height: zf - 0.2, extrudedHeight: zf + 1.6, material: WEISS } });
+              flaecheH([P(s0 - bL / 2 - 0.2, tf + sg * 0.3), P(s0 + bL / 2 + 0.2, tf + sg * 0.3), P(s0 + bL / 2 + 0.2, tb), P(s0 - bL / 2 - 0.2, tb)], [zf + 1.6, zf + 1.6, zf + 1.9, zf + 1.9], DACH);
+              var nf = [v1[0] * sg, v1[1] * sg];
+              quad(P(s0 - 0.7, tf), P(s0 + 0.7, tf), zf + 0.1, zf + 1.4, GLAS, 0.05, nf);
+            }
+          }
         }
       });
       V3.scene.requestRender();
     });
   }
+  function isStrassenSeite(sd, n) {
+    var R = aktuellR; if (!R) return false;
+    var m = [(sd[0][0] + sd[1][0]) / 2, (sd[0][1] + sd[1][1]) / 2];
+    return R.kanten.some(function (e) { if (!e.strasse) return false; var en = e.n; return en[0] * n[0] + en[1] * n[1] > 0.7 && distSeg(m, e.a, e.b) < 25; });
+  }
 
   /* ---------- Wohnungsmix ---------- */
   var mixAnteile = { "2.5": 30, "3.5": 40, "4.5": 25, "5.5": 5 };
   function mixRechnen(v) {
-    var nwf = NWF[standard], tiefeNutz = TIEFE - 1.2;      // Aussenwände
-    var summe = 0; Object.keys(mixAnteile).forEach(function (k2) { summe += mixAnteile[k2]; });
-    var zaehl = { "2.5": 0, "3.5": 0, "4.5": 0, "5.5": 0 }, flaecheSum = 0, ziel = {};
-    Object.keys(mixAnteile).forEach(function (k2) { ziel[k2] = summe ? mixAnteile[k2] / summe : 0; });
-    var total = 0;
-    function naechsterTyp() {                               // grösster Rückstand gegenüber dem Zielmix
-      var best = null, bv = -1;
-      Object.keys(ziel).forEach(function (k2) { if (!ziel[k2]) return; var d = ziel[k2] * (total + 1) - zaehl[k2]; if (d > bv) { bv = d; best = k2; } });
-      return best || "3.5";
-    }
-    var teile = v.teile.map(function (r) {
-      var e1 = [r[1][0] - r[0][0], r[1][1] - r[0][1]], e2 = [r[3][0] - r[0][0], r[3][1] - r[0][1]];
-      var L1 = Math.hypot(e1[0], e1[1]), L2 = Math.hypot(e2[0], e2[1]), u = L1 >= L2 ? e1 : e2, w = L1 >= L2 ? e2 : e1, L = Math.max(L1, L2);
-      var stock = [];
-      var nG = v.n + (v.dg && v.dach === "attika" ? 0 : 0);
-      for (var g = 0; g < nG; g++) {
-        var felder = [], pos = 0, seitKern = 0;
-        var kernBreite = 5.5, maxZwischen = v.typ === "punkt" ? 99 : 26;
-        // Punkthaus: Kern in der Mitte, Wohnungen links/rechts
+    var nwf = NWF[standard], zaehl = { "2.5": 0, "3.5": 0, "4.5": 0, "5.5": 0 }, flaecheSum = 0, ziel = {}, total = 0, summe = 0;
+    Object.keys(mixAnteile).forEach(function (x) { summe += mixAnteile[x]; });
+    Object.keys(mixAnteile).forEach(function (x) { ziel[x] = summe ? mixAnteile[x] / summe : 0; });
+    function naechster() { var best = null, bv = -1e9; Object.keys(ziel).forEach(function (x) { if (!ziel[x]) return; var d = ziel[x] * (total + 1) - zaehl[x]; if (d > bv) { bv = d; best = x; } }); return best || "3.5"; }
+    var teile = v.teile.map(function (p) {
+      var r = ecken(p), lang = p.L >= p.T, L = lang ? p.L : p.T, T = lang ? p.T : p.L;
+      var a0 = lang ? r[0] : r[1], u = lang ? [r[1][0] - r[0][0], r[1][1] - r[0][1]] : [r[2][0] - r[1][0], r[2][1] - r[1][1]], w = lang ? [r[3][0] - r[0][0], r[3][1] - r[0][1]] : [r[0][0] - r[1][0], r[0][1] - r[1][1]];
+      var punkt = L < T * 1.35, stock = [];
+      for (var g = 0; g < v.n; g++) {
+        var felder = [], pos = 0, seit = 0;
         while (pos < L - 0.1) {
-          if (seitKern >= maxZwischen || (pos === 0 && v.typ !== "punkt" && L > 30) || (v.typ === "punkt" && felder.length === 2 && !felder.some(function (f) { return f.typ === "kern"; }))) {
-            var kb = Math.min(kernBreite, L - pos); felder.push({ typ: "kern", a: pos, b: pos + kb }); pos += kb; seitKern = 0; continue;
-          }
-          var typ = naechsterTyp(), breite = nwf[typ] / (tiefeNutz * 0.88);
-          if (v.typ === "punkt") breite = nwf[typ] / ((TIEFE + PUNKT) / 2 * 0.62);
-          if (pos + breite > L + 0.5) { if (L - pos >= 5) { breite = L - pos; } else { if (felder.length) felder[felder.length - 1].b = L; break; } }
-          felder.push({ typ: typ, a: pos, b: Math.min(L, pos + breite) }); pos += breite; seitKern += breite;
-          zaehl[typ]++; total++; flaecheSum += nwf[typ];
+          var kernJetzt = punkt ? (felder.length === 1) : (felder.length === 0 && L > 24) || seit >= 24;
+          if (kernJetzt && !felder.some(function (f) { return f.typ === "kern" && punkt; })) { var kb = Math.min(5.5, L - pos); felder.push({ typ: "kern", a: pos, b: pos + kb }); pos += kb; seit = 0; continue; }
+          var typ = naechster(), br = punkt ? nwf[typ] / (T * 0.5) : nwf[typ] / ((T - 1.2) * 0.88);
+          if (pos + br > L + 0.5) { if (L - pos >= 5) br = L - pos; else { if (felder.length) felder[felder.length - 1].b = L; break; } }
+          felder.push({ typ: typ, a: pos, b: Math.min(L, pos + br) }); pos += br; seit += br; zaehl[typ]++; total++; flaecheSum += nwf[typ];
         }
-        stock.push({ g: g, felder: felder.map(function (f) {
-          var a0 = f.a / L, b1 = f.b / L;
-          f.r = [[r[0][0] + u[0] * a0, r[0][1] + u[1] * a0], [r[0][0] + u[0] * b1, r[0][1] + u[1] * b1], [r[0][0] + u[0] * b1 + w[0], r[0][1] + u[1] * b1 + w[1]], [r[0][0] + u[0] * a0 + w[0], r[0][1] + u[1] * a0 + w[1]]];
-          return f; }) });
+        stock.push({ g: g, felder: felder.map(function (f) { var s0 = f.a / L, s1 = f.b / L; f.r = [[a0[0] + u[0] * s0, a0[1] + u[1] * s0], [a0[0] + u[0] * s1, a0[1] + u[1] * s1], [a0[0] + u[0] * s1 + w[0], a0[1] + u[1] * s1 + w[1]], [a0[0] + u[0] * s0 + w[0], a0[1] + u[1] * s0 + w[1]]]; return f; }) });
       }
       return stock;
     });
-    if (v.dg && v.dach === "attika") { v.teile.forEach(function () { zaehl["4.5"]++; total++; flaecheSum += nwf["4.5"]; }); }
+    if (v.dg && v.dach === "attika") v.teile.forEach(function () { zaehl["4.5"]++; total++; flaecheSum += nwf["4.5"]; });
+    if (v.dg && v.dach !== "attika") v.teile.forEach(function (p) { var k2 = Math.max(1, Math.round(p.L * p.T * 0.55 * EFF / nwf["3.5"])); zaehl["3.5"] += k2; total += k2; flaecheSum += k2 * nwf["3.5"]; });
     return { teile: teile, zaehl: zaehl, total: total, nwf: flaecheSum };
   }
   function renderMix(v) {
     var box = root.querySelector(".pz-mix"), m = mixRechnen(v), nwf = NWF[standard];
-    var regler = Object.keys(mixAnteile).map(function (k2) {
-      return '<label><span><i style="background:' + FARBE[k2] + '"></i>' + k2 + ' Zi.</span><input type="range" min="0" max="80" step="5" value="' + mixAnteile[k2] + '" data-typ="' + k2 + '" aria-label="' + t("Anteil ", "Share ") + k2 + ' Zi."><b>' + mixAnteile[k2] + " %</b></label>";
-    }).join("");
-    var zeilen = Object.keys(m.zaehl).map(function (k2) { return m.zaehl[k2] ? "<tr><td><i style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:" + FARBE[k2] + ";margin-right:6px\"></i>" + k2 + " Zi.</td><td>" + m.zaehl[k2] + "</td><td>" + nwf[k2] + " m²</td><td>" + zahl(m.zaehl[k2] * nwf[k2]) + " m²</td></tr>" : ""; }).join("");
-    box.innerHTML = '<div class="pz-sek"><h4>' + t("3 · Wohnungsmix", "3 · Unit mix") + '</h4><div class="pz-regler">' + regler + "</div>" +
-      '<table class="pz-tab"><thead><tr><th>' + t("Typ", "Type") + "</th><th>" + t("Anz.", "No.") + "</th><th>Ø NWF</th><th>" + t("Total", "Total") + "</th></tr></thead><tbody>" + zeilen + "</tbody>" +
-      "<tfoot><tr><td>" + t("Total", "Total") + "</td><td>" + m.total + "</td><td></td><td>" + zahl(m.nwf) + " m²</td></tr></tfoot></table>" +
-      '<p class="muted small">' + t("Geschossfläche ", "Floor area ") + zahl(v.gf) + " m² · " + t("Nutzungsgrad NWF/GF ", "Efficiency ") + Math.round(m.nwf / v.gf * 100) + " % · " + t("Ausbaustandard ", "Standard ") + standard + ". " +
-      t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord), Kerne grau. Flächenwerte vorläufig – Kalibrierung mit apb-Studien folgt.", "Through-units (living south, bedrooms north), cores grey. Provisional values.") + "</p></div>";
+    var regler = Object.keys(mixAnteile).map(function (x) { return '<label><span><i style="background:' + FARBE[x] + '"></i>' + x + ' Zi.</span><input type="range" min="0" max="80" step="5" value="' + mixAnteile[x] + '" data-typ="' + x + '" aria-label="' + t("Anteil ", "Share ") + x + ' Zi."><b>' + mixAnteile[x] + " %</b></label>"; }).join("");
+    var zeilen = Object.keys(m.zaehl).map(function (x) { return m.zaehl[x] ? "<tr><td><i style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:" + FARBE[x] + ";margin-right:6px\"></i>" + x + " Zi.</td><td>" + m.zaehl[x] + "</td><td>" + nwf[x] + " m²</td><td>" + zahl(m.zaehl[x] * nwf[x]) + " m²</td></tr>" : ""; }).join("");
+    box.innerHTML = '<div class="pz-sek"><h4>' + t("4 · Wohnungsmix", "4 · Unit mix") + '</h4><div class="pz-regler">' + regler + "</div>" +
+      '<table class="pz-tab"><thead><tr><th>' + t("Typ", "Type") + "</th><th>" + t("Anz.", "No.") + "</th><th>Ø NWF</th><th>Total</th></tr></thead><tbody>" + zeilen + "</tbody><tfoot><tr><td>Total</td><td>" + m.total + "</td><td></td><td>" + zahl(m.nwf) + " m²</td></tr></tfoot></table>" +
+      '<p class="muted small">' + t("Geschossfläche ", "Floor area ") + zahl(v.gf) + " m² · NWF/GF " + Math.round(m.nwf / v.gf * 100) + " % · " + t("Ausbaustandard ", "Standard ") + standard + ". " + t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord), Kerne grau. Werte vorläufig – Kalibrierung mit apb-Studien folgt.", "Provisional values.") + '</p><button type="button" class="btn ghost pz-mix-aus">' + t("Zurück zum Volumen", "Back to massing") + "</button></div>";
     box.hidden = false;
     Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (inp) {
       inp.addEventListener("input", function () { mixAnteile[inp.dataset.typ] = +inp.value; inp.nextElementSibling.textContent = inp.value + " %"; });
       inp.addEventListener("change", function () { renderMix(v); });
     });
+    box.querySelector(".pz-mix-aus").addEventListener("click", function () { box.hidden = true; zeigeVolumen(v, null); });
     zeigeVolumen(v, m);
   }
-  function renderVolumen(a, k) {
-    var box = root.querySelector(".pz-vol"); root.querySelector(".pz-mix").hidden = true;
-    var vs = generieren(a, k);
-    if (!vs.length) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("Für diese Parzelle konnten noch keine Volumen erzeugt werden (Zone nicht erfasst oder Baufeld zu klein).", "No massing options could be generated for this plot yet.") + "</p></div>"; box.hidden = false; return; }
-    var dachSel = '<select class="pz-dach" aria-label="' + t("Dachform", "Roof form") + '"><option value="attika"' + (vs[0].dach === "attika" ? " selected" : "") + '>' + t("Flachdach + Attika", "Flat roof + attic") + '</option><option value="flach"' + (vs[0].dach === "flach" ? " selected" : "") + '>' + t("Flachdach", "Flat roof") + '</option><option value="sattel"' + (vs[0].dach === "sattel" ? " selected" : "") + '>' + t("Satteldach", "Pitched roof") + "</option></select>";
-    box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + " " + dachSel + '</h4><ul class="pz-var">' + vs.map(function (v, i) {
-      return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + "</span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + t("Ausnützung ", "density ") + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
-    }).join("") + '</ul><div class="pz-why"></div><button type="button" class="btn pz-go">' + t("Volumen bestätigen → Wohnungsmix", "Confirm massing → unit mix") + '<span class="arr"></span></button></div>';
+
+  /* ---------- Entwerfen: Volumen weiterbearbeiten ---------- */
+  function editor(v, a, k) {
+    var box = root.querySelector(".pz-edit"), z = a.zone || {}, R = aktuellR, sel = 0;
+    function pruefen() {
+      v.fest = true; bewerten(v, a, k, R);
+      var hoeheOk = !k.hoehe || v.n * GH <= k.hoehe + 0.01, laengeOk = v.teile.every(function (p) { return Math.max(p.L, p.T) <= (z.laenge || 999) + 0.01; });
+      var abstOk = v.teile.every(function (p, i) { return v.teile.every(function (q, j) { return i >= j || abstandTeile(p, q) === 0 || abstandTeile(p, q) >= 2 * (z.ga_k || 5) || anliegend(p, q); }); });
+      var chk = [[v.teile.every(R.passt), t("Im zulässigen Baufeld (Grenzabstände, Vorzone, Baulinien)", "Within the permitted envelope")],
+        [v.aus <= 1.001, t("Ausnützung ", "Density ") + Math.round(v.aus * 100) + " % " + t("der zulässigen", "of permitted")],
+        [hoeheOk, t("Höhe ", "Height ") + zahl(v.n * GH, 1) + " m" + (k.hoehe ? " (max. " + zahl(k.hoehe, 1) + " m)" : "")],
+        [laengeOk, t("Gebäudelänge ", "Building length ") + zahl(Math.max.apply(null, v.teile.map(function (p) { return Math.max(p.L, p.T); })), 1) + " m" + (z.laenge ? " (max. " + z.laenge + " m)" : "")],
+        [abstOk, t("Abstände zwischen den Baukörpern", "Distances between volumes")]];
+      box.querySelector(".pz-chk").innerHTML = chk.map(function (c) { return '<li class="' + (c[0] ? "" : "m") + '">' + esc(c[1]) + "</li>"; }).join("");
+      box.querySelector(".pz-edit-kz").textContent = "GF " + zahl(v.gf) + " m² · " + v.n + " " + t("Geschosse", "storeys") + " · Score " + v.score;
+      zeigeVolumen(v, null);
+    }
+    function anliegend(p, q) { return abstandTeile(p, q) < 0.6; }
+    function sync() {
+      var p = v.teile[sel];
+      box.querySelector("[data-e=L]").value = Math.round(p.L); box.querySelector("[data-e=L] + b").textContent = Math.round(p.L) + " m";
+      box.querySelector("[data-e=T]").value = Math.round(p.T); box.querySelector("[data-e=T] + b").textContent = Math.round(p.T) + " m";
+      box.querySelector("[data-e=n]").value = v.n; box.querySelector("[data-e=n] + b").textContent = v.n;
+      box.querySelector("[data-e=ang]").value = Math.round(p.ang * 180 / Math.PI); box.querySelector("[data-e=ang] + b").textContent = Math.round(p.ang * 180 / Math.PI) + "°";
+    }
+    var teilSel = v.teile.length > 1 ? '<label class="pz-f"><span>' + t("Baukörper", "Volume") + '</span><select class="pz-teil">' + v.teile.map(function (p, i) { return '<option value="' + i + '">' + (i + 1) + "</option>"; }).join("") + "</select></label>" : "";
+    var luk = v.dach === "sattel" && (z.dg || 0) ? '<label class="pz-chkbox"><input type="checkbox" class="pz-luk"' + (v.lukarnen ? " checked" : "") + "> " + t("Lukarnen (Südseite, max. 1/3 Fassadenlänge)", "Dormers (south, max. 1/3 of facade)") + "</label>" : "";
+    box.innerHTML = '<div class="pz-sek"><h4>' + t("3 · Entwerfen", "3 · Design") + '</h4><p class="muted small">' + t("Volumen weiterentwickeln – Prüfung läuft live mit.", "Refine the massing – checks run live.") + "</p>" + teilSel +
+      '<div class="pz-regler">' +
+      '<label><span>' + t("Länge", "Length") + '</span><input type="range" data-e="L" min="8" max="' + Math.max(20, (z.laenge || 40) + 10) + '" step="1"><b></b></label>' +
+      '<label><span>' + t("Tiefe", "Depth") + '</span><input type="range" data-e="T" min="8" max="24" step="1"><b></b></label>' +
+      '<label><span>' + t("Geschosse", "Storeys") + '</span><input type="range" data-e="n" min="1" max="' + (v.nMax + 1) + '" step="1"><b></b></label>' +
+      '<label><span>' + t("Drehung", "Rotation") + '</span><input type="range" data-e="ang" min="-180" max="180" step="5"><b></b></label></div>' +
+      '<div class="pz-move" role="group" aria-label="' + t("Verschieben", "Move") + '"><button type="button" data-m="0,1">↑ N</button><button type="button" data-m="-1,0">← W</button><button type="button" data-m="1,0">O →</button><button type="button" data-m="0,-1">S ↓</button></div>' +
+      '<label class="pz-f"><span>' + t("Dachform", "Roof form") + '</span><select class="pz-dach2"><option value="attika">' + t("Flachdach + Attika", "Flat roof + attic") + '</option><option value="flach">' + t("Flachdach", "Flat roof") + '</option><option value="sattel">' + t("Satteldach", "Pitched roof") + '</option><option value="walm">' + t("Walmdach", "Hipped roof") + "</option></select></label>" + luk +
+      '<p class="pz-edit-kz"></p><ul class="pz-gruende pz-chk"></ul><button type="button" class="btn pz-go2">' + t("Weiter → Wohnungsmix", "Next → unit mix") + '<span class="arr"></span></button></div>';
     box.hidden = false;
-    var gewaehlt = vs[0];
-    function waehleV(i) { gewaehlt = vs[i]; Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.setAttribute("aria-pressed", +b.dataset.i === i); }); box.querySelector(".pz-why").innerHTML = gruende(gewaehlt); root.querySelector(".pz-mix").hidden = true; zeigeVolumen(gewaehlt, null); }
-    Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.addEventListener("click", function () { waehleV(+b.dataset.i); }); });
-    box.querySelector(".pz-dach").addEventListener("change", function (e) { var d = e.target.value; vs.forEach(function (v) { v.dach = d; var z = a.zone || {}; var dg = d === "attika" && (z.attika || z.dg) ? 0.6 : (d === "sattel" && z.dg ? 0.55 : 0); v.dg = k.gf >= v.fuss * (v.n + dg) ? dg : 0; v.gf = v.fuss * (v.n + v.dg); v.aus = Math.min(1, v.gf / k.gf); }); waehleV(vs.indexOf(gewaehlt)); });
-    box.querySelector(".pz-go").addEventListener("click", function () { renderMix(gewaehlt); root.querySelector(".pz-mix").scrollIntoView({ behavior: "smooth", block: "start" }); });
-    waehleV(0);
+    box.querySelector(".pz-dach2").value = v.dach;
+    sync(); pruefen();
+    Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (inp) {
+      inp.addEventListener("input", function () {
+        var p = v.teile[sel], x = +inp.value;
+        if (inp.dataset.e === "L") p.L = x; else if (inp.dataset.e === "T") p.T = x; else if (inp.dataset.e === "n") v.n = x; else p.ang = x * Math.PI / 180;
+        sync(); pruefen();
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll(".pz-move button"), function (b) { b.addEventListener("click", function () { var d = b.dataset.m.split(","); var p = v.teile[sel]; p.c = [p.c[0] + d[0] * 1, p.c[1] + d[1] * 1]; pruefen(); }); });
+    var ts = box.querySelector(".pz-teil"); if (ts) ts.addEventListener("change", function () { sel = +ts.value; sync(); });
+    box.querySelector(".pz-dach2").addEventListener("change", function (e) { v.dach = e.target.value; editor(v, a, k); });
+    var lk = box.querySelector(".pz-luk"); if (lk) lk.addEventListener("change", function () { v.lukarnen = lk.checked; pruefen(); });
+    box.querySelector(".pz-go2").addEventListener("click", function () { renderMix(v); root.querySelector(".pz-mix").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  }
+
+  function renderVolumen(a, k) {
+    var box = root.querySelector(".pz-vol"); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true;
+    box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Strassen und Nachbarbauten werden geladen, Varianten werden gerechnet …", "Loading streets and neighbours, computing options …") + "</p></div>"; box.hidden = false;
+    if (!k.ring) return;
+    umgebung(k.ring).then(function (umg) {
+      var R = raster(a, k, umg); aktuellR = R;
+      if (letzteParzelle) zeichneParzelle(a, k);          // mit Strassenseite neu zeichnen
+      var vs = generieren(a, k, R);
+      if (!vs.length) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("Für diese Parzelle konnten keine Volumen erzeugt werden (Zone nicht erfasst oder Baufeld zu klein).", "No massing options could be generated for this plot.") + "</p></div>"; return; }
+      var sk = R.kanten.filter(function (e) { return e.strasse; }).length;
+      box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + VORZONE + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p><ul class="pz-var">' + vs.map(function (v, i) {
+        return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + "</span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
+      }).join("") + '</ul><div class="pz-why"></div><button type="button" class="btn pz-go">' + t("Dieses Volumen entwerfen", "Refine this massing") + '<span class="arr"></span></button></div>';
+      var gew = vs[0];
+      function waehleV(i) { gew = vs[i]; Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.setAttribute("aria-pressed", +b.dataset.i === i); }); box.querySelector(".pz-why").innerHTML = gruende(gew); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true; zeigeVolumen(gew, null); }
+      Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.addEventListener("click", function () { waehleV(+b.dataset.i); }); });
+      box.querySelector(".pz-go").addEventListener("click", function () { var kopie = JSON.parse(JSON.stringify(gew)); editor(kopie, a, k); root.querySelector(".pz-edit").scrollIntoView({ behavior: "smooth", block: "start" }); });
+      waehleV(0);
+    });
   }
 
   /* ---------- Ablauf ---------- */
@@ -459,7 +661,7 @@
     root.querySelector(".pz-liste").innerHTML = "";
     root.querySelector(".pz-q").value = treffer.label;
     meldung(t("Parzelle und ÖREB-Kataster werden abgefragt …", "Querying plot and PLR cadastre …"));
-    root.querySelector(".pz-res").hidden = true; root.querySelector(".pz-vol").hidden = true; root.querySelector(".pz-mix").hidden = true;
+    root.querySelector(".pz-res").hidden = true; root.querySelector(".pz-vol").hidden = true; root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true;
     parzelleAn(treffer.lat, treffer.lon).then(function (p) {
       if (!p.egris_egrid) throw new Error("ohne EGRID");
       return Promise.all([oereb(p.egris_egrid), bzo()]);
