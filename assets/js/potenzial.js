@@ -567,14 +567,22 @@
   }
   function renderMix(v) {
     var box = root.querySelector(".pz-mix"), m = mixRechnen(v), nwf = NWF[standard];
-    var regler = Object.keys(mixAnteile).map(function (x) { return '<label><span><i style="background:' + FARBE[x] + '"></i>' + x + ' Zi.</span><input type="range" min="0" max="80" step="5" value="' + mixAnteile[x] + '" data-typ="' + x + '" aria-label="' + t("Anteil ", "Share ") + x + ' Zi."><b>' + mixAnteile[x] + " %</b></label>"; }).join("");
+    var regler = Object.keys(mixAnteile).map(function (x) { return '<label><span><i style="background:' + FARBE[x] + '"></i>' + x + ' Zi.</span><input type="range" min="0" max="100" step="5" value="' + mixAnteile[x] + '" data-typ="' + x + '" aria-label="' + t("Anteil ", "Share ") + x + ' Zi."><b>' + mixAnteile[x] + " %</b></label>"; }).join("");
     var zeilen = Object.keys(m.zaehl).map(function (x) { return m.zaehl[x] ? "<tr><td><i style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:" + FARBE[x] + ";margin-right:6px\"></i>" + x + " Zi.</td><td>" + m.zaehl[x] + "</td><td>" + nwf[x] + " m²</td><td>" + zahl(m.zaehl[x] * nwf[x]) + " m²</td></tr>" : ""; }).join("");
-    box.innerHTML = '<div class="pz-sek"><h4>' + t("4 · Wohnungsmix", "4 · Unit mix") + '</h4><div class="pz-regler">' + regler + "</div>" +
+    box.innerHTML = '<div class="pz-sek"><h4>' + t("4 · Wohnungsmix", "4 · Unit mix") + '</h4><p class="muted small">' + t("Anteile ergeben immer 100 % – die übrigen passen sich an.", "Shares always add up to 100 %.") + '</p><div class="pz-regler">' + regler + "</div>" +
       '<table class="pz-tab"><thead><tr><th>' + t("Typ", "Type") + "</th><th>" + t("Anz.", "No.") + "</th><th>Ø NWF</th><th>Total</th></tr></thead><tbody>" + zeilen + "</tbody><tfoot><tr><td>Total</td><td>" + m.total + "</td><td></td><td>" + zahl(m.nwf) + " m²</td></tr></tfoot></table>" +
       '<p class="muted small">' + t("Geschossfläche ", "Floor area ") + zahl(v.gf) + " m² · NWF/GF " + Math.round(m.nwf / v.gf * 100) + " % · " + t("Ausbaustandard ", "Standard ") + standard + ". " + t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord), Kerne grau. Werte vorläufig – Kalibrierung mit apb-Studien folgt.", "Provisional values.") + '</p><button type="button" class="btn ghost pz-mix-aus">' + t("Zurück zum Volumen", "Back to massing") + "</button></div>";
     box.hidden = false;
     Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (inp) {
-      inp.addEventListener("input", function () { mixAnteile[inp.dataset.typ] = +inp.value; inp.nextElementSibling.textContent = inp.value + " %"; });
+      inp.addEventListener("input", function () {
+        var typ = inp.dataset.typ, neu = Math.min(100, +inp.value), rest = 100 - neu, andere = Object.keys(mixAnteile).filter(function (x) { return x !== typ; });
+        var summe = andere.reduce(function (s2, x) { return s2 + mixAnteile[x]; }, 0);
+        mixAnteile[typ] = neu;
+        andere.forEach(function (x) { mixAnteile[x] = summe ? Math.round(mixAnteile[x] / summe * rest / 5) * 5 : Math.round(rest / andere.length / 5) * 5; });
+        var diff = 100 - Object.keys(mixAnteile).reduce(function (s2, x) { return s2 + mixAnteile[x]; }, 0);
+        if (diff) { var gr = andere.sort(function (x, y) { return mixAnteile[y] - mixAnteile[x]; })[0]; mixAnteile[gr] = Math.max(0, mixAnteile[gr] + diff); }
+        Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (i2) { i2.value = mixAnteile[i2.dataset.typ]; i2.nextElementSibling.textContent = mixAnteile[i2.dataset.typ] + " %"; });
+      });
       inp.addEventListener("change", function () { renderMix(v); });
     });
     box.querySelector(".pz-mix-aus").addEventListener("click", function () { box.hidden = true; zeigeVolumen(v, null); });
@@ -598,6 +606,30 @@
       zeigeVolumen(v, null);
     }
     function anliegend(p, q) { return abstandTeile(p, q) < 0.6; }
+    // Jede Änderung muss baurechtlich zulässig bleiben – sonst wird sie zurückgenommen (mit Begründung)
+    function zulaessig() {
+      v.fest = true; bewerten(v, a, k, R);
+      if (!v.teile.every(R.passt)) return t("Baufeldgrenze erreicht (Grenzabstand, Vorzone oder Baulinie).", "Envelope limit reached.");
+      if (k.hoehe && v.n * GH > k.hoehe + 0.01) return t("Maximale Höhe der Zone erreicht.", "Maximum height reached.");
+      if (!v.teile.every(function (p) { return Math.max(p.L, p.T) <= (z.laenge || 999) + 0.01; })) return t("Maximale Gebäudelänge der Zone erreicht.", "Maximum building length reached.");
+      if (!v.teile.every(function (p, i) { return v.teile.every(function (q, j) { var d = abstandTeile(p, q); return i >= j || anliegend(p, q) || d >= 2 * (z.ga_k || 5); }); })) return t("Gebäudeabstand zwischen den Baukörpern zu klein.", "Distance between volumes too small.");
+      if (v.aus > 1.001) return t("Ausnützung erschöpft.", "Permitted density used up.");
+      return "";
+    }
+    function zulaessigGrund(e, x) {                    // Grund, weshalb der Zielwert nicht zulässig ist
+      var alt = JSON.stringify({ t: v.teile, n: v.n }), p = v.teile[sel];
+      if (e === "L") p.L = x; else if (e === "T") p.T = x; else p.ang = x * Math.PI / 180;
+      var g = zulaessig(); var o = JSON.parse(alt); v.teile = o.t; v.n = o.n; bewerten(v, a, k, R); return g;
+    }
+    function aendern(fn) {
+      var alt = JSON.stringify({ t: v.teile, n: v.n }), hinweis = box.querySelector(".pz-edit-hinweis");
+      fn();
+      var grund = zulaessig();
+      if (grund && /Ausnützung|density/.test(grund)) { while (v.n > 1 && zulaessig() && /Ausnützung|density/.test(zulaessig())) v.n--; grund = zulaessig(); if (!grund) grund = "ok-n"; }
+      if (grund && grund !== "ok-n") { var o = JSON.parse(alt); v.teile = o.t; v.n = o.n; bewerten(v, a, k, R); hinweis.textContent = grund; hinweis.hidden = false; }
+      else { hinweis.textContent = grund === "ok-n" ? t("Geschosse automatisch reduziert, damit die Ausnützung eingehalten ist.", "Storeys reduced automatically to respect density.") : ""; hinweis.hidden = grund !== "ok-n"; }
+      sync(); pruefen();
+    }
     function sync() {
       var p = v.teile[sel];
       box.querySelector("[data-e=L]").value = Math.round(p.L); box.querySelector("[data-e=L] + b").textContent = Math.round(p.L) + " m";
@@ -607,26 +639,36 @@
     }
     var teilSel = v.teile.length > 1 ? '<label class="pz-f"><span>' + t("Baukörper", "Volume") + '</span><select class="pz-teil">' + v.teile.map(function (p, i) { return '<option value="' + i + '">' + (i + 1) + "</option>"; }).join("") + "</select></label>" : "";
     var luk = v.dach === "sattel" && (z.dg || 0) ? '<label class="pz-chkbox"><input type="checkbox" class="pz-luk"' + (v.lukarnen ? " checked" : "") + "> " + t("Lukarnen (Südseite, max. 1/3 Fassadenlänge)", "Dormers (south, max. 1/3 of facade)") + "</label>" : "";
-    box.innerHTML = '<div class="pz-sek"><h4>' + t("3 · Entwerfen", "3 · Design") + '</h4><p class="muted small">' + t("Volumen weiterentwickeln – Prüfung läuft live mit.", "Refine the massing – checks run live.") + "</p>" + teilSel +
+    box.innerHTML = '<div class="pz-sek"><h4>' + t("3 · Entwerfen", "3 · Design") + '</h4><p class="muted small">' + t("Volumen weiterentwickeln – nur baurechtlich zulässige Änderungen werden übernommen.", "Refine the massing – only permissible changes are accepted.") + "</p>" + teilSel +
       '<div class="pz-regler">' +
       '<label><span>' + t("Länge", "Length") + '</span><input type="range" data-e="L" min="8" max="' + Math.max(20, (z.laenge || 40) + 10) + '" step="1"><b></b></label>' +
       '<label><span>' + t("Tiefe", "Depth") + '</span><input type="range" data-e="T" min="8" max="24" step="1"><b></b></label>' +
-      '<label><span>' + t("Geschosse", "Storeys") + '</span><input type="range" data-e="n" min="1" max="' + (v.nMax + 1) + '" step="1"><b></b></label>' +
+      '<label><span>' + t("Geschosse", "Storeys") + '</span><input type="range" data-e="n" min="1" max="' + v.nMax + '" step="1"><b></b></label>' +
       '<label><span>' + t("Drehung", "Rotation") + '</span><input type="range" data-e="ang" min="-180" max="180" step="5"><b></b></label></div>' +
       '<div class="pz-move" role="group" aria-label="' + t("Verschieben", "Move") + '"><button type="button" data-m="0,1">↑ N</button><button type="button" data-m="-1,0">← W</button><button type="button" data-m="1,0">O →</button><button type="button" data-m="0,-1">S ↓</button></div>' +
       '<label class="pz-f"><span>' + t("Dachform", "Roof form") + '</span><select class="pz-dach2"><option value="attika">' + t("Flachdach + Attika", "Flat roof + attic") + '</option><option value="flach">' + t("Flachdach", "Flat roof") + '</option><option value="sattel">' + t("Satteldach", "Pitched roof") + '</option><option value="walm">' + t("Walmdach", "Hipped roof") + "</option></select></label>" + luk +
-      '<p class="pz-edit-kz"></p><ul class="pz-gruende pz-chk"></ul><button type="button" class="btn pz-go2">' + t("Weiter → Wohnungsmix", "Next → unit mix") + '<span class="arr"></span></button></div>';
+      '<p class="pz-hint warn pz-edit-hinweis" role="status" hidden></p><p class="pz-edit-kz"></p><ul class="pz-gruende pz-chk"></ul><button type="button" class="btn pz-go2">' + t("Weiter → Wohnungsmix", "Next → unit mix") + '<span class="arr"></span></button></div>';
     box.hidden = false;
     box.querySelector(".pz-dach2").value = v.dach;
     sync(); pruefen();
     Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (inp) {
       inp.addEventListener("input", function () {
-        var p = v.teile[sel], x = +inp.value;
-        if (inp.dataset.e === "L") p.L = x; else if (inp.dataset.e === "T") p.T = x; else if (inp.dataset.e === "n") v.n = x; else p.ang = x * Math.PI / 180;
-        sync(); pruefen();
+        var e = inp.dataset.e, p = v.teile[sel], ziel = +inp.value;
+        function setze(x) { if (e === "L") p.L = x; else if (e === "T") p.T = x; else if (e === "n") v.n = x; else p.ang = x * Math.PI / 180; }
+        function lies() { return e === "L" ? p.L : e === "T" ? p.T : e === "n" ? v.n : Math.round(p.ang * 180 / Math.PI); }
+        // schrittweise bis zum Ziel bzw. bis zur letzten zulässigen Stellung (Länge/Tiefe/Geschosse/Drehung)
+        var start = lies(), schritt = e === "ang" ? 5 : 1, dir = ziel > start ? 1 : -1, letzteOk = start;
+        if (e === "n") { aendern(function () { setze(ziel); }); return; }
+        for (var x = start + dir * schritt; dir > 0 ? x <= ziel : x >= ziel; x += dir * schritt) {
+          var alt = JSON.stringify({ t: v.teile, n: v.n }); setze(x);
+          if (zulaessig()) { var o = JSON.parse(alt); v.teile = o.t; v.n = o.n; p = v.teile[sel]; break; }
+          letzteOk = x;
+        }
+        aendern(function () { setze(letzteOk); });
+        if (letzteOk !== ziel) { var h = box.querySelector(".pz-edit-hinweis"); h.textContent = t("Bis zur Grenze angepasst: ", "Adjusted up to the limit: ") + (zulaessigGrund(e, ziel) || ""); h.hidden = false; }
       });
     });
-    Array.prototype.forEach.call(box.querySelectorAll(".pz-move button"), function (b) { b.addEventListener("click", function () { var d = b.dataset.m.split(","); var p = v.teile[sel]; p.c = [p.c[0] + d[0] * 1, p.c[1] + d[1] * 1]; pruefen(); }); });
+    Array.prototype.forEach.call(box.querySelectorAll(".pz-move button"), function (b) { b.addEventListener("click", function () { var d = b.dataset.m.split(","); aendern(function () { var p = v.teile[sel]; p.c = [p.c[0] + d[0] * 1, p.c[1] + d[1] * 1]; }); }); });
     var ts = box.querySelector(".pz-teil"); if (ts) ts.addEventListener("change", function () { sel = +ts.value; sync(); });
     box.querySelector(".pz-dach2").addEventListener("change", function (e) { v.dach = e.target.value; editor(v, a, k); });
     var lk = box.querySelector(".pz-luk"); if (lk) lk.addEventListener("change", function () { v.lukarnen = lk.checked; pruefen(); });
