@@ -25,3 +25,4 @@ v23        b8fb5b0  Variante A + Arealentwicklung Zürcherstrasse verlinkt
 v25        ad8234b  Variante A + Beteiligte klickbar und durchsuchbar
 v26        4bf0851  Variante A + Fachplaner-Websites bestätigt, Schulhaus Pünt Datenblatt
 v27        84f386a  Variante A + Karten dunkel und modern, apb-Würfel als Büro-Markierung
+v28        30af25a  Variante A + Pläne zugeschnitten, Kartenpunkte korrigiert
