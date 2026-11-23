@@ -190,7 +190,7 @@
           point: { pixelSize: isF ? 18 : 12, color: isF ? Cesium.Color.fromCssColorString("#f15d30") : col, outlineColor: Cesium.Color.fromCssColorString("#0c0c0b"), outlineWidth: 2,
                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY },
           label: { text: p.name, font: "500 14px Inter, Helvetica, Arial, sans-serif", fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 3,
-                   style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, -22), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                   style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, isF && p.vol ? -70 : -22), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                    disableDepthTestDistance: Number.POSITIVE_INFINITY, distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, isF ? 1e5 : 4500) }
         });
         entities[p.id].apb = p;

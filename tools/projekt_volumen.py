@@ -5,7 +5,7 @@ Darum: aktueller Gebäudegrundriss aus der amtlichen Vermessung (geodienste.ch, 
 + Höhe aus dem Gebäude- und Wohnungsregister (GWR: Volumen / Fläche, sonst Geschosse × 3.2 m).
 Ausgewählt wird das Gebäude, das den Projektpunkt enthält (sonst das nächstgelegene, max. 35 m).
 Private Wohnhäuser (gerundete Koordinaten) werden bewusst ausgelassen.
-Manuell: content/volumen-auswahl.json {id: [EGID, ...]} legt fest, welche Gebäude zum Projekt gehören.
+Manuell: content/volumen-auswahl.json {id: [EGID, ...]} legt fest, welche Gebäude zum Projekt gehören ([] = keines, z. B. noch nicht gebaut).
 Aufruf: python3 tools/projekt_volumen.py [id ...]
 """
 import json, math, os, ssl, sys, urllib.parse, urllib.request
