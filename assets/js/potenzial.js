@@ -698,41 +698,54 @@
     pfad(S.ring.map(function (q) { return pr(q[0], q[1], 0); })); ctx.fillStyle = "#ffffff"; ctx.fill();
     ctx.setLineDash([6 * sk / 4, 4 * sk / 4]); ctx.lineWidth = Math.max(1, sk * 0.12); ctx.strokeStyle = "rgba(241,93,48,.9)"; ctx.stroke(); ctx.setLineDash([]);
     // Schlagschatten (Projektion entlang der Sonne auf z=0)
-    ctx.fillStyle = "rgba(40,36,30,.16)";
+    ctx.fillStyle = "rgba(40,36,30,.16)"; ctx.beginPath();
     S.prismen.forEach(function (p) {
       var pts = []; p.pts.forEach(function (q) { pts.push([q[0], q[1]]); pts.push([q[0] - SONNE[0] / SONNE[2] * p.z1, q[1] - SONNE[1] / SONNE[2] * p.z1]); });
-      pts.sort(function (a3, b3) { return a3[0] - b3[0] || a3[1] - b3[1]; });   // konvexe Hülle
+      pts.sort(function (a3, b3) { return a3[0] - b3[0] || a3[1] - b3[1]; });   // konvexe Hülle (immer gleicher Umlaufsinn -> Vereinigung)
       var kr = function (o, a3, b3) { return (a3[0] - o[0]) * (b3[1] - o[1]) - (a3[1] - o[1]) * (b3[0] - o[0]); }, lo = [], hi = [];
       pts.forEach(function (q) { while (lo.length >= 2 && kr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
       pts.slice().reverse().forEach(function (q) { while (hi.length >= 2 && kr(hi[hi.length - 2], hi[hi.length - 1], q) <= 0) hi.pop(); hi.push(q); });
-      pfad(lo.slice(0, -1).concat(hi.slice(0, -1)).map(function (q) { return pr(q[0], q[1], 0); })); ctx.fill();
+      var hull = lo.slice(0, -1).concat(hi.slice(0, -1)).map(function (q) { return pr(q[0], q[1], 0); });
+      hull.forEach(function (q, i3) { if (i3) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); ctx.closePath();
     });
+    ctx.fill("nonzero");
     ctx.restore();
-    // Flächen sammeln: Prismen (sichtbare Seiten + Deckel) und Dachflächen, von hinten nach vorne
-    var faces = [];
+    // Baukörper von hinten nach vorne (Mittelpunkt-Tiefe), Flächen eines Körpers zusammen zeichnen
+    var items = [];
     S.prismen.forEach(function (p) {
       var pts = p.pts, n = pts.length, cxp = 0, cyp = 0; pts.forEach(function (q) { cxp += q[0] / n; cyp += q[1] / n; });
       var area = 0; for (var i2 = 0; i2 < n; i2++) area += pts[i2][0] * pts[(i2 + 1) % n][1] - pts[(i2 + 1) % n][0] * pts[i2][1];
-      var ccw = area > 0, basis = tiefe(cxp, cyp, (p.z0 + p.z1) / 2);
+      var ccw = area > 0, seiten = [];
       for (var e = 0; e < n; e++) {
         var a4 = pts[e], b4 = pts[(e + 1) % n], dx = b4[0] - a4[0], dy = b4[1] - a4[1], nn = ccw ? [dy, -dx] : [-dy, dx], ln = Math.hypot(nn[0], nn[1]) || 1; nn = [nn[0] / ln, nn[1] / ln];
         if (nn[0] * away[0] + nn[1] * away[1] >= 0) continue;              // Rückseite
         var hell = 0.66 + 0.34 * Math.max(0, nn[0] * SONNE[0] + nn[1] * SONNE[1]);
-        faces.push({ d: basis + 0.001 * e, k: p.ueber ? 1 : 0, p3: [[a4[0], a4[1], p.z0], [b4[0], b4[1], p.z0], [b4[0], b4[1], p.z1], [a4[0], a4[1], p.z1]], fill: ton(p.farbe, hell), stroke: p.kante, z: p.z0 });
+        var mw = ((a4[0] + b4[0]) / 2) * away[0] + ((a4[1] + b4[1]) / 2) * away[1];
+        seiten.push({ w: mw, p3: [[a4[0], a4[1], p.z0], [b4[0], b4[1], p.z0], [b4[0], b4[1], p.z1], [a4[0], a4[1], p.z1]], fill: ton(p.farbe, hell) });
       }
-      faces.push({ d: basis - 0.01, k: p.ueber ? 1 : 0, p3: pts.map(function (q) { return [q[0], q[1], p.z1]; }), fill: p.farbe, stroke: p.kante, z: p.z1 });
+      seiten.sort(function (x, y) { return y.w - x.w; });
+      seiten.push({ p3: pts.map(function (q) { return [q[0], q[1], p.z1]; }), fill: p.farbe });
+      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, faces: seiten, stroke: p.kante });
     });
+    // Dachflächen je Baukörper als eigene Gruppe über dem obersten Geschoss
+    var dachGruppen = {};
     S.flaechen.forEach(function (f) {
       var n = f.p3.length, m3 = [0, 0, 0]; f.p3.forEach(function (q) { m3[0] += q[0] / n; m3[1] += q[1] / n; m3[2] += q[2] / n; });
       var a5 = f.p3[0], b5 = f.p3[1], c5 = f.p3[2], u = [b5[0] - a5[0], b5[1] - a5[1], b5[2] - a5[2]], w2 = [c5[0] - a5[0], c5[1] - a5[1], c5[2] - a5[2]];
       var nn = [u[1] * w2[2] - u[2] * w2[1], u[2] * w2[0] - u[0] * w2[2], u[0] * w2[1] - u[1] * w2[0]], ln = Math.hypot(nn[0], nn[1], nn[2]) || 1; nn = nn.map(function (x) { return x / ln; }); if (nn[2] < 0) nn = nn.map(function (x) { return -x; });
       var hell = 0.7 + 0.3 * Math.max(0, nn[0] * SONNE[0] + nn[1] * SONNE[1] + nn[2] * SONNE[2]);
-      faces.push({ d: tiefe(m3[0], m3[1], m3[2]) - 0.5, k: 0, p3: f.p3, fill: ton(f.farbe, hell), stroke: "rgba(35,33,30,.8)", z: m3[2] });
+      var key = Math.round(m3[0] / 4) + ":" + Math.round(m3[1] / 4);
+      var gk = Object.keys(dachGruppen).filter(function (kk) { var g = dachGruppen[kk]; return Math.hypot(g.cx - m3[0], g.cy - m3[1]) < 12; })[0];
+      var g = gk ? dachGruppen[gk] : (dachGruppen[key] = { cx: m3[0], cy: m3[1], z: m3[2], faces: [] });
+      g.faces.push({ w: m3[0] * away[0] + m3[1] * away[1] - m3[2] * 0.01, p3: f.p3, fill: ton(f.farbe, hell) });
     });
-    faces.sort(function (a6, b6) { return (b6.d - a6.d) || (a6.k - b6.k) || (a6.z - b6.z); });
-    faces.forEach(function (f) {
-      pfad(f.p3.map(function (q) { return pr(q[0], q[1], q[2]); }));
-      ctx.fillStyle = f.fill; ctx.fill(); ctx.lineJoin = "round"; ctx.lineWidth = Math.max(0.6, sk * 0.045); ctx.strokeStyle = f.stroke; ctx.stroke();
+    Object.keys(dachGruppen).forEach(function (kk) { var g = dachGruppen[kk]; g.faces.sort(function (x, y) { return y.w - x.w; }); items.push({ d: tiefe(g.cx, g.cy, g.z) - 0.5, z: g.z, faces: g.faces, stroke: "rgba(35,33,30,.8)" }); });
+    items.sort(function (x, y) { return (y.d - x.d) || (x.z - y.z); });
+    items.forEach(function (it) {
+      it.faces.forEach(function (f) {
+        pfad(f.p3.map(function (q) { return pr(q[0], q[1], q[2]); }));
+        ctx.fillStyle = f.fill; ctx.fill(); ctx.lineJoin = "round"; ctx.lineWidth = Math.max(0.6, sk * 0.045); ctx.strokeStyle = it.stroke; ctx.stroke();
+      });
     });
     // Nordpfeil
     var sc2 = W / 1400, np = [W - 64 * sc2, 64 * sc2], nr = 20 * sc2, ny1 = pr(0, 0, 0), ny2 = pr(0, 10, 0), dn = [ny2[0] - ny1[0], ny2[1] - ny1[1]], ldn = Math.hypot(dn[0], dn[1]) || 1; dn = [dn[0] / ldn, dn[1] / ldn];
