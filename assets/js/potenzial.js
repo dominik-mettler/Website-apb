@@ -625,12 +625,12 @@
     var u = "https://api3.geo.admin.ch/rest/services/api/MapServer/identify?geometryType=esriGeometryEnvelope&layers=all:ch.bfs.gebaeude_wohnungs_register&tolerance=0&sr=4326&returnGeometry=false&limit=200&imageDisplay=500,500,96&geometry=" + env + "&mapExtent=" + env;
     return json(u).then(function (r) { var h = {}; (r.results || []).forEach(function (x) { var at = x.attributes || x.properties || {}; if (at.gastw) h[String(at.egid)] = at.gastw * 3 + 1; }); gwrHoehen = h; return h; }).catch(function () { gwrHoehen = {}; return {}; });
   }
-  function szene(v, mix, explo) {
+  function szene(v, mix, explo, eng) {
     // Alles in lokalen Metern um die Parzellenmitte; Prismen {pts, z0, z1, farbe, kante} und Flächen {p3, farbe}
     var k = aktuell.k, ring = k.ring, c = ring.reduce(function (s2, q) { return [s2[0] + q[0] / ring.length, s2[1] + q[1] / ring.length]; }, [0, 0]);
     var L = function (p) { return [p[0] - c[0], p[1] - c[1]]; };
     var rad = Math.max.apply(null, ring.map(function (q) { return Math.hypot(q[0] - c[0], q[1] - c[1]); }));
-    var R = Math.max(45, rad * 1.9 + 18), X = explo ? 2.8 : 0, prismen = [], flaechen = [];
+    var R = eng ? Math.max(26, rad * 1.18 + 6) : Math.max(40, rad * 1.6 + 14), X = explo ? 2.8 : 0, prismen = [], flaechen = [];
     var umg = aktuellUmg || { gebaeude: [], strassen: [] }, hoehen = gwrHoehen || {};
     umg.gebaeude.forEach(function (r) {
       var m = r.reduce(function (s2, q) { return [s2[0] + q[0] / r.length, s2[1] + q[1] / r.length]; }, [0, 0]);
@@ -672,7 +672,7 @@
   }
   function zeichneAxo(cv, v, mix, opt) {
     opt = opt || {};
-    var S = szene(v, mix, opt.explo), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+    var S = szene(v, mix, opt.explo, opt.eng), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
     var phi = (opt.blick != null ? opt.blick : 225) * Math.PI / 180, el = 30 * Math.PI / 180;
     var away = [-Math.sin(phi), -Math.cos(phi)], rechts = [away[1], -away[0]];
     var maxZ = S.prismen.reduce(function (m2, p) { return Math.max(m2, p.z1); }, 10);
@@ -833,7 +833,7 @@
       .then(function () { return gwrLaden(aktuellUmg || { gebaeude: [] }); })
       .then(function () {
         bilder.axo = axoBild(v, m, { explo: false, blick: blick, hg: "#ffffff" }, 2400, 1900);
-        bilder.explo = axoBild(v, m, { explo: true, blick: blick, hg: "#ffffff" }, 1800, 1800);
+        bilder.explo = axoBild(v, m, { explo: true, blick: blick, hg: "#ffffff", eng: true }, 1800, 1800);
         return bildDaten(ROOT + "assets/img/logo-dark.png"); })
       .then(function (logo) { bilder.logo = logo; return Promise.all([groesse(bilder.axo), groesse(bilder.explo)]); })
       .then(function (gr) {
@@ -894,8 +894,9 @@
           doc.setFillColor.apply(doc, AMP[e.farbe] || AMP.info); doc.circle(L + 1.3, yl - 1.1, 1.1, "F");
           doc.setFont("helvetica", "normal"); doc.setFontSize(8.3); doc.setTextColor.apply(doc, DUNKEL);
           var tx = doc.splitTextToSize(e.legende, B - 6); doc.text(tx, L + 5, yl);
-          doc.setFontSize(7); doc.setTextColor.apply(doc, GRAU); doc.text(doc.splitTextToSize(e.thema, B - 6), L + 5, yl + tx.length * 3.6);
-          yl += tx.length * 3.6 + 6.2;
+          var th = doc.splitTextToSize(e.thema, B - 6);
+          doc.setFontSize(7); doc.setTextColor.apply(doc, GRAU); doc.text(th, L + 5, yl + tx.length * 3.6);
+          yl += tx.length * 3.6 + th.length * 3.0 + 3.2;
         });
         doc.setFontSize(7); doc.setTextColor.apply(doc, GRAU); doc.text(a.nicht + t(" weitere Themen nicht betroffen.", " further topics not affected."), L, yl); yl += 8;
         yl = abschnitt(L, yl, t("Volumen", "Massing"));
