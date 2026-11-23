@@ -1475,3 +1475,42 @@ html.pz-on .pz { border: 0; padding: 0; }
 .pz-info { display: block; grid-column: 1 / -1; margin: 8px 0 4px; padding: 10px 12px; background: var(--stone); border-radius: 6px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); font-weight: 400; font-style: normal; }
 .pz-kv > span { display: flex; flex-wrap: wrap; align-items: baseline; }
 .pz-ampel b .pz-info { font-weight: 400; }
+/* Potenzial – Quellen, Rechenweg, Hinweis */
+.pz-q { display: inline-block; font-style: normal; font-size: 10.5px; font-weight: 600; letter-spacing: .03em; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; white-space: nowrap; cursor: help; }
+.pz-q-amt { background: rgba(108,192,139,.16); color: #8fd6a8; }
+.pz-q-bzo { background: rgba(143,183,214,.16); color: #a9cbe6; }
+.pz-q-calc { background: rgba(237,235,230,.1); color: var(--ink-2); }
+.pz-q-ann { background: rgba(226,176,74,.16); color: #ecc277; }
+.pz-was { margin: 0 0 22px; padding: 14px 16px; border-left: 3px solid var(--accent); background: rgba(241,93,48,.07); border-radius: 4px; }
+.pz-was b { display: block; font-weight: 600; margin-bottom: 6px; }
+.pz-was p { font-size: 13px; line-height: 1.5; color: var(--ink-2); margin: 0; }
+.pz-was .pz-legende-q { margin-top: 10px; }
+.pz-was .pz-q { margin: 0 4px 0 0; }
+.pz-rw { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 14px; }
+.pz-rw summary { cursor: pointer; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.pz-rw summary:hover { color: var(--accent); }
+.pz-rw-tab td { vertical-align: top; text-align: left !important; font-size: 13px; }
+.pz-rw-tab td:first-child { color: var(--ink-2); width: 38%; padding-right: 10px; }
+.pz-rw-tab small { display: block; color: var(--mute); font-size: 12px; line-height: 1.4; margin-top: 3px; word-break: break-word; }
+.pz-rw-h { margin: 16px 0 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+.pz-rw-l { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+.pz-var .sc i { font-style: normal; font-weight: 400; font-size: 11px; color: var(--mute); }
+.pz-f-std > span .pz-info { margin-top: 6px; }
+/* Potenzial – Anfrage */
+.pz-anfrage-box { margin: 22px 0 4px; padding: 18px; border-radius: 8px; background: linear-gradient(135deg, rgba(241,93,48,.16), rgba(241,93,48,.05)); border: 1px solid rgba(241,93,48,.35); }
+.pz-anfrage-box b { display: block; font-size: 17px; font-weight: 600; }
+.pz-anfrage-box p { margin: 6px 0 14px; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+.pz-anfrage-box .btn { border: 0; cursor: pointer; background: var(--accent); color: #fff; }
+.pz-anfrage-box .btn:hover { background: #fff; color: #111; }
+.pz-dlg { position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 16px; background: rgba(5,5,5,.66); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.pz-dlg-in { position: relative; width: min(520px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--stone); border: 1px solid var(--line); border-radius: 10px; padding: 26px; display: grid; gap: 12px; color: var(--ink); }
+.pz-dlg-in h3 { font-size: 24px; font-weight: 500; letter-spacing: -.01em; margin: 0; }
+.pz-dlg-in .btn { justify-self: start; border: 0; cursor: pointer; }
+.pz-dlg-x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; background: transparent; }
+.pz-dlg-in textarea { font: inherit; font-size: 15px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; resize: vertical; }
+.pz-dlg-in .pz-f input, .pz-dlg-in .pz-f select { background: var(--paper); padding: 11px 14px; }
+.pz-wahl { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.pz-wahl legend { font-size: 14px; color: var(--ink-2); margin-bottom: 8px; padding: 0; }
+.pz-wahl label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; cursor: pointer; }
+.pz-wahl label:has(input:checked) { border-color: var(--accent); background: rgba(241,93,48,.12); }
+.pz-wahl input { accent-color: var(--accent); }

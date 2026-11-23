@@ -115,7 +115,7 @@
     var seen = {}; eintraege = eintraege.filter(function (e) { var k = e.code + e.legende; if (seen[k]) return false; seen[k] = 1; return true; });
     var grenze = ((re.Limit || re.limit || {}).coordinates || [])[0] || [];
     if (re.limit && re.limit.type === "MultiPolygon") grenze = re.limit.coordinates[0][0];
-    return { re: re, gem: gem, zone: zone, zoneKey: zoneKey, zoneTxt: zoneTxt, eintraege: eintraege, grenze: grenze, nicht: (ex.NotConcernedTheme || []).length, pdf: "https://maps.zh.ch/oereb/v2/extract/pdf?EGRID=" + re.EGRID };
+    return { datum: ex.CreationDate, re: re, gem: gem, zone: zone, zoneKey: zoneKey, zoneTxt: zoneTxt, eintraege: eintraege, grenze: grenze, nicht: (ex.NotConcernedTheme || []).length, pdf: "https://maps.zh.ch/oereb/v2/extract/pdf?EGRID=" + re.EGRID };
   }
   function kennwerte(a) {
     var A = a.re.LandRegistryArea, z = a.zone || {}, k = { A: A };
@@ -152,6 +152,8 @@
     gf: t("Maximale Geschossfläche: aus Dichteziffer und Grundstücksfläche abgeleitet. Das ist das zentrale Mass für das Potenzial der Parzelle – Arealüberbauungs- oder Gewerbeboni sind nicht eingerechnet.", "Maximum floor area derived from the density ratio and plot area."),
     baufeld: t("Baufeld: Fläche, auf der ein Gebäude stehen darf – Parzelle abzüglich Grenzabstände, Vorzone zur Strasse (Annahme 6 m) und Flächen vor Baulinien. Vereinfachte Ersteinschätzung (ohne Mehrlängenzuschlag, Näherbaurechte oder Gebäudeabstände zu Nachbarn).", "Permitted building envelope (simplified)."),
     whg: t("Wohnungsschätzung: Hauptnutzfläche rund 78 % der Geschossfläche, geteilt durch die mittlere Wohnungsgrösse des gewählten Ausbaustandards (Mix 2.5 / 3.5 / 4.5 / 5.5 Zi.). Mindestflächen nach dem Wohnungs-Bewertungs-System (WBS) des Bundesamts für Wohnungswesen.", "Estimate based on usable area and average unit size."),
+    standard: t("Ausbaustandard: bestimmt die Wohnungsgrössen pro Typ (einfach – mittel – gehoben, z. B. 3.5 Zi. 70 / 82 / 100 m²). Das Volumen und die zulässige Geschossfläche ändern sich nicht – aber bei gleicher Fläche gibt es mit «einfach» mehr und kleinere, mit «gehoben» weniger und grössere Wohnungen. Er wirkt auf die Wohnungsschätzung, den Wohnungsmix und das PDF. Die Werte sind vorläufig und werden mit apb-Studien kalibriert.", "Fit-out standard sets unit sizes per type; it changes the number of apartments, not the massing."),
+    score: t("Punktzahl der Setzung (0–100): Bewertung der Variante nach festen Regeln – Ausnützung der zulässigen Geschossfläche (25 %), Bezug zur Strasse mit Vorplatz und Zugang (16 %), Luft zu den Nachbarn (14 %), Lage im Norden der Parzelle (12 %), Hauptfassaden nach Süden (13 %), besonnter Aussenraum im Süden (12 %), Kompaktheit (8 %). Höher ist besser; die Punktzahl vergleicht Varianten untereinander und ist keine Bewilligungsaussage.", "Siting score (0–100) from fixed weighted rules; compares options, not a permit statement."),
     areal: t("Arealüberbauung: Bei grösseren zusammenhängenden Flächen und besonders guter Gestaltung erlaubt die BZO Abweichungen von der Regelbauweise, etwa mehr Ausnützung, Geschosse oder Gebäudelänge. Grundlage: §§ 69 ff. PBG.", "Special development with bonuses (§§ 69 ff. PBG).")
   };
   var INFO_OEREB = [
@@ -175,26 +177,80 @@
     b.setAttribute("aria-expanded", auf); inf.hidden = !auf;
   });
 
+  /* ---------- Rechenweg und Annahmen (Nachvollziehbarkeit) ---------- */
+  function rechenweg(a, k, v) {
+    var z = a.zone || {}, g = a.gem || {}, A = a.re.LandRegistryArea, R = aktuellR, rows = [];
+    var dat = a.datum ? new Date(a.datum).toLocaleDateString("de-CH") : "";
+    rows.push([t("Grundstücksfläche", "Plot area"), zahl(A) + " m²", "amt", t("Grundbuchfläche gemäss ÖREB-Auszug", "Land register area (PLR extract)") + (dat ? " vom " + dat : "")]);
+    rows.push([t("Zone", "Zone"), a.zoneTxt || "–", "amt", t("ÖREB-Kataster Kanton Zürich, Grundnutzung", "PLR cadastre, basic zoning")]);
+    if (a.zone) rows.push([t("Zonenwerte", "Zoning values"), "BZO " + (g.name || "") + (g.artikel ? ", " + g.artikel : ""), "bzo", (g.stand || "") + " · " + (g.quelle || "")]);
+    if (k.gf) {
+      var f = z.az ? zahl(A) + " m² × AZ " + Math.round(z.az * 100) + " % = " + zahl(k.gf) + " m²"
+        : z.bmz ? zahl(A) + " m² × BMZ " + z.bmz + " = " + zahl(k.bm) + " m³ ÷ " + GH + " m = " + zahl(k.gf) + " m²"
+        : zahl(A) + " m² × ÜZ " + Math.round(z.uez * 100) + " % × " + k.geschosse + " " + t("Geschosse", "storeys") + " = " + zahl(k.gf) + " m²";
+      rows.push([t("Geschossfläche max.", "Max. floor area"), f, "calc", t("ohne Boni (Arealüberbauung, Gewerbe)", "without bonuses")]);
+    }
+    if (k.hoehe) rows.push([t("Geschosse im Modell", "Storeys in model"), "min(" + (z.vg ? z.vg + " VG" : "–") + (z.fh ? "; " + zahl(z.fh, 1) + " m ÷ " + GH + " m" : "") + ")", "calc", t("Vollgeschosse aus BZO, begrenzt durch die Fassadenhöhe", "full storeys limited by facade height")]);
+    rows.push([t("Geschosshöhe", "Storey height"), GH.toFixed(1) + " m", "ann", t("Rohbau, für Höhe und Baumasse", "for height and volume")]);
+    if (R) rows.push([t("Zulässiges Baufeld", "Permitted envelope"), "ca. " + zahl(R.flaeche) + " m²", "calc", t("Parzelle minus Grenzabstand ", "Plot minus boundary distance ") + (z.ga_k ? zahl(z.ga_k, 1) + " m" : "–") + (z.ga_g ? t(" / gross ", " / large ") + zahl(z.ga_g, 1) + t(" m vor südorientierten Grenzen", " m in front of south-facing boundaries") : "") + t(", Vorzone zur Strasse, hinter Baulinien (ÖREB)", ", forecourt to the street, behind building lines (PLR)")]);
+    rows.push([t("Vorzone zur Strasse", "Street forecourt"), VORZONE + " m", "ann", t("Abstand des Gebäudes zur Strassengrenze (Zugang, Vorplatz); Baulinien gehen vor", "building lines take precedence")]);
+    rows.push([t("Gebäudetiefe", "Building depth"), TIEFE + " m · " + t("Punkthaus ", "point block ") + PUNKT + " × " + PUNKT + " m", "ann", t("Startwerte des Generators, im Entwurf veränderbar", "generator start values")]);
+    rows.push([t("Dach-/Attikageschoss", "Attic storey"), "60 % (Attika) / 55 % (DG)", "ann", t("Anteil der Geschossfläche des darunterliegenden Geschosses", "share of the storey below")]);
+    rows.push([t("Hauptnutzfläche", "Usable area"), "GF × " + Math.round(EFF * 100) + " %", "ann", t("Abzug für Wände, Erschliessung, Technik", "deduction for walls, circulation")]);
+    var nw = NWF[standard];
+    rows.push([t("Wohnungsgrössen", "Unit sizes"), "2.5: " + nw["2.5"] + " · 3.5: " + nw["3.5"] + " · 4.5: " + nw["4.5"] + " · 5.5: " + nw["5.5"] + " m²", "ann", t("Ausbaustandard ", "Standard ") + standard + t("; Mindestflächen gemäss WBS 2015 (BWO), Werte bis zur Kalibrierung mit apb-Studien vorläufig", "; minima per WBS 2015")]);
+    rows.push([t("Wohnungsmix (Start)", "Unit mix (start)"), "30 / 40 / 25 / 5 %", "ann", t("einstellbar", "adjustable")]);
+    if (v) rows.push([t("Gewähltes Volumen", "Selected massing"), zahl(v.fuss) + " m² × (" + v.n + (v.dg ? " + " + v.dg : "") + ") = " + zahl(v.gf) + " m²", "calc", Math.round(v.aus * 100) + t(" % der zulässigen Geschossfläche", " % of permitted floor area")]);
+    return rows;
+  }
+  var NICHT_BERUECKSICHTIGT = [
+    t("Boni für Arealüberbauung oder Gewerbe (nur als Hinweis)", "Bonuses for special development or commercial use (note only)"),
+    t("Mehrlängenzuschlag beim Grenzabstand, Näherbaurechte, Gebäudeabstände zu Nachbarbauten", "Extra-length surcharge, proximity rights, distances to neighbouring buildings"),
+    t("Kernzonen, Zonen für öffentliche Bauten, Gestaltungs- und Sondernutzungspläne", "Core zones, public building zones, design plans"),
+    t("Lärmgrenzwerte, Parkierung, Gewässer- und Waldabstand (nur als ÖREB-Hinweis)", "Noise limits, parking, water and forest distances (PLR note only)"),
+    t("Gestaltungsvorschriften (Dachform, Materialien, Einordnung) und Ermessensentscheide der Baubehörde", "Design rules and discretionary decisions of the authority")
+  ];
+  function rechenwegHTML(a, k, v) {
+    return '<details class="pz-rw"><summary>' + t("Rechenweg und Annahmen", "Calculation and assumptions") + "</summary>" +
+      '<table class="pz-tab pz-rw-tab"><tbody>' + rechenweg(a, k, v).map(function (r) { return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + " " + marke(r[2]) + "<small>" + esc(r[3]) + "</small></td></tr>"; }).join("") + "</tbody></table>" +
+      '<p class="pz-rw-h">' + t("Nicht berücksichtigt", "Not considered") + "</p><ul class=\"pz-rw-l\">" + NICHT_BERUECKSICHTIGT.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></details>";
+  }
+  function rwAktualisieren(v) {
+    var box = root.querySelector(".pz-rw-box"); if (!box || !aktuell) return;
+    var offen = box.querySelector("details") && box.querySelector("details").open;
+    box.innerHTML = rechenwegHTML(aktuell, aktuell.k, v); if (offen) box.querySelector("details").open = true;
+  }
+  function hinweisKasten() {
+    return '<div class="pz-was"><b>' + t("Ersteinschätzung – keine Bewilligungsprüfung", "Initial assessment – not a permit review") + "</b><p>" +
+      t("Das Werkzeug rechnet mit festen, offengelegten Regeln (keine KI-Schätzung): amtliche Daten live, Zonenwerte aus der BZO der Gemeinde, dazu klar markierte Annahmen. Es ersetzt weder die Prüfung durch die Architektin oder den Architekten noch eine Vorabklärung beim Bauamt.", "Fixed, disclosed rules (no AI estimate): official data live, zoning values from the municipal code and clearly marked assumptions. Not a substitute for an architect's review or a preliminary enquiry.") +
+      '</p><p class="pz-legende-q">' + ["amt", "bzo", "calc", "ann"].map(marke).join(" ") + "</p></div>";
+  }
+
   /* ---------- Darstellung ---------- */
-  function zeile(l, v, q, inf) { var ik = iKnopf(inf), cut = ik.indexOf("<span"); return v == null || v === "" ? "" : '<div class="pz-kv"><span>' + esc(l) + (cut > 0 ? ik.slice(0, cut) : "") + "</span><b>" + v + "</b>" + (q ? "<small>" + q + "</small>" : "") + (cut > 0 ? ik.slice(cut) : "") + "</div>"; }
+  var QUELLE = { amt: [t("amtlich", "official"), t("Live aus amtlichen Daten (amtliche Vermessung / ÖREB-Kataster Kanton Zürich)", "Live official data")],
+    bzo: [t("BZO-Tabelle", "BZO table"), t("Aus der Bau- und Zonenordnung der Gemeinde übertragen (Artikel und Stand siehe Quelle) – noch nicht unabhängig gegengeprüft", "Transcribed from the municipal building code – not yet independently verified")],
+    ann: [t("Annahme", "assumption"), t("Vom Tool gesetzte Annahme – siehe «Rechenweg und Annahmen»", "Assumption set by the tool")],
+    calc: [t("berechnet", "calculated"), t("Aus den obigen Werten berechnet – Formel siehe «Rechenweg und Annahmen»", "Calculated from the values above")] };
+  function marke(src) { return src ? '<em class="pz-q pz-q-' + src + '" title="' + esc(QUELLE[src][1]) + '">' + esc(QUELLE[src][0]) + "</em>" : ""; }
+  function zeile(l, v, q, inf, src) { var ik = iKnopf(inf), cut = ik.indexOf("<span"); if (src && v) v = v + " " + marke(src); return v == null || v === "" ? "" : '<div class="pz-kv"><span>' + esc(l) + (cut > 0 ? ik.slice(0, cut) : "") + "</span><b>" + v + "</b>" + (q ? "<small>" + q + "</small>" : "") + (cut > 0 ? ik.slice(cut) : "") + "</div>"; }
   function render(a, k) {
     var z = a.zone, g = a.gem, re = a.re;
     var res = root.querySelector(".pz-res");
     var kopf = '<div class="pz-kopf"><div><span class="eyebrow">' + t("Parzelle", "Plot") + " " + esc(re.Number) + " · " + esc(re.MunicipalityName) + '</span><h3>' + esc(a.zoneTxt || t("Zone unbekannt", "Zone unknown")) + "</h3>" +
-      '<p class="muted small">EGRID ' + esc(re.EGRID) + " · " + zahl(re.LandRegistryArea) + ' m² · <a href="' + a.pdf + '" target="_blank" rel="noopener">' + t("ÖREB-Auszug (PDF)", "PLR extract (PDF)") + " ↗</a></p></div>" +
+      '<p class="muted small">EGRID ' + esc(re.EGRID) + " · " + zahl(re.LandRegistryArea) + " m² " + marke("amt") + ' · <a href="' + a.pdf + '" target="_blank" rel="noopener">' + t("offizieller ÖREB-Auszug (PDF)", "official PLR extract (PDF)") + " ↗</a></p></div>" +
       "</div>";
     var werte = "";
     if (z) {
-      werte += zeile(t("Dichte", "Density"), esc(k.dichte), g.artikel ? esc(g.name + ", BZO " + g.artikel) : "", (z.az ? INFO.az : z.bmz ? INFO.bmz : INFO.uez));
-      werte += zeile(t("Geschosse", "Storeys"), z.vg ? z.vg + " VG" + (z.dg != null ? " + " + z.dg + " DG" : "") + (z.attika ? " / Attika" : "") : (t("frei im Rahmen der Höhen", "free within height limits")), INFO.geschosse);
-      werte += zeile(t("Fassadenhöhe", "Facade height"), z.fh ? zahl(z.fh, 1) + " m" + (z.fh_giebel ? " · " + t("giebelseitig", "gable") + " " + zahl(z.fh_giebel, 1) + " m" : "") : (z.gh ? t("Gebäudehöhe ", "Building height ") + zahl(z.gh, 1) + " m" : ""), INFO.fh);
-      werte += zeile(t("Gebäudelänge", "Building length"), z.laenge ? "max. " + z.laenge + " m" : "", INFO.laenge);
-      werte += zeile(t("Grenzabstand", "Boundary distance"), (z.ga_k ? (z.ga_g ? t("klein ", "small ") : t("Grundabstand ", "basic ")) + zahl(z.ga_k, 1) + " m" + (z.ga_max ? " (max. " + zahl(z.ga_max, 1) + " m)" : "") : "") + (z.ga_g ? " · " + t("gross ", "large ") + zahl(z.ga_g, 1) + " m" : ""), g.grosser_abstand ? esc(g.grosser_abstand) : "", INFO.abstand);
-      werte += zeile(t("Grünflächenziffer", "Green space ratio"), z.gfz_gruen ? "min. " + Math.round(z.gfz_gruen * 100) + " %" : "", INFO.gruen);
+      werte += zeile(t("Dichte", "Density"), esc(k.dichte), g.artikel ? esc(g.name + ", BZO " + g.artikel) : "", (z.az ? INFO.az : z.bmz ? INFO.bmz : INFO.uez), "bzo");
+      werte += zeile(t("Geschosse", "Storeys"), z.vg ? z.vg + " VG" + (z.dg != null ? " + " + z.dg + " DG" : "") + (z.attika ? " / Attika" : "") : (t("frei im Rahmen der Höhen", "free within height limits")), INFO.geschosse, "bzo");
+      werte += zeile(t("Fassadenhöhe", "Facade height"), z.fh ? zahl(z.fh, 1) + " m" + (z.fh_giebel ? " · " + t("giebelseitig", "gable") + " " + zahl(z.fh_giebel, 1) + " m" : "") : (z.gh ? t("Gebäudehöhe ", "Building height ") + zahl(z.gh, 1) + " m" : ""), INFO.fh, "bzo");
+      werte += zeile(t("Gebäudelänge", "Building length"), z.laenge ? "max. " + z.laenge + " m" : "", INFO.laenge, "bzo");
+      werte += zeile(t("Grenzabstand", "Boundary distance"), (z.ga_k ? (z.ga_g ? t("klein ", "small ") : t("Grundabstand ", "basic ")) + zahl(z.ga_k, 1) + " m" + (z.ga_max ? " (max. " + zahl(z.ga_max, 1) + " m)" : "") : "") + (z.ga_g ? " · " + t("gross ", "large ") + zahl(z.ga_g, 1) + " m" : ""), g.grosser_abstand ? esc(g.grosser_abstand) : "", INFO.abstand, "bzo");
+      werte += zeile(t("Grünflächenziffer", "Green space ratio"), z.gfz_gruen ? "min. " + Math.round(z.gfz_gruen * 100) + " %" : "", INFO.gruen, "bzo");
       werte += '<div class="pz-sep"></div>';
-      werte += zeile(t("Geschossfläche max.", "Max. floor area"), k.gf ? "ca. " + zahl(k.gf) + " m²" : "", k.bm ? t("Baumasse ", "Building volume ") + zahl(k.bm) + " m³ ÷ " + GH + " m" : "", INFO.gf);
-      werte += zeile(t("Baufeld", "Building envelope"), k.bfA ? "ca. " + zahl(k.bfA) + " m²" : t("nicht berechenbar", "not computable"), k.fuss && k.bfA ? (k.fuss <= k.bfA ? t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² " + t("passt", "fits") : t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² > " + t("Baufeld – Höhe/Länge begrenzt", "envelope – limited by height/length")) : "", INFO.baufeld);
-      werte += zeile(t("Wohnungen", "Apartments"), k.whg ? "ca. " + k.whg : "", k.whg ? t("Ø ", "avg ") + zahl(k.schnitt) + " m² NWF · " + t("Ausbaustandard ", "standard ") + standard + " · HNF ≈ " + Math.round(EFF * 100) + " % GF" : "", INFO.whg);
+      werte += zeile(t("Geschossfläche max.", "Max. floor area"), k.gf ? "ca. " + zahl(k.gf) + " m²" : "", k.bm ? t("Baumasse ", "Building volume ") + zahl(k.bm) + " m³ ÷ " + GH + " m" : "", INFO.gf, "calc");
+      werte += zeile(t("Baufeld", "Building envelope"), k.bfA ? "ca. " + zahl(k.bfA) + " m²" : t("nicht berechenbar", "not computable"), k.fuss && k.bfA ? (k.fuss <= k.bfA ? t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² " + t("passt", "fits") : t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² > " + t("Baufeld – Höhe/Länge begrenzt", "envelope – limited by height/length")) : "", INFO.baufeld, "calc");
+      werte += zeile(t("Wohnungen", "Apartments"), k.whg ? "ca. " + k.whg : "", k.whg ? t("Ø ", "avg ") + zahl(k.schnitt) + " m² NWF · " + t("Ausbaustandard ", "standard ") + standard + " · HNF ≈ " + Math.round(EFF * 100) + " % GF" : "", INFO.whg, "ann");
       if (z.az_bonus && g.gewerbe_bonus) werte += '<p class="pz-hint">' + esc(g.gewerbe_bonus) + "</p>";
       if (g.areal) werte += '<p class="pz-hint">' + t("Arealüberbauung: ", "Special development: ") + esc(g.areal) + iKnopf(INFO.areal) + "</p>";
       if (/ENTWURF|OFFEN/.test(g.stand)) werte += '<p class="pz-hint warn">' + esc(g.stand) + "</p>";
@@ -208,10 +264,11 @@
       var d = e.docs.filter(function (x) { return x.u; }).slice(0, 2).map(function (x) { return '<a href="' + esc(x.u) + '" target="_blank" rel="noopener">' + esc(x.t || "Dokument") + " ↗</a>"; }).join(" · ");
       return '<li class="a-' + e.farbe + '"><i aria-hidden="true"></i><div><b>' + esc(e.legende) + iKnopf(infoOereb(e)) + "</b><small>" + esc(e.thema) + (e.anteil && e.anteil < 100 ? " · " + e.anteil + " %" : "") + (e.laenge ? " · " + e.laenge + " m" : "") + "</small>" + (d ? "<small>" + d + "</small>" : "") + "</div></li>";
     }).join("");
-    res.innerHTML = kopf + '<div class="pz-grid"><div class="pz-werte"><h4>' + t("1 · Baurecht &amp; Kennwerte", "1 · Zoning &amp; key figures") + "</h4>" + werte + "</div>" +
-      '<div class="pz-ampel"><h4>' + t("ÖREB-Kataster", "PLR cadastre") + "</h4><ul>" + amp + "</ul><p class=\"muted small\">" + a.nicht + t(" weitere Themen nicht betroffen (z. B. Gewässerraum, Wald, belastete Standorte).", " further topics not affected.") + "</p></div></div>" +
-      '<p class="pz-disc">' + t("Ersteinschätzung auf Basis öffentlicher Daten – ersetzt keine Vorabklärung beim Bauamt. Baufeld vereinfacht: Grenzabstände ohne Mehrlängenzuschlag und Baulinien, grosser Abstand vor südorientierten Grenzen.", "Initial assessment based on public data – no substitute for a preliminary enquiry with the building authority.") + "</p>";
+    res.innerHTML = kopf + hinweisKasten() + '<div class="pz-grid"><div class="pz-werte"><h4>' + t("1 · Baurecht &amp; Kennwerte", "1 · Zoning &amp; key figures") + "</h4>" + werte + "</div>" +
+      '<div class="pz-ampel"><h4>' + t("ÖREB-Kataster", "PLR cadastre") + " " + marke("amt") + "</h4><ul>" + amp + "</ul><p class=\"muted small\">" + a.nicht + t(" weitere Themen nicht betroffen (z. B. Gewässerraum, Wald, belastete Standorte).", " further topics not affected.") + "</p></div></div>" +
+      '<div class="pz-rw-box"></div>';
     res.hidden = false;
+    rwAktualisieren(null);
     aktuellR = null; letzteParzelle = null; letzte = null;
     zeichneParzelle(a, k);
     renderVolumen(a, k);
@@ -670,6 +727,48 @@
     });
     return { ring: ring.map(L), R: R, prismen: prismen, flaechen: flaechen, strassen: umg.strassen.map(function (r) { return r.map(L); }) };
   }
+  function huelle2(pts) {
+    pts = pts.slice().sort(function (a3, b3) { return a3[0] - b3[0] || a3[1] - b3[1]; });
+    var kr = function (o, a3, b3) { return (a3[0] - o[0]) * (b3[1] - o[1]) - (a3[1] - o[1]) * (b3[0] - o[0]); }, lo = [], hi = [];
+    pts.forEach(function (q) { while (lo.length >= 2 && kr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+    pts.slice().reverse().forEach(function (q) { while (hi.length >= 2 && kr(hi[hi.length - 2], hi[hi.length - 1], q) <= 0) hi.pop(); hi.push(q); });
+    return lo.slice(0, -1).concat(hi.slice(0, -1));
+  }
+  // Verdeckungsordnung: A vor B zeichnen, wenn A hinter B liegt (Trennachse im Grundriss oder unter/über)
+  function hinter(A, B, away) {
+    var achsen = [];
+    [A.poly, B.poly].forEach(function (P) { for (var i = 0; i < P.length; i++) { var a = P[i], b = P[(i + 1) % P.length], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy); if (l > 1e-6) achsen.push([-dy / l, dx / l]); } });
+    for (var k = 0; k < achsen.length; k++) {
+      var n = achsen[k], pa = A.poly.map(function (q) { return q[0] * n[0] + q[1] * n[1]; }), pb = B.poly.map(function (q) { return q[0] * n[0] + q[1] * n[1]; });
+      var aMin = Math.min.apply(null, pa), aMax = Math.max.apply(null, pa), bMin = Math.min.apply(null, pb), bMax = Math.max.apply(null, pb), dot = n[0] * away[0] + n[1] * away[1];
+      if (aMax <= bMin + 0.02 && Math.abs(dot) > 0.02) return dot > 0 ? -1 : 1;   // A auf der kleinen Seite: hinten, wenn n zum Betrachter zeigt
+      if (bMax <= aMin + 0.02 && Math.abs(dot) > 0.02) return dot > 0 ? 1 : -1;
+    }
+    if (A.z1 <= B.z + 0.02) return 1;          // A unter B -> zuerst
+    if (B.z1 <= A.z + 0.02) return -1;
+    return 0;
+  }
+  function ordnen(items, away) {
+    var n = items.length, nach = items.map(function () { return []; }), grad = items.map(function () { return 0; });
+    for (var i = 0; i < n; i++) for (var j = i + 1; j < n; j++) {
+      var A = items[i].bb, B = items[j].bb;
+      if (A && B && (A[2] <= B[0] + 0.5 || B[2] <= A[0] + 0.5 || A[3] <= B[1] + 0.5 || B[3] <= A[1] + 0.5)) continue;
+      var r = hinter(items[i], items[j], away);
+      if (r === 1) { nach[i].push(j); grad[j]++; } else if (r === -1) { nach[j].push(i); grad[i]++; }
+    }
+    var frei = [], out = [];
+    for (var k = 0; k < n; k++) if (!grad[k]) frei.push(k);
+    var tf = function (x, y) { return (items[y].d - items[x].d) || (items[x].z - items[y].z); };
+    while (out.length < n) {
+      if (!frei.length) {                      // Zyklus: tiefsten verbleibenden Körper nehmen
+        var rest = []; for (var q = 0; q < n; q++) if (grad[q] >= 0 && out.indexOf(items[q]) < 0 && rest.indexOf(q) < 0) rest.push(q);
+        rest.sort(tf); frei.push(rest[0]); grad[rest[0]] = 0;
+      }
+      frei.sort(tf); var x = frei.shift(); if (grad[x] < 0) continue; grad[x] = -1; out.push(items[x]);
+      nach[x].forEach(function (y) { if (grad[y] > 0) { grad[y]--; if (!grad[y]) frei.push(y); } });
+    }
+    return out;
+  }
   function zeichneAxo(cv, v, mix, opt) {
     opt = opt || {};
     var S = szene(v, mix, opt.explo, opt.eng), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
@@ -725,7 +824,7 @@
       }
       seiten.sort(function (x, y) { return y.w - x.w; });
       seiten.push({ p3: pts.map(function (q) { return [q[0], q[1], p.z1]; }), fill: p.farbe });
-      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, faces: seiten, stroke: p.kante });
+      items.push({ d: tiefe(cxp, cyp, (p.z0 + p.z1) / 2) - (p.ueber ? 1.5 : 0), z: p.z0, z1: p.z1, poly: pts, faces: seiten, stroke: p.kante });
     });
     // Dachflächen je Baukörper als eigene Gruppe über dem obersten Geschoss
     var dachGruppen = {};
@@ -738,9 +837,14 @@
       var gk = Object.keys(dachGruppen).filter(function (kk) { var g = dachGruppen[kk]; return Math.hypot(g.cx - m3[0], g.cy - m3[1]) < 12; })[0];
       var g = gk ? dachGruppen[gk] : (dachGruppen[key] = { cx: m3[0], cy: m3[1], z: m3[2], faces: [] });
       g.faces.push({ w: m3[0] * away[0] + m3[1] * away[1] - m3[2] * 0.01, p3: f.p3, fill: ton(f.farbe, hell) });
+      g.punkte = (g.punkte || []).concat(f.p3); g.zmin = Math.min(g.zmin == null ? 1e9 : g.zmin, Math.min.apply(null, f.p3.map(function (q) { return q[2]; }))); g.zmax = Math.max(g.zmax || -1e9, Math.max.apply(null, f.p3.map(function (q) { return q[2]; })));
     });
-    Object.keys(dachGruppen).forEach(function (kk) { var g = dachGruppen[kk]; g.faces.sort(function (x, y) { return y.w - x.w; }); items.push({ d: tiefe(g.cx, g.cy, g.z) - 0.5, z: g.z, faces: g.faces, stroke: "rgba(35,33,30,.8)" }); });
-    items.sort(function (x, y) { return (y.d - x.d) || (x.z - y.z); });
+    Object.keys(dachGruppen).forEach(function (kk) { var g = dachGruppen[kk]; g.faces.sort(function (x, y) { return y.w - x.w; }); items.push({ d: tiefe(g.cx, g.cy, g.z) - 0.5, z: g.zmin, z1: g.zmax, poly: huelle2(g.punkte.map(function (q) { return [q[0], q[1]]; })), faces: g.faces, stroke: "rgba(35,33,30,.8)" }); });
+    items.forEach(function (it) {            // Bildschirm-Ausdehnung je Körper (nur überlappende Paare werden geordnet)
+      var xs = [], ys = []; it.faces.forEach(function (f) { f.p3.forEach(function (q) { var sp = pr(q[0], q[1], q[2]); xs.push(sp[0]); ys.push(sp[1]); }); });
+      it.bb = [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)];
+    });
+    items = ordnen(items, away);
     items.forEach(function (it) {
       it.faces.forEach(function (f) {
         pfad(f.p3.map(function (q) { return pr(q[0], q[1], q[2]); }));
@@ -766,7 +870,8 @@
       host.appendChild(axoCv);
       var zieh = null;
       axoCv.addEventListener("pointerdown", function (e) { zieh = { x: e.clientX, b: blick }; axoCv.setPointerCapture(e.pointerId); });
-      axoCv.addEventListener("pointermove", function (e) { if (!zieh) return; blick = (zieh.b - (e.clientX - zieh.x) * 0.4 + 360) % 360; malen(); });
+      var raf = 0;
+      axoCv.addEventListener("pointermove", function (e) { if (!zieh) return; blick = ((zieh.b - (e.clientX - zieh.x) * 0.35) % 360 + 360) % 360; if (!raf) raf = requestAnimationFrame(function () { raf = 0; if (axoCv._malen) axoCv._malen(); }); });
       axoCv.addEventListener("pointerup", function () { zieh = null; var bb = document.querySelectorAll(".pz-blick button"); Array.prototype.forEach.call(bb, function (b2) { b2.setAttribute("aria-pressed", +b2.dataset.h === Math.round(blick)); }); });
       window.addEventListener("resize", function () { if (axoZustand) malen(); });
     }
@@ -811,7 +916,8 @@
       '<p class="muted small">' + t("Anteile ergeben immer 100 % – die übrigen passen sich an.", "Shares always add up to 100 %.") + '</p><div class="pz-regler">' + regler + "</div>" +
       '<table class="pz-tab"><thead><tr><th>' + t("Typ", "Type") + "</th><th>" + t("Anz.", "No.") + "</th><th>Ø NWF</th><th>Total</th></tr></thead><tbody>" + zeilen + "</tbody><tfoot><tr><td>Total</td><td>" + m.total + "</td><td></td><td>" + zahl(m.nwf) + " m²</td></tr></tfoot></table>" +
       '<p class="muted small">' + t("Geschossfläche ", "Floor area ") + zahl(v.gf) + " m² · NWF/GF " + Math.round(m.nwf / v.gf * 100) + " % · " + t("Ausbaustandard ", "Standard ") + standard + ". " + t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord). Werte vorläufig – Kalibrierung mit apb-Studien folgt.", "Provisional values.") + "</p>" +
-      '<div class="pz-knoepfe"><button type="button" class="btn pz-pdf">' + t("Potenzialstudie als PDF", "Potential study as PDF") + '</button><button type="button" class="btn ghost pz-mix-aus">' + t("← Zurück zum Entwerfen", "← Back to design") + "</button></div></div>";
+      '<div class="pz-anfrage-box"><b>' + t("Interesse geweckt?", "Interested?") + "</b><p>" + t("Senden Sie uns den Entwurf – wir prüfen ihn und besprechen mit Ihnen die nächsten Schritte.", "Send us the draft – we will review it and discuss the next steps.") + '</p><button type="button" class="btn pz-anfrage">' + t("Entwurf senden / Gespräch vereinbaren", "Send draft / arrange a meeting") + '<span class="arr"></span></button></div>' +
+      '<div class="pz-knoepfe"><button type="button" class="btn ghost pz-pdf">' + t("Potenzialstudie als PDF", "Potential study as PDF") + '</button><button type="button" class="btn ghost pz-mix-aus">' + t("← Zurück zum Entwerfen", "← Back to design") + "</button></div></div>";
     box.hidden = false;
     Array.prototype.forEach.call(box.querySelectorAll("input[type=range]"), function (inp) {
       inp.addEventListener("input", function () {
@@ -828,9 +934,58 @@
     box.querySelector(".pz-explo").addEventListener("change", function (e) { explo = e.target.checked; if (axoCv && axoCv._malen) axoCv._malen(); });
     Array.prototype.forEach.call(box.querySelectorAll(".pz-blick button"), function (b2) { b2.addEventListener("click", function () { blick = +b2.dataset.h; Array.prototype.forEach.call(box.querySelectorAll(".pz-blick button"), function (x) { x.setAttribute("aria-pressed", x === b2); }); if (axoCv && axoCv._malen) axoCv._malen(); }); });
     box.querySelector(".pz-pdf").addEventListener("click", function (e) { pdfErstellen(v, m, e.currentTarget); });
+    box.querySelector(".pz-anfrage").addEventListener("click", function () { anfrageDialog(v, m); });
     box.querySelector(".pz-mix-aus").addEventListener("click", function () { box.hidden = true; praesentation(false); zeigeVolumen(v, null); root.querySelector(".pz-edit").scrollIntoView({ block: "start" }); });
     praesentation(true, v, m);
     var sd = document.querySelector(".pz-side"); if (sd) sd.scrollTop = 0;
+  }
+
+  /* ---------- Anfrage an apb (statische Seite: E-Mail-Programm mit vorausgefüllter Nachricht + PDF) ---------- */
+  function anfrageDialog(v, m) {
+    var a = aktuell, d = document.createElement("div");
+    d.className = "pz-dlg"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-labelledby", "pz-dlg-t");
+    d.innerHTML = '<form class="pz-dlg-in" novalidate><button type="button" class="pz-dlg-x" aria-label="' + t("Schliessen", "Close") + '">×</button>' +
+      '<span class="eyebrow">' + t("Anfrage an apb architekten", "Enquiry to apb architekten") + '</span><h3 id="pz-dlg-t">' + esc(a.re.MunicipalityName) + " · " + t("Parzelle ", "Plot ") + esc(a.re.Number) + "</h3>" +
+      '<p class="muted small">' + esc(v.name) + " · " + v.n + " " + t("Geschosse", "storeys") + " · GF " + zahl(v.gf) + " m² · " + m.total + " " + t("Wohnungen", "apartments") + "</p>" +
+      '<fieldset class="pz-wahl"><legend>' + t("Ihr Anliegen", "Your request") + "</legend>" +
+      [["gespraech", t("Gespräch vereinbaren", "Arrange a meeting")], ["rueckruf", t("Rückruf", "Call back")], ["pruefen", t("Entwurf prüfen lassen", "Have the draft reviewed")]].map(function (o, i) { return '<label><input type="radio" name="anliegen" value="' + o[1] + '"' + (i ? "" : " checked") + "> " + o[1] + "</label>"; }).join("") + "</fieldset>" +
+      '<label class="pz-f"><span>' + t("Name", "Name") + ' *</span><input name="name" required autocomplete="name"></label>' +
+      '<label class="pz-f"><span>' + t("E-Mail", "Email") + ' *</span><input name="mail" type="email" required autocomplete="email"></label>' +
+      '<label class="pz-f"><span>' + t("Telefon", "Phone") + '</span><input name="tel" type="tel" autocomplete="tel"></label>' +
+      '<label class="pz-f"><span>' + t("Rolle", "Role") + '</span><select name="rolle"><option>' + t("Eigentümer/in", "Owner") + "</option><option>" + t("Kaufinteressent/in", "Prospective buyer") + "</option><option>" + t("Investor/in, Entwickler/in", "Investor, developer") + "</option><option>" + t("Andere", "Other") + "</option></select></label>" +
+      '<label class="pz-f"><span>' + t("Terminwunsch", "Preferred date") + '</span><input name="termin" placeholder="' + t("z. B. nächste Woche, vormittags", "e.g. next week, mornings") + '"></label>' +
+      '<label class="pz-f"><span>' + t("Nachricht", "Message") + '</span><textarea name="msg" rows="3"></textarea></label>' +
+      '<p class="pz-err" role="alert" hidden></p>' +
+      '<button type="submit" class="btn">' + t("E-Mail vorbereiten", "Prepare email") + '<span class="arr"></span></button>' +
+      '<p class="muted small">' + t("Ihr E-Mail-Programm öffnet sich mit allen Angaben an info@apb-architekten.ch. Gleichzeitig wird die Potenzialstudie als PDF heruntergeladen – bitte hängen Sie sie der E-Mail an. Lieber direkt? +41 44 944 60 80.", "Your email program opens with all details; the PDF is downloaded – please attach it.") + "</p></form>";
+    document.body.appendChild(d);
+    var f = d.querySelector("form"), zu = function () { d.remove(); document.removeEventListener("keydown", esc2); }, esc2 = function (e) { if (e.key === "Escape") zu(); };
+    document.addEventListener("keydown", esc2);
+    d.querySelector(".pz-dlg-x").addEventListener("click", zu);
+    d.addEventListener("click", function (e) { if (e.target === d) zu(); });
+    f.name.focus();
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var err = f.querySelector(".pz-err");
+      if (!f.name.value.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.mail.value.trim())) { err.textContent = t("Bitte Name und eine gültige E-Mail-Adresse angeben.", "Please enter your name and a valid email address."); err.hidden = false; return; }
+      var anl = f.querySelector("input[name=anliegen]:checked").value, nwf = NWF[standard];
+      var mixTxt = Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return m.zaehl[x] + " × " + x + " Zi. (" + nwf[x] + " m²)"; }).join(", ");
+      var body = [t("Guten Tag", "Hello"), "", t("Anliegen: ", "Request: ") + anl, "",
+        t("Parzelle: ", "Plot: ") + a.re.MunicipalityName + " " + a.re.Number + " (EGRID " + a.re.EGRID + ")", t("Zone: ", "Zone: ") + (a.zoneTxt || ""), t("Grundstücksfläche: ", "Plot area: ") + zahl(a.re.LandRegistryArea) + " m²",
+        t("Entwurf: ", "Draft: ") + v.name + ", " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + ", GF " + zahl(v.gf) + " m² (" + Math.round(v.aus * 100) + " %)",
+        t("Wohnungsmix (", "Unit mix (") + standard + "): " + mixTxt + " – " + m.total + " " + t("Wohnungen", "apartments"), "",
+        f.msg.value.trim() ? t("Nachricht: ", "Message: ") + f.msg.value.trim() + "\n" : "",
+        t("Terminwunsch: ", "Preferred date: ") + (f.termin.value.trim() || "–"),
+        "", f.name.value.trim() + " (" + f.rolle.value + ")", f.mail.value.trim() + (f.tel.value.trim() ? " · " + f.tel.value.trim() : ""), "",
+        t("(Potenzialstudie als PDF im Anhang)", "(Potential study PDF attached)")].join("\n");
+      var subj = t("Potenzialstudie ", "Potential study ") + a.re.MunicipalityName + " " + a.re.Number + " – " + anl;
+      var knopf = f.querySelector("button[type=submit]");
+      pdfErstellen(v, m, knopf).then(function () {
+        window.location.href = "mailto:info@apb-architekten.ch?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
+        f.innerHTML = '<span class="eyebrow">' + t("Fast geschafft", "Almost done") + '</span><h3>' + t("Ihr E-Mail-Programm ist geöffnet.", "Your email program is open.") + "</h3><p>" + t("Bitte hängen Sie das soeben heruntergeladene PDF an und senden Sie die E-Mail ab. Wir melden uns in der Regel innerhalb von zwei Arbeitstagen.", "Please attach the downloaded PDF and send the email.") + '</p><button type="button" class="btn pz-dlg-ok">' + t("Schliessen", "Close") + "</button>";
+        f.querySelector(".pz-dlg-ok").addEventListener("click", zu);
+      });
+    });
   }
 
   /* ---------- PDF-Bericht (jsPDF, lokal in assets/vendor/jspdf) ---------- */
@@ -857,7 +1012,7 @@
           doc.setDrawColor.apply(doc, LINIE); doc.setLineWidth(0.2); doc.line(M, Hs - 14, W - M, Hs - 14);
           doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRAU);
           doc.text("apb architekten ag · Seestrasse 110a · 8610 Uster · +41 44 944 60 80 · www.apb-architekten.ch", M, Hs - 9);
-          doc.text(nr + " / 2", W - M, Hs - 9, { align: "right" });
+          doc.text(nr + " / 3", W - M, Hs - 9, { align: "right" });
         }
         function kopf(titel) {
           doc.addImage(bilder.logo, "PNG", M, 12, 46, 46 * 127 / 730);
@@ -888,9 +1043,11 @@
           doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor.apply(doc, DUNKEL); doc.text(kz[0], x + 4, y + 10);
           doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRAU); doc.text(doc.splitTextToSize(kz[1], kw - 8), x + 4, y + 16);
         });
-        y += 30;
-        doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor.apply(doc, GRAU);
-        doc.text(doc.splitTextToSize(t("Ersteinschätzung auf Basis öffentlicher Daten (amtliche Vermessung, ÖREB-Kataster Kanton Zürich, Bau- und Zonenordnung der Gemeinde). Ersetzt keine Vorabklärung beim Bauamt. Volumen, Flächen und Wohnungsmix sind schematisch.", "Initial assessment based on public data. No substitute for a preliminary enquiry with the building authority."), W - 2 * M), M, Math.min(y, Hs - 24));
+        y += 28;
+        var hk = doc.splitTextToSize(t("Das Werkzeug rechnet mit festen, offengelegten Regeln (keine KI-Schätzung): amtliche Daten (amtliche Vermessung, ÖREB-Kataster Kanton Zürich) live abgefragt, Zonenwerte aus der Bau- und Zonenordnung der Gemeinde, dazu klar markierte Annahmen (Rechenweg auf Seite 3). Volumen, Flächen und Wohnungsmix sind schematisch. Die Studie ersetzt weder die Prüfung durch die Architektin oder den Architekten noch eine Vorabklärung beim Bauamt.", "Fixed, disclosed rules (no AI estimate). Not a substitute for an architect's review or a preliminary enquiry."), W - 2 * M - 10);
+        doc.setFillColor(253, 240, 234); doc.rect(M, y, W - 2 * M, hk.length * 3.8 + 12, "F"); doc.setFillColor.apply(doc, ORANGE); doc.rect(M, y, 1.2, hk.length * 3.8 + 12, "F");
+        doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor.apply(doc, DUNKEL); doc.text(t("Ersteinschätzung – keine Bewilligungsprüfung", "Initial assessment – not a permit review"), M + 5, y + 6);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(70, 66, 60); doc.text(hk, M + 5, y + 11);
         fuss(1);
 
         // ---------- Seite 2: Explosionsaxo, Mix, Baurecht, ÖREB, Volumen
@@ -935,6 +1092,30 @@
         var gr2 = [[v.strasse > 0.7, t("Adresse zur Strasse, Vorplatz und Zugang", "Address to the street, forecourt and access")], [v.nord > 0.55, t("Volumen im Norden, Aussenraum im Süden", "Building to the north, garden to the south")], [v.ow > 0.7, t("Hauptfassaden nach Süden", "Main facades facing south")], [v.rand > 0.5, t("Luft zu den Nachbarn über den Mindestabstand", "Space to neighbours beyond minimum")]];
         gr2.forEach(function (x) { doc.setFontSize(8.3); doc.setTextColor.apply(doc, x[0] ? [70, 140, 95] : [190, 140, 40]); doc.text(x[0] ? "+" : "–", Rx, yr); doc.setTextColor.apply(doc, DUNKEL); doc.text(doc.splitTextToSize(x[1], B - 5), Rx + 4, yr); yr += 5; });
         fuss(2);
+
+        // ---------- Seite 3: Rechenweg, Annahmen, Quellen
+        doc.addPage(); kopf(t("Potenzialstudie", "Potential study"));
+        var y3 = abschnitt(M, 36, t("Rechenweg und Annahmen", "Calculation and assumptions"));
+        var QF = { amt: [[108, 192, 139], t("amtlich", "official")], bzo: [[143, 183, 214], t("BZO-Tabelle", "BZO table")], calc: [[200, 196, 188], t("berechnet", "calculated")], ann: [[226, 176, 74], t("Annahme", "assumption")] };
+        var lx = M; ["amt", "bzo", "calc", "ann"].forEach(function (q) { doc.setFillColor.apply(doc, QF[q][0]); doc.rect(lx, y3 - 2.6, 3, 3, "F"); doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRAU); doc.text(QF[q][1], lx + 4.5, y3); lx += doc.getTextWidth(QF[q][1]) + 12; }); y3 += 7;
+        rechenweg(a, k, v).forEach(function (r) {
+          var wert = doc.splitTextToSize(r[1], 62), notiz = doc.splitTextToSize(r[3], 70), h = Math.max(wert.length * 3.8, notiz.length * 3.3) + 3;
+          doc.setFillColor.apply(doc, QF[r[2]][0]); doc.rect(M, y3 - 2.6, 3, 3, "F");
+          doc.setFont("helvetica", "normal"); doc.setFontSize(8.3); doc.setTextColor.apply(doc, GRAU); doc.text(r[0], M + 5, y3);
+          doc.setTextColor.apply(doc, DUNKEL); doc.text(wert, M + 48, y3);
+          doc.setFontSize(7.2); doc.setTextColor.apply(doc, GRAU); doc.text(notiz, M + 112, y3);
+          y3 += h; doc.setDrawColor.apply(doc, LINIE); doc.line(M, y3 - 2.4, W - M, y3 - 2.4); y3 += 1.5;
+        });
+        y3 += 4; y3 = abschnitt(M, y3, t("Nicht berücksichtigt", "Not considered"));
+        NICHT_BERUECKSICHTIGT.forEach(function (x) { doc.setFont("helvetica", "normal"); doc.setFontSize(8.2); doc.setTextColor.apply(doc, DUNKEL); var tx = doc.splitTextToSize("– " + x, W - 2 * M); doc.text(tx, M, y3); y3 += tx.length * 3.8 + 1; });
+        y3 += 5; y3 = abschnitt(M, y3, t("Quellen", "Sources"));
+        [t("Amtliche Vermessung: geodienste.ch (AV-WFS), swisstopo / geo.admin.ch – live abgefragt", "Official survey: geodienste.ch, swisstopo – live"),
+         t("ÖREB-Kataster Kanton Zürich: maps.zh.ch/oereb – Auszug vom ", "PLR cadastre Canton of Zurich – extract of ") + (a.datum ? new Date(a.datum).toLocaleDateString("de-CH") : "") + " (" + t("offizieller Auszug: ", "official extract: ") + a.pdf + ")",
+         t("Bau- und Zonenordnung: ", "Building code: ") + (g.name || "") + ", " + (g.artikel || "") + " – " + (g.stand || "") + " – " + (g.quelle || ""),
+         t("Gebäude- und Wohnungsregister (GWR, BFS) für Höhen der Nachbarbauten; swissALTI3D / swissBUILDINGS3D (swisstopo)", "Federal building register; swisstopo 3D data"),
+         t("Wohnungsflächen: Wohnungs-Bewertungs-System WBS 2015, Bundesamt für Wohnungswesen (Mindestwerte)", "Unit sizes: WBS 2015, Federal Office for Housing")].forEach(function (x) {
+          doc.setFontSize(7.8); doc.setTextColor(70, 66, 60); var tx = doc.splitTextToSize(x, W - 2 * M); doc.text(tx, M, y3); y3 += tx.length * 3.6 + 1.5; });
+        fuss(3);
         doc.save("apb-Potenzialstudie-" + (re.MunicipalityName + "-" + re.Number).replace(/[^\w-]+/g, "-") + ".pdf");
       })
       .catch(function (e) { if (window.console) console.error(e); alert(t("Das PDF konnte nicht erstellt werden.", "The PDF could not be created.")); })
@@ -954,6 +1135,7 @@
         [laengeOk, t("Gebäudelänge ", "Building length ") + zahl(Math.max.apply(null, v.teile.map(function (p) { return Math.max(p.L, p.T); })), 1) + " m" + (z.laenge ? " (max. " + z.laenge + " m)" : "")],
         [abstOk, t("Abstände zwischen den Baukörpern", "Distances between volumes")]];
       box.querySelector(".pz-chk").innerHTML = chk.map(function (c) { return '<li class="' + (c[0] ? "" : "m") + '">' + esc(c[1]) + "</li>"; }).join("");
+      rwAktualisieren(v);
       box.querySelector(".pz-edit-kz").textContent = "GF " + zahl(v.gf) + " m² · " + v.n + " " + t("Geschosse", "storeys") + " · Score " + v.score;
       zeigeVolumen(v, null);
     }
@@ -1032,16 +1214,16 @@
     box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Strassen und Nachbarbauten werden geladen, Varianten werden gerechnet …", "Loading streets and neighbours, computing options …") + "</p></div>"; box.hidden = false;
     if (!k.ring) return;
     umgebung(k.ring).then(function (umg) {
-      var R = raster(a, k, umg); aktuellR = R; aktuellUmg = umg;
+      var R = raster(a, k, umg); aktuellR = R; aktuellUmg = umg; rwAktualisieren(null);
       if (letzteParzelle) zeichneParzelle(a, k);          // mit Strassenseite neu zeichnen
       var vs = generieren(a, k, R);
       if (!vs.length) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("Für diese Parzelle konnten keine Volumen erzeugt werden (Zone nicht erfasst oder Baufeld zu klein).", "No massing options could be generated for this plot.") + "</p></div>"; return; }
       var sk = R.kanten.filter(function (e) { return e.strasse; }).length;
-      box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + VORZONE + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p><ul class="pz-var">' + vs.map(function (v, i) {
-        return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + "</span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
+      box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Varianten nach Punktzahl der Setzung sortiert (0–100)", "Options sorted by siting score (0–100)") + iKnopf(INFO.score) + "</p><p class=\"muted small\">" + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + VORZONE + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p><ul class="pz-var">' + vs.map(function (v, i) {
+        return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + ' <i>' + t("Punkte", "points") + "</i></span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
       }).join("") + '</ul><div class="pz-why"></div><button type="button" class="btn pz-go">' + t("Dieses Volumen entwerfen", "Refine this massing") + '<span class="arr"></span></button></div>';
       var gew = vs[0];
-      function waehleV(i) { gew = vs[i]; Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.setAttribute("aria-pressed", +b.dataset.i === i); }); box.querySelector(".pz-why").innerHTML = gruende(gew); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true; zeigeVolumen(gew, null); }
+      function waehleV(i) { gew = vs[i]; rwAktualisieren(gew); Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.setAttribute("aria-pressed", +b.dataset.i === i); }); box.querySelector(".pz-why").innerHTML = gruende(gew); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true; zeigeVolumen(gew, null); }
       Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.addEventListener("click", function () { waehleV(+b.dataset.i); }); });
       box.querySelector(".pz-go").addEventListener("click", function () { var kopie = JSON.parse(JSON.stringify(gew)); editor(kopie, a, k); root.querySelector(".pz-edit").scrollIntoView({ behavior: "smooth", block: "start" }); });
       waehleV(0);

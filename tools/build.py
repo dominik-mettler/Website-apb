@@ -745,7 +745,7 @@ potenzial = """
           <form class="pz-such" role="search" autocomplete="off">
             <label class="pz-f"><span>Adresse oder Parzelle – oder direkt in die Karte klicken</span><input class="pz-q" type="search" placeholder="z. B. Seestrasse 110a Uster · Uster B5618" aria-describedby="pz-st"></label>
             <ul class="pz-liste" aria-label="Suchresultate"></ul>
-            <label class="pz-f pz-f-std"><span>Ausbaustandard</span><select class="pz-std"><option value="einfach">einfach</option><option value="mittel" selected>mittel</option><option value="gehoben">gehoben</option></select></label>
+            <label class="pz-f pz-f-std"><span>Ausbaustandard <button type="button" class="pz-i" aria-expanded="false" aria-label="Erklärung">i</button><span class="pz-info" hidden>Der Ausbaustandard bestimmt die Wohnungsgrössen pro Typ (einfach – mittel – gehoben, z. B. 3.5 Zimmer 70 / 82 / 100 m²). Volumen und zulässige Geschossfläche ändern sich nicht – bei gleicher Fläche gibt es mit «einfach» mehr und kleinere, mit «gehoben» weniger und grössere Wohnungen. Er wirkt auf die Wohnungsschätzung, den Wohnungsmix und das PDF. Werte vorläufig, Kalibrierung mit apb-Studien folgt.</span></span><select class="pz-std"><option value="einfach">einfach</option><option value="mittel" selected>mittel</option><option value="gehoben">gehoben</option></select></label>
           </form>
           <p class="pz-status" id="pz-st" role="status"></p>
           <div class="pz-res" hidden></div>
