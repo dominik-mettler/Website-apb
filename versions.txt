@@ -24,3 +24,4 @@ v22        a6a1756  Variante A + Zeitachse: Pfäffikon 2022, Küsnacht 2020
 v23        b8fb5b0  Variante A + Arealentwicklung Zürcherstrasse verlinkt
 v25        ad8234b  Variante A + Beteiligte klickbar und durchsuchbar
 v26        4bf0851  Variante A + Fachplaner-Websites bestätigt, Schulhaus Pünt Datenblatt
+v27        84f386a  Variante A + Karten dunkel und modern, apb-Würfel als Büro-Markierung

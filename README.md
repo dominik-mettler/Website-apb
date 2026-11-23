@@ -84,3 +84,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v23 – Arealentwicklung Zürcherstrasse verlinkt | https://dominik-mettler.github.io/Website-apb/v23/ |
 | v25 – Beteiligte klickbar und durchsuchbar | https://dominik-mettler.github.io/Website-apb/v25/ |
 | v26 – Fachplaner-Websites bestätigt, Schulhaus Pünt Datenblatt | https://dominik-mettler.github.io/Website-apb/v26/ |
+| v27 – Karten dunkel und modern, apb-Würfel als Markierung | https://dominik-mettler.github.io/Website-apb/v27/ |
