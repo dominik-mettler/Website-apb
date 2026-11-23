@@ -15,6 +15,8 @@
 
 ## Material
 - Referenzblatt Schulhaus Pünt (341): Platzhalter (GV/GF, Kosten, Termine) ausfüllen und «Vogelperspektive» ersetzen – das Luftbild ist ein Fremdfoto ohne Nutzungsrecht
+- Luftbild Pünt: stammt aus einem 360°-Panorama auf Google Maps (Urheber: Janik Wartmann, Privatperson, keine öffentliche Kontaktangabe gefunden).
+  Entweder über sein Google-Maps-Profil/LinkedIn/Instagram um Erlaubnis bitten (inkl. Originalpanorama) oder eigene Drohnenaufnahme machen lassen.
 - Aktuelles Referenzblatt Kinderhospiz (altes Blatt: 16 Mio./Dez. 2026 → gültig: 18 Mio., fertig Okt. 2025)
 - Referenzblätter ohne Platzhalter: 289, 318, 321, 324, 326, 334, 341, 344, 347
 - Porträtfotos Team (aktuell keine vorhanden)
