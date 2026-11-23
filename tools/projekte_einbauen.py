@@ -69,6 +69,11 @@ for pid, p in byid.items():
         p['geo'] = [round(lat, 3), round(lon, 3)] if privat else [lat, lon]
         p['geoExakt'] = not privat
 
+# 3b: Projektgebäude für die 3D-Ansicht (tools/projekt_volumen.py)
+VOL = json.load(open(os.path.join(R, 'content/volumen.json'))) if os.path.exists(os.path.join(R, 'content/volumen.json')) else {}
+for pid, p in byid.items():
+    if pid in VOL and p.get('geoExakt'): p['vol'] = [[t['ring'], t['h'], t.get('jahr') or 0] for t in VOL[pid]]
+
 # 4: Fotos und Pläne
 def save(im, path, w, fmt='JPEG', q=80):
     im = im.copy(); im.thumbnail((w, w), Image.LANCZOS)
@@ -174,14 +179,21 @@ def _bet_keys(v):
     if len(m) == 1: return m
     teile = [[b[0] for b in BETEILIGTE if re.search(b[2], t.strip(), re.I)] for t in v.split(',')]
     return [x[0] for x in teile if len(x) == 1] or m
-_zahl = {}
+_zahl, _neu = {}, set()
+def _jahr(p):
+    try: return int(str(p.get('year') or p.get('tlYear'))[:4])
+    except (TypeError, ValueError): return 0
 for p in D['projects']:
     for t in p.get('team') or []:
         del t[2:]
-        t.append(_bet_keys(t[1]))
-        for k in set(t[2]): _zahl.setdefault(k, set()).add(p['id'])
+        # Projektleitung (apb-Personen) wird nicht verlinkt
+        t.append([] if t[0].lower().startswith('projektleitung') else _bet_keys(t[1]))
+        for k in set(t[2]):
+            _zahl.setdefault(k, set()).add(p['id'])
+            if _jahr(p) >= 2018: _neu.add(k)
+# klickbar: ab 2 gemeinsamen Projekten oder bei Projekten ab 2018 (auch nur 1 Projekt)
 D['beteiligte'] = {b[0]: {'n': b[1], 'a': b[3], 'c': len(_zahl[b[0]]), **({'w': WEB[b[0]]} if b[0] in WEB else {})}
-                   for b in BETEILIGTE if b[3] and len(_zahl.get(b[0], ())) >= 2}
+                   for b in BETEILIGTE if b[3] and (len(_zahl.get(b[0], ())) >= 2 or b[0] in _neu)}
 head = '/* Projektdaten – generiert von tools/projekte_einbauen.py */\n'
 # Trennstriche aus dem Zeilenumbruch der alten Website entfernen (bewusst explizite Liste)
 TRENN = ['drin-genden', 'Aussen-hülle', 'über-hohen', 'wel-ches', 'unter-streicht', 'unter-irdische', 'son-dern',

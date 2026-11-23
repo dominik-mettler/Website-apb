@@ -1,13 +1,14 @@
 /* ==========================================================================
    apb architekten ag – 3D-Ansicht (CesiumJS + swisstopo)
-   Gelände: swissALTI3D (3d.geo.admin.ch), Gebäude: swissBUILDINGS3D,
-   Bilder: SWISSIMAGE oder amtliche Vermessung (Cadastral Web Map, S/W).
+   Gelände: swissALTI3D mit Schattierung, Gebäude: swissBUILDINGS3D, Bäume: swissTLM3D Vegetation.
+   Standard ist ein heller «Modellbau»-Look (ohne Luftbild): weisse Volumen, Sonnenschatten,
+   feine Konturen, Projektgebäude in apb-Orange. Alternativ Luftbild oder amtliche Vermessung.
    Wird erst geladen, wenn jemand die 3D-Ansicht öffnet.
    ========================================================================== */
 (function () {
   "use strict";
   var BASE = (window.APB_ROOT || "") + "assets/vendor/cesium/";
-  var loading = null, viewer = null, box = null, tileset = null, layers = {}, entities = {}, onKey = null;
+  var loading = null, viewer = null, box = null, tileset = null, trees = null, edges = null, layers = {}, entities = {}, onKey = null, focusFeat = null, modus = "modell";
   var CATCOL = { wohnen: "#e2b04a", lernen: "#5aa9d6", leiten: "#a796e0", glauben: "#d8d2c4", pflegen: "#6cc08b", reisen: "#e0708f", kaufen: "#e3925a", arbeiten: "#9bb8ab", turnen: "#5aa9d6", beleuchten: "#d8d2c4" };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function img(p) { return (p.base || (window.APB_ROOT || "") + "assets/img/projects/" + p.id + "/") + "01-s.webp"; }
@@ -35,8 +36,8 @@
     box = document.createElement("div");
     box.className = "m3d"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "3D-Ansicht");
     box.innerHTML = '<div class="m3d-top"><div class="m3d-title"><span class="eyebrow">3D-Ansicht · swisstopo</span><b>' + esc(title) + '</b></div>' +
-      '<div class="m3d-ctrl"><div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="av" aria-pressed="false">Karte</button><button type="button" data-l="luft" aria-pressed="true">Luftbild</button></div>' +
-      '<button type="button" class="m3d-b" data-b="1" aria-pressed="true">Gebäude</button><button type="button" class="m3d-close" aria-label="3D-Ansicht schliessen">×</button></div></div>' +
+      '<div class="m3d-ctrl"><div class="map-switch" role="group" aria-label="Kartengrundlage"><button type="button" data-l="modell" aria-pressed="true">Modell</button><button type="button" data-l="av" aria-pressed="false">Karte</button><button type="button" data-l="luft" aria-pressed="false">Luftbild</button></div>' +
+      '<button type="button" class="m3d-b" data-b="1" aria-pressed="true">Bäume</button><button type="button" class="m3d-close" aria-label="3D-Ansicht schliessen">×</button></div></div>' +
       '<div class="m3d-stage"><div class="m3d-cesium"></div><div class="m3d-load"><span></span>3D-Daten werden geladen …</div><div class="m3d-card" hidden></div>' +
       '<p class="m3d-help">Ziehen: drehen · Rechte Maustaste oder Ctrl + Ziehen: neigen · Mausrad: zoomen</p></div>';
     document.body.appendChild(box);
@@ -53,7 +54,7 @@
     document.removeEventListener("keydown", onKey);
     var b = box; box = null;
     b.classList.remove("on");
-    setTimeout(function () { if (viewer) { viewer.destroy(); viewer = null; tileset = null; entities = {}; } b.remove(); }, 350);
+    setTimeout(function () { if (viewer) { viewer.destroy(); viewer = null; tileset = null; trees = null; edges = null; focusFeat = null; entities = {}; } b.remove(); }, 350);
     document.body.style.overflow = "";
   }
 
@@ -76,8 +77,9 @@
     var lon = p.geo[1], lat = p.geo[0];
     groundAt(lon, lat).then(function (h) {
       if (!viewer) return;
+      p._h = h;
       var bs = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(lon, lat, h), 40);
-      var off = new Cesium.HeadingPitchRange(Cesium.Math.toRadians(-20), Cesium.Math.toRadians(-34), p.geoExakt === false ? 1400 : 520);
+      var off = new Cesium.HeadingPitchRange(Cesium.Math.toRadians(-35), Cesium.Math.toRadians(-30), p.geoExakt === false ? 1400 : 420);
       if (instant) { viewer.camera.flyToBoundingSphere(bs, { offset: off, duration: 0 }); }
       else viewer.camera.flyToBoundingSphere(bs, { offset: off, duration: 2.2 });
       viewer.scene.requestRender();
@@ -98,24 +100,87 @@
         animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false, requestRenderMode: true, maximumRenderTimeChange: Infinity
       });
       var sc = viewer.scene;
-      sc.globe.baseColor = Cesium.Color.fromCssColorString("#1d1d1b");
+      var PAPIER = Cesium.Color.fromCssColorString("#e4e1da");
+      sc.globe.baseColor = PAPIER;
       sc.globe.depthTestAgainstTerrain = true;
+      sc.globe.enableLighting = true;                 // Geländeschattierung aus der Sonne (Hügel lesbar ohne Luftbild)
+      sc.globe.dynamicAtmosphereLighting = false;
+      sc.globe.showGroundAtmosphere = false;
       sc.skyAtmosphere.show = true;
-      sc.fog.enabled = true;
+      sc.skyAtmosphere.brightnessShift = 0.25; sc.skyAtmosphere.saturationShift = -0.6;
+      sc.fog.enabled = true; sc.fog.density = 1.6e-4;
+      sc.highDynamicRange = false;
+      sc.postProcessStages.fxaa.enabled = true;
+      // Sonne: Spätsommer-Nachmittag, schöne lange Schatten aus Südwest
+      viewer.clock.currentTime = Cesium.JulianDate.fromIso8601("2026-08-28T14:30:00Z");
+      viewer.clock.shouldAnimate = false;
+      sc.light = new Cesium.SunLight({ intensity: 2.0 });
+      // Kartengrundlagen: im Modus «Modell» nur ein Hauch amtlicher Vermessung (Strassen, Parzellen) für die Orientierung
       layers.luft = viewer.imageryLayers.addImageryProvider(wmts("ch.swisstopo.swissimage-product", "jpeg", 20));
       layers.av = viewer.imageryLayers.addImageryProvider(wmts("ch.kantone.cadastralwebmap-farbe", "png", 20));
-      layers.av.show = false; layers.av.saturation = 0; layers.av.contrast = 1.25;
-      terrainReady = Cesium.CesiumTerrainProvider.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/");
+      layers.luft.show = false;
+      // Projektgebäude in apb-Orange. Grundriss aus der amtlichen Vermessung (tools/projekt_volumen.py).
+      // Bestehende Gebäude im swisstopo-Modell werden eingefärbt; Neubauten (fehlen im Modell, Stand 2013/14) als Volumen ergänzt.
+      var fokusBox = null, ersetzt = false;
+      if (focus && focus.vol && focus.vol.length) {
+        var teile = [];
+        focus.vol.forEach(function (v) {
+          var xs = v[0].map(function (q) { return q[0]; }), ys = v[0].map(function (q) { return q[1]; });
+          var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+          teile.push("(${Longitude} > " + x0 + " && ${Longitude} < " + x1 + " && ${Latitude} > " + y0 + " && ${Latitude} < " + y1 + ")");
+          if ((v[2] || 0) >= 2013) {
+            ersetzt = true;
+            viewer.entities.add({ polygon: {
+              hierarchy: Cesium.Cartesian3.fromDegreesArray([].concat.apply([], v[0])),
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, extrudedHeight: v[1], extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+              material: Cesium.Color.fromCssColorString("#f15d30"), outline: false } });
+          }
+        });
+        fokusBox = teile.join(" || ");
+      }
+      function grundlage(m) {
+        modus = m;
+        layers.luft.show = m === "luft";
+        layers.av.show = m !== "luft";
+        layers.av.saturation = 0;
+        layers.av.alpha = m === "modell" ? 0.32 : 1;
+        layers.av.contrast = m === "modell" ? 0.9 : 1.25;
+        layers.av.brightness = m === "modell" ? 1.25 : 1;
+        sc.globe.enableLighting = m !== "luft";
+        if (tileset) tileset.style = gebStil();
+        sc.requestRender();
+      }
+      function gebStil() {
+        var basis = modus === "luft" ? "color('#f3f1ec', 0.95)" : "color('#f7f4ee', 1.0)";
+        var st = { color: { conditions: [] } };
+        if (fokusBox) {
+          st.color.conditions.push([fokusBox, "color('#f15d30', 1.0)"]);
+          if (ersetzt) st.show = "!(" + fokusBox + ")";
+        }
+        st.color.conditions.push(["true", basis]);
+        return new Cesium.Cesium3DTileStyle(st);
+      }
+      terrainReady = Cesium.CesiumTerrainProvider.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/", { requestVertexNormals: true });
       terrainReady.then(function (t) { if (viewer) { viewer.terrainProvider = t; sc.requestRender(); } }).catch(function () {});
-      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json", { maximumScreenSpaceError: 6 }).then(function (ts) {
+      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json", { maximumScreenSpaceError: 4, shadows: Cesium.ShadowMode.DISABLED }).then(function (ts) {
         if (!viewer) return;
         tileset = ts; sc.primitives.add(ts);
         ts.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
-        ts.style = new Cesium.Cesium3DTileStyle({ color: "color('#ecebe7', 1.0)" });
-        ts.initialTilesLoaded.addEventListener(function () { var l = box && box.querySelector(".m3d-load"); if (l) l.classList.add("done"); });
+        ts.style = gebStil();
+        ts.initialTilesLoaded.addEventListener(function () { var l = box && box.querySelector(".m3d-load"); if (l) l.classList.add("done"); markiere(); });
+        ts.allTilesLoaded.addEventListener(markiere);
         sc.requestRender();
       }).catch(function () { var l = box && box.querySelector(".m3d-load"); if (l) l.innerHTML = "3D-Gebäude konnten nicht geladen werden."; });
+      // Bäume (swissTLM3D Vegetation): als ruhige, grüngraue Kugeln/Kegel
+      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.vegetation.3d/v1/tileset.json", { maximumScreenSpaceError: 8, shadows: Cesium.ShadowMode.DISABLED }).then(function (ts) {
+        if (!viewer) return;
+        trees = ts; sc.primitives.add(ts);
+        ts.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.MIX; ts.colorBlendAmount = 0.75;
+        ts.style = new Cesium.Cesium3DTileStyle({ color: "color('#a9bb98', 1.0)" });
+        sc.requestRender();
+      }).catch(function () { var bb = box && box.querySelector(".m3d-b"); if (bb) bb.hidden = true; });
       setTimeout(function () { var l = box && box.querySelector(".m3d-load"); if (l) l.classList.add("done"); }, 9000);
+      function markiere() {}
 
       list.forEach(function (p) {
         var col = Cesium.Color.fromCssColorString(CATCOL[p.cats[0]] || "#edebe6");
@@ -147,14 +212,14 @@
 
       $$q(box, ".map-switch button").forEach(function (b) {
         b.addEventListener("click", function () {
-          var av = b.dataset.l === "av";
-          layers.av.show = av; layers.luft.show = !av;
+          grundlage(b.dataset.l);
           $$q(box, ".map-switch button").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
           sc.requestRender();
         });
       });
       var bb = box.querySelector(".m3d-b");
-      bb.addEventListener("click", function () { if (!tileset) return; tileset.show = !tileset.show; bb.setAttribute("aria-pressed", tileset.show); sc.requestRender(); });
+      bb.addEventListener("click", function () { if (!trees) return; trees.show = !trees.show; bb.setAttribute("aria-pressed", trees.show); sc.requestRender(); });
+      grundlage("modell");
 
       if (focus) { fly(focus, true); card(focus); }
       else {
