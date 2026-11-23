@@ -113,6 +113,12 @@ for pid in sorted(os.listdir(C)):
             fp = f'{out}/plan-%02d{suf}.webp' % k
             if os.path.exists(fp): _h.update(open(fp, 'rb').read())
     if plans: p['pv'] = _h.hexdigest()[:8]
+    _f = hashlib.md5()
+    for i in range(1, len(dims) + 1):
+        for suf in ('.jpg', '.webp', '-s.webp'):
+            fp = f'{out}/%02d{suf}' % i
+            if os.path.exists(fp): _f.update(str(os.path.getsize(fp)).encode() + open(fp, 'rb').read(4096))
+    p['fv'] = _f.hexdigest()[:8]
 
 # 5: manuell geprüfte Angaben
 for pid, d in DATEN.items():

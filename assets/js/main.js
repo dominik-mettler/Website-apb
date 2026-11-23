@@ -17,7 +17,7 @@
   D.projects.forEach(function (p) { byId[p.id] = p; });
 
   /* ---------- helpers ---------- */
-  function img(p, i, small) { var n = i || 1, b = (p.base || ROOT + "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg"); }
+  function img(p, i, small) { var n = i || 1, b = (p.base || ROOT + "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg") + (p.fv ? "?v=" + p.fv : ""); }
   function plan(p, k, small) { return (p.base || "") + "plan-" + String(k).padStart(2, "0") + (small ? "-s" : "") + ".webp" + (p.pv ? "?v=" + p.pv : ""); }
   function url(p) { return p.url || "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }

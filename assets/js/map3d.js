@@ -11,7 +11,7 @@
   var loading = null, viewer = null, box = null, tileset = null, trees = null, edges = null, layers = {}, entities = {}, onKey = null, focusFeat = null, modus = "modell";
   var CATCOL = { wohnen: "#e2b04a", lernen: "#5aa9d6", leiten: "#a796e0", glauben: "#d8d2c4", pflegen: "#6cc08b", reisen: "#e0708f", kaufen: "#e3925a", arbeiten: "#9bb8ab", turnen: "#5aa9d6", beleuchten: "#d8d2c4" };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function img(p) { return (p.base || (window.APB_ROOT || "") + "assets/img/projects/" + p.id + "/") + "01-s.webp"; }
+  function img(p) { return (p.base || (window.APB_ROOT || "") + "assets/img/projects/" + p.id + "/") + "01-s.webp" + (p.fv ? "?v=" + p.fv : ""); }
 
   function load() {
     if (window.Cesium) return Promise.resolve();
