@@ -19,6 +19,22 @@ for _k, (_az, _vg, _dg, _l, _ga, _gmax, _fh) in _u.items():
     G['uster']['zonen'][_k] = _z
     if _k != 'L2/30':
         G['uster']['zonen'][_k + 'G'] = dict(_z, gewerbe=True, az_bonus=1/5)
+# Ortsbildschutz- und Zentrumszonen (Art. 13–28): Kernzonen ohne Dichteziffer – Kapazität aus den Grundmassen
+_K = 'Kernzone: keine Ausnützungsziffer – massgebend sind Geschosse, Gebäudelänge, Grenzabstand und Fassadenhöhe. Gestaltungsvorschriften (Art. 6 ff.): First parallel zur längeren Fassade, Dachaufbauten begrenzt, hochrechteckige Fenster; Kernzonenplan beachten.'
+G['uster']['zonen'].update({
+  'K3/4': {'vorzone': 0, 'vg': 3, 'dg': 2, 'ug': 1, 'laenge': 40, 'ga_k': 3.5, 'fh': 11.4, 'gf_modus': 'baufeld', 'dachform': 'sattel', 'wohnanteil_min': 0.40,
+           'hinweis': 'Werte südlich der Zürich-/Florastrasse. Nördlich: 4 Vollgeschosse, Gebäudelänge 60 m, Fassadenhöhe 14.7 m, Wohnanteil min. 30 %. Gebiet «Kern Uster Süd»: Gestaltungsplanpflicht (Art. 14a). ' + _K, 'artikel': 'Art. 13–14a'},
+  'K3': {'vorzone': 0, 'vg': 3, 'dg': 2, 'ug': 1, 'laenge': 35, 'ga_k': 3.5, 'fh': 11.4, 'gf_modus': 'baufeld', 'dachform': 'sattel', 'hinweis': _K, 'artikel': 'Art. 15–17'},
+  'D2': {'vorzone': 3, 'vg': 2, 'dg': 2, 'ug': 1, 'laenge': 30, 'laenge_min': 15, 'tiefe_min': 10, 'tiefe_max': 14, 'ga_k': 3.5, 'fh': 8.1, 'gf_modus': 'baufeld', 'dachform': 'sattel',
+         'hinweis': 'Dorfzone (Nänikon, Werrikon, Winikon, Freudwil, Wermatswil, Nossikon, Sulzbach, Riedikon): Gebäudebreite 10–14 m, Länge 15–30 m, Satteldach mit First parallel zur Längsfassade, Dachaufbauten max. 1/4 (Freudwil/Winikon 1/6) der Fassadenlänge, Terrainveränderung max. 1.0 m. ' + _K, 'artikel': 'Art. 18–25'},
+  'Z3': {'vorzone': 0, 'az': 1.00, 'vg': 3, 'dg': 2, 'attika': 1, 'ug': 1, 'fh': 13.5, 'fh_flach': 14.5, 'ga_k': 3.5, 'wohnanteil_min': 0.20, 'hinweis': 'Zentrumszone: Wohnanteil mind. 20 %, keine Wohnungen im Untergeschoss; Abstände nach kantonalem Recht (§ 265 PBG), Baufluchten möglich.', 'artikel': 'Art. 26–28'},
+  'Z5': {'vorzone': 0, 'az': 1.50, 'vg': 5, 'dg': 2, 'attika': 1, 'ug': 1, 'fh': 21.5, 'fh_flach': 22.5, 'ga_k': 3.5, 'wohnanteil_min': 0.20, 'hinweis': 'Zentrumszone: Wohnanteil mind. 20 %, keine Wohnungen im Untergeschoss; seitlicher Grenzbau bis 20 m Bautiefe ohne Zustimmung der Nachbarn; Abstände nach kantonalem Recht (§ 265 PBG).', 'artikel': 'Art. 26–28'},
+})
+for _k in ('G2', 'G3', 'I4', 'I5'):
+    G['uster']['zonen'][_k] = {'wohnen': False, 'hinweis': 'Arbeitsplatzzone (Art. 34 ff.): für Gewerbe und Industrie bestimmt – Wohnungen sind nicht vorgesehen (höchstens betriebsnotwendiges Wohnen).', 'artikel': 'Art. 34'}
+G['uster']['zonen']['Oe'] = {'wohnen': False, 'vg': 5, 'fh': 18.0, 'hinweis': 'Zone für öffentliche Bauten und Anlagen (Art. 38): für öffentliche Zwecke (Schulen, Verwaltung usw.) – keine privaten Wohnbauten.', 'artikel': 'Art. 38'}
+for _k in ('E1', 'E2'):
+    G['uster']['zonen'][_k] = {'wohnen': False, 'hinweis': 'Erholungszone: keine Wohnbauten.', 'artikel': 'Art. 39'}
 G['gossau'] = {'name': 'Gossau ZH', 'stand': 'BZO Teilrevision 17.11.2025, in Kraft 1.9.2026 (IVHB)', 'quelle': 'https://oerebdocs.zh.ch/getDoc?docid=6888', 'artikel': 'Art. 10',
   'areal': 'Art. 20–22: W/WG 1.7 ab 4000 m², W/WG 2.4 ab 6000 m²; BMZ +0.7, FH +3.3 m, +1 Vollgeschoss, Länge bis 2×',
   'zonen': {

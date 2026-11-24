@@ -107,8 +107,18 @@
     var m = zoneTxt.match(/\(([^)]{1,14})\)\s*$/), kurz = m ? m[1] : "";
     if (!kurz) { var m2 = zoneTxt.match(/\b((?:WG|W|L|E|Z|K)\s?\d+(?:[.\/]\d+)?[A-Z]?)\b/); kurz = m2 ? m2[1] : zoneTxt; }
     if (zoneTxt.length > 70) zoneTxt = zoneTxt.slice(0, 68) + " …";
+    // mehrere Zonen auf der Parzelle: Anteile merken
+    var teilzonen = gn.map(function (r) {
+      var lt = txt(r.LegendText), mm = lt.match(/\(([^)]{1,14})\)\s*$/), code = mm ? mm[1] : "", zz = null, kk = "";
+      if (gem && code) Object.keys(gem.zonen).forEach(function (k2) { if (!zz && (norm(k2) === norm(code) || norm(k2) === norm(code).replace(/g$/, ""))) { zz = gem.zonen[k2]; kk = k2; } });
+      var ringe = []; (r.Geometry || []).forEach(function (g2) { var sf = g2.Surface || g2.surface; if (!sf || !sf.coordinates) return; if (sf.type === "MultiPolygon") sf.coordinates.forEach(function (pl) { ringe.push(pl[0]); }); else ringe.push(sf.coordinates[0]); });
+      return { text: lt, code: code || lt.slice(0, 30), anteil: r.AreaShare || 0, zone: zz, key: kk, ringe: ringe };
+    }).filter(function (x, i, arr) { return arr.findIndex(function (y) { return y.code === x.code; }) === i; });
     if (gem) Object.keys(gem.zonen).forEach(function (k) { if (norm(k) === norm(kurz)) { zone = gem.zonen[k]; zoneKey = k; } });
     if (gem && !zone) Object.keys(gem.zonen).forEach(function (k) { if (!zone && norm(k) === norm(kurz).replace(/g$/, "")) { zone = gem.zonen[k]; zoneKey = k; } });
+    // Hauptzone: grösster Anteil unter den erfassten Bauzonen mit Wohnen (z. B. Dorfzone neben Landwirtschaftszone)
+    var bau = teilzonen.filter(function (x) { return x.zone && x.zone.wohnen !== false; }).sort(function (x, y) { return y.anteil - x.anteil; })[0];
+    if (bau && (!zone || zone.wohnen === false)) { zone = bau.zone; zoneKey = bau.key; zoneTxt = bau.text; }
     var eintraege = beschr.map(function (r) {
       var leg = txt(r.LegendText);
       return { thema: txt(r.Theme.Text), code: r.Theme.code || r.Theme.Code || "", sub: r.Theme.SubCode || "", legende: leg, farbe: ampelFarbe(r.Theme.code || "", r.Theme.SubCode, leg),
@@ -118,26 +128,42 @@
     var seen = {}; eintraege = eintraege.filter(function (e) { var k = e.code + e.legende; if (seen[k]) return false; seen[k] = 1; return true; });
     var grenze = ((re.Limit || re.limit || {}).coordinates || [])[0] || [];
     if (re.limit && re.limit.type === "MultiPolygon") grenze = re.limit.coordinates[0][0];
-    return { datum: ex.CreationDate, re: re, gem: gem, zone: zone, zoneKey: zoneKey, zoneTxt: zoneTxt, eintraege: eintraege, grenze: grenze, nicht: (ex.NotConcernedTheme || []).length, pdf: "https://maps.zh.ch/oereb/v2/extract/pdf?EGRID=" + re.EGRID };
+    var nichtBau = teilzonen.some(function (x) { return !x.zone || x.zone.wohnen === false; });
+    var bauRinge = teilzonen.length > 1 && nichtBau ? [].concat.apply([], teilzonen.filter(function (x) { return x.zone && x.zone.wohnen !== false; }).map(function (x) { return x.ringe; })) : null;
+    return { datum: ex.CreationDate, teilzonen: teilzonen, bauRinge: bauRinge && bauRinge.length ? bauRinge : null, re: re, gem: gem, zone: zone, zoneKey: zoneKey, zoneTxt: zoneTxt, eintraege: eintraege, grenze: grenze, nicht: (ex.NotConcernedTheme || []).length, pdf: "https://maps.zh.ch/oereb/v2/extract/pdf?EGRID=" + re.EGRID };
   }
   function kennwerte(a) {
     var A = a.re.LandRegistryArea, z = a.zone || {}, k = { A: A };
-    k.hoehe = z.fh || z.gh || (z.vg ? z.vg * GH : null);
-    k.geschosse = z.vg || (k.hoehe ? Math.max(1, Math.floor(k.hoehe / GH)) : null);
-    if (z.az) { k.gf = z.az * A; k.dichte = "AZ " + Math.round(z.az * 100) + " %"; }
-    else if (z.bmz) { k.bm = z.bmz * A; k.gf = k.bm / GH; k.dichte = "BMZ " + z.bmz + " m³/m²"; }
-    else if (z.uez && k.geschosse) { k.gf = z.uez * A * k.geschosse; k.dichte = "ÜZ " + Math.round(z.uez * 100) + " %"; }
-    if (k.gf) {
-      k.hnf = k.gf * EFF;
-      var nwf = NWF[standard], schnitt = 0; Object.keys(MIX).forEach(function (t) { schnitt += MIX[t] * nwf[t]; });
-      k.whg = Math.max(1, Math.floor(k.hnf / schnitt)); k.schnitt = schnitt;
-      if (k.geschosse) k.fuss = k.gf / k.geschosse;
-    }
     var ring = a.grenze.length ? vereinfachen(a.grenze) : null;
     k.ring = ring;
     if (ring && (z.ga_k || z.ga_g)) {
       k.bf = baufeld(ring, z.ga_k || z.ga_g, z.ga_g || null);
       if (k.bf) k.bfA = flaeche(k.bf);
+    }
+    if (z.wohnen === false) { k.keinWohnen = true; return k; }
+    k.hoehe = z.fh || z.gh || (z.vg ? z.vg * GH : null);
+    k.geschosse = z.vg || (k.hoehe ? Math.max(1, Math.floor(k.hoehe / GH)) : null);
+    if (z.az) { k.gf = z.az * A; k.dichte = "AZ " + Math.round(z.az * 100) + " %"; }
+    else if (z.bmz) { k.bm = z.bmz * A; k.gf = k.bm / GH; k.dichte = "BMZ " + z.bmz + " m³/m²"; }
+    else if (z.uez && k.geschosse) { k.gf = z.uez * A * k.geschosse; k.dichte = "ÜZ " + Math.round(z.uez * 100) + " %"; }
+    else if (z.gf_modus === "baufeld" && k.bfA && k.geschosse) {     // Kernzonen: keine Dichteziffer – Baufeld × Geschosse als Obergrenze
+      k.gf = k.bfA * k.geschosse; k.baufeldModus = true; k.dichte = t("keine Ziffer – Grundmasse", "no ratio – basic dimensions");
+    }
+    // Parzelle in mehreren Zonen: Geschossfläche je Zone nach Flächenanteil (Nichtbauzonen zählen 0)
+    if (a.teilzonen && a.teilzonen.length > 1 && k.gf) {
+      var summe = 0, teile2 = [];
+      a.teilzonen.forEach(function (tz) {
+        var zz = tz.zone, gfT = 0;
+        if (zz && zz.wohnen !== false) gfT = zz.az ? zz.az * tz.anteil : zz.bmz ? zz.bmz * tz.anteil / GH : (zz.gf_modus === "baufeld" && k.bfA ? k.bfA * (tz.anteil / A) * (zz.vg || k.geschosse || 1) : 0);
+        summe += gfT; teile2.push({ code: tz.key || tz.code, anteil: tz.anteil, gf: gfT, erfasst: !!zz });
+      });
+      k.gf = summe; k.teilzonen = teile2; k.dichte = t("anteilig aus ", "weighted from ") + teile2.length + t(" Zonen", " zones");
+    }
+    if (k.gf) {
+      k.hnf = k.gf * EFF;
+      var nwf = NWF[standard], schnitt = 0; Object.keys(MIX).forEach(function (t2) { schnitt += MIX[t2] * nwf[t2]; });
+      k.whg = Math.max(1, Math.floor(k.hnf / schnitt)); k.schnitt = schnitt;
+      if (k.geschosse) k.fuss = k.gf / k.geschosse;
     }
     return k;
   }
@@ -186,17 +212,19 @@
     var dat = a.datum ? new Date(a.datum).toLocaleDateString("de-CH") : "";
     rows.push([t("Grundstücksfläche", "Plot area"), zahl(A) + " m²", "amt", t("Grundbuchfläche gemäss ÖREB-Auszug", "Land register area (PLR extract)") + (dat ? " vom " + dat : "")]);
     rows.push([t("Zone", "Zone"), a.zoneTxt || "–", "amt", t("ÖREB-Kataster Kanton Zürich, Grundnutzung", "PLR cadastre, basic zoning")]);
-    if (a.zone) rows.push([t("Zonenwerte", "Zoning values"), "BZO " + (g.name || "") + (g.artikel ? ", " + g.artikel : ""), "bzo", (g.stand || "") + " · " + (g.quelle || "")]);
+    if (a.zone) rows.push([t("Zonenwerte", "Zoning values"), "BZO " + (g.name || "") + ((z.artikel || g.artikel) ? ", " + (z.artikel || g.artikel) : ""), "bzo", (g.stand || "") + " · " + (g.quelle || "")]);
     if (k.gf) {
       var f = z.az ? zahl(A) + " m² × AZ " + Math.round(z.az * 100) + " % = " + zahl(k.gf) + " m²"
         : z.bmz ? zahl(A) + " m² × BMZ " + z.bmz + " = " + zahl(k.bm) + " m³ ÷ " + GH + " m = " + zahl(k.gf) + " m²"
+        : k.baufeldModus ? t("Baufeld ", "Envelope ") + zahl(k.bfA) + " m² × " + k.geschosse + " VG = " + zahl(k.gf) + " m² (" + t("Kernzone ohne Ziffer", "core zone without ratio") + ")"
         : zahl(A) + " m² × ÜZ " + Math.round(z.uez * 100) + " % × " + k.geschosse + " " + t("Geschosse", "storeys") + " = " + zahl(k.gf) + " m²";
-      rows.push([t("Geschossfläche max.", "Max. floor area"), f, "calc", t("ohne Boni (Arealüberbauung, Gewerbe)", "without bonuses")]);
+      if (k.teilzonen) f = k.teilzonen.map(function (x) { return x.code + ": " + zahl(x.gf) + " m²"; }).join(" + ") + " = " + zahl(k.gf) + " m²";
+      rows.push([t("Geschossfläche max.", "Max. floor area"), f, "calc", (k.teilzonen ? t("anteilig nach Zonenflächen (ÖREB); ", "weighted by zone areas; ") : "") + t("ohne Boni (Arealüberbauung, Gewerbe)", "without bonuses")]);
     }
     if (k.hoehe) rows.push([t("Geschosse im Modell", "Storeys in model"), "min(" + (z.vg ? z.vg + " VG" : "–") + (z.fh ? "; " + zahl(z.fh, 1) + " m ÷ " + GH + " m" : "") + ")", "calc", t("Vollgeschosse aus BZO, begrenzt durch die Fassadenhöhe", "full storeys limited by facade height")]);
     rows.push([t("Geschosshöhe", "Storey height"), GH.toFixed(1) + " m", "ann", t("Rohbau, für Höhe und Baumasse", "for height and volume")]);
     if (R) rows.push([t("Zulässiges Baufeld", "Permitted envelope"), "ca. " + zahl(R.flaeche) + " m²", "calc", t("Parzelle minus Grenzabstand ", "Plot minus boundary distance ") + (z.ga_k ? zahl(z.ga_k, 1) + " m" : "–") + (z.ga_g ? t(" / gross ", " / large ") + zahl(z.ga_g, 1) + t(" m vor südorientierten Grenzen", " m in front of south-facing boundaries") : "") + t(", Vorzone zur Strasse, hinter Baulinien (ÖREB)", ", forecourt to the street, behind building lines (PLR)")]);
-    rows.push([t("Vorzone zur Strasse", "Street forecourt"), VORZONE + " m", "ann", t("Abstand des Gebäudes zur Strassengrenze (Zugang, Vorplatz); Baulinien gehen vor", "building lines take precedence")]);
+    rows.push([t("Vorzone zur Strasse", "Street forecourt"), (z.vorzone != null ? z.vorzone : VORZONE) + " m", "ann", t("Abstand des Gebäudes zur Strassengrenze (Zugang, Vorplatz); Baulinien gehen vor", "building lines take precedence")]);
     rows.push([t("Gebäudetiefe", "Building depth"), TIEFE + " m · " + t("Punkthaus ", "point block ") + PUNKT + " × " + PUNKT + " m", "ann", t("Startwerte des Generators, im Entwurf veränderbar", "generator start values")]);
     rows.push([t("Dach-/Attikageschoss", "Attic storey"), "60 % (Attika) / 55 % (DG)", "ann", t("Anteil der Geschossfläche des darunterliegenden Geschosses", "share of the storey below")]);
     rows.push([t("Hauptnutzfläche", "Usable area"), "GF × " + Math.round(EFF * 100) + " %", "ann", t("Abzug für Wände, Erschliessung, Technik", "deduction for walls, circulation")]);
@@ -243,8 +271,8 @@
       '<p class="muted small">EGRID ' + esc(re.EGRID) + " · " + zahl(re.LandRegistryArea) + " m² " + marke("amt") + ' · <a href="' + a.pdf + '" target="_blank" rel="noopener">' + t("offizieller ÖREB-Auszug (PDF)", "official PLR extract (PDF)") + " ↗</a></p></div>" +
       "</div>";
     var werte = "";
-    if (z) {
-      werte += zeile(t("Dichte", "Density"), esc(k.dichte), g.artikel ? esc(g.name + ", BZO " + g.artikel) : "", (z.az ? INFO.az : z.bmz ? INFO.bmz : INFO.uez), "bzo");
+    if (z && k.keinWohnen) { werte += '<p class="pz-hint warn">' + esc(z.hinweis || t("In dieser Zone sind keine Wohnungen vorgesehen.", "No housing in this zone.")) + "</p>"; } else if (z) {
+      werte += zeile(t("Dichte", "Density"), esc(k.dichte), (z.artikel || g.artikel) ? esc(g.name + ", BZO " + (z.artikel || g.artikel)) : "", (z.az ? INFO.az : z.bmz ? INFO.bmz : INFO.uez), "bzo");
       werte += zeile(t("Geschosse", "Storeys"), z.vg ? z.vg + " VG" + (z.dg != null ? " + " + z.dg + " DG" : "") + (z.attika ? " / Attika" : "") : (t("frei im Rahmen der Höhen", "free within height limits")), INFO.geschosse, "bzo");
       werte += zeile(t("Fassadenhöhe", "Facade height"), z.fh ? zahl(z.fh, 1) + " m" + (z.fh_giebel ? " · " + t("giebelseitig", "gable") + " " + zahl(z.fh_giebel, 1) + " m" : "") : (z.gh ? t("Gebäudehöhe ", "Building height ") + zahl(z.gh, 1) + " m" : ""), INFO.fh, "bzo");
       werte += zeile(t("Gebäudelänge", "Building length"), z.laenge ? "max. " + z.laenge + " m" : "", INFO.laenge, "bzo");
@@ -254,8 +282,11 @@
       werte += zeile(t("Geschossfläche max.", "Max. floor area"), k.gf ? "ca. " + zahl(k.gf) + " m²" : "", k.bm ? t("Baumasse ", "Building volume ") + zahl(k.bm) + " m³ ÷ " + GH + " m" : "", INFO.gf, "calc");
       werte += zeile(t("Baufeld", "Building envelope"), k.bfA ? "ca. " + zahl(k.bfA) + " m²" : t("nicht berechenbar", "not computable"), k.fuss && k.bfA ? (k.fuss <= k.bfA ? t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² " + t("passt", "fits") : t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² > " + t("Baufeld – Höhe/Länge begrenzt", "envelope – limited by height/length")) : "", INFO.baufeld, "calc");
       werte += zeile(t("Wohnungen", "Apartments"), k.whg ? "ca. " + k.whg : "", k.whg ? t("Ø ", "avg ") + zahl(k.schnitt) + " m² NWF · " + t("Ausbaustandard ", "standard ") + standard + " · HNF ≈ " + Math.round(EFF * 100) + " % GF" : "", INFO.whg, "ann");
+      if (k.teilzonen) werte += '<p class="pz-hint warn">' + t("Die Parzelle liegt in mehreren Zonen: ", "The plot lies in several zones: ") + k.teilzonen.map(function (x) { return esc(x.code) + " " + zahl(x.anteil) + " m²" + (x.erfasst ? " → " + zahl(x.gf) + " m² GF" : t(" (nicht erfasst / keine Bauzone: 0)", " (not covered: 0)")); }).join(" · ") + t(". Geschossfläche anteilig gerechnet; Höhe, Geschosse und Abstände nach der Hauptzone ", ". Floor area weighted; height and distances per main zone ") + esc(a.zoneKey || "") + ".</p>";
+      if (z.hinweis) werte += '<p class="pz-hint' + (z.wohnen === false ? " warn" : "") + '">' + esc(z.hinweis) + "</p>";
+      if (k.baufeldModus) werte += '<p class="pz-hint">' + t("Ohne Dichteziffer rechnet das Tool die Kapazität aus Baufeld × zulässige Vollgeschosse. Die tatsächlich bewilligbare Fläche hängt in der Kernzone stark von Gestaltung, Kernzonenplan und Ermessen der Baubehörde ab.", "Without a density ratio the tool uses envelope × storeys; in core zones the authority's discretion matters.") + "</p>";
       if (z.az_bonus && g.gewerbe_bonus) werte += '<p class="pz-hint">' + esc(g.gewerbe_bonus) + "</p>";
-      if (g.areal) werte += '<p class="pz-hint">' + t("Arealüberbauung: ", "Special development: ") + esc(g.areal) + iKnopf(INFO.areal) + "</p>";
+      if (g.areal && (re.LandRegistryArea >= 2500 || a.eintraege.some(function (e) { return /Arealüberbauung zulässig/i.test(e.legende); }))) werte += '<p class="pz-hint">' + t("Arealüberbauung: ", "Special development: ") + esc(g.areal) + iKnopf(INFO.areal) + "</p>";
       if (/ENTWURF|OFFEN/.test(g.stand)) werte += '<p class="pz-hint warn">' + esc(g.stand) + "</p>";
       werte += '<p class="muted small">' + t("Quelle: ", "Source: ") + '<a href="' + esc(g.quelle) + '" target="_blank" rel="noopener">BZO ' + esc(g.name) + "</a> · " + esc(g.stand) + "</p>";
     } else {
@@ -368,7 +399,7 @@
       var q = ring[(i + 1) % ring.length], n = aussenNormale(p, q, c), m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
       var strasse = umg.strassen.some(function (s) { return innen(s, m[0] + n[0] * 1.5, m[1] + n[1] * 1.5) || distRing(m, s) < 1.2; });
       var d = (z.ga_g && n[1] < -Math.SQRT1_2) ? z.ga_g : (z.ga_k || 4);
-      if (strasse) d = Math.max(d, VORZONE);
+      if (strasse) d = Math.max(d, z.vorzone != null ? z.vorzone : VORZONE);   // Kern-/Zentrumszonen: an Strassenflucht bzw. Baulinie
       return { a: p, b: q, n: n, d: d, strasse: strasse, len: Math.hypot(q[0] - p[0], q[1] - p[1]) };
     });
     // Baulinien: verbotene Seite = Seite der Strasse
@@ -377,24 +408,39 @@
       if (!/Baulinie/i.test(e.code + e.legende) || !e.geo) return;
       e.geo.forEach(function (gg) { var l = gg.Line || gg.line; if (l && l.coordinates) linien.push(l.coordinates); });
     });
-    function seite(l, p) { var best = 1e9, sg = 0; for (var i = 0; i + 1 < l.length; i++) { var d = distSeg(p, l[i], l[i + 1]); if (d < best) { best = d; sg = (l[i + 1][0] - l[i][0]) * (p[1] - l[i][1]) - (l[i + 1][1] - l[i][1]) * (p[0] - l[i][0]) > 0 ? 1 : -1; } } return sg; }
+    function seite(l, p, nurVor) {          // Seite der Baulinie; mit nurVor nur im Bereich direkt vor/hinter der Linie (nicht über die Enden hinaus)
+      var best = 1e9, sg = 0, inner = false;
+      for (var i = 0; i + 1 < l.length; i++) {
+        var a2 = l[i], b2 = l[i + 1], dx = b2[0] - a2[0], dy = b2[1] - a2[1], L2 = dx * dx + dy * dy || 1e-9, tt = ((p[0] - a2[0]) * dx + (p[1] - a2[1]) * dy) / L2, d = distSeg(p, a2, b2);
+        if (d < best) { best = d; sg = dx * (p[1] - a2[1]) - dy * (p[0] - a2[0]) > 0 ? 1 : -1; inner = (i > 0 || tt >= 0) && (i + 2 < l.length || tt <= 1); }
+      }
+      return nurVor && !inner ? 0 : sg;
+    }
     var verbot = linien.map(function (l) {
-      var sk = kanten.filter(function (e) { return e.strasse; });
-      var probe = sk.length ? [(sk[0].a[0] + sk[0].b[0]) / 2 + sk[0].n[0] * 3, (sk[0].a[1] + sk[0].b[1]) / 2 + sk[0].n[1] * 3] : null;
-      if (!probe) { var pts = umg.strassen.length ? umg.strassen[0] : null; probe = pts ? pts[0] : null; }
-      return probe ? seite(l, probe) : 0;
+      // Verbotene Seite = kleinerer Teil der Parzelle (Streifen zwischen Baulinie und Strasse); nur im Bereich vor der Linie gezählt
+      var plus = 0, minus = 0, xs2 = ring.map(function (q) { return q[0]; }), ys2 = ring.map(function (q) { return q[1]; });
+      var x0 = Math.min.apply(null, xs2), x1 = Math.max.apply(null, xs2), y0 = Math.min.apply(null, ys2), y1 = Math.max.apply(null, ys2), st = Math.max(1, Math.sqrt((x1 - x0) * (y1 - y0)) / 60);
+      for (var yy = y0; yy <= y1; yy += st) for (var xx = x0; xx <= x1; xx += st) { if (!innen(ring, xx, yy)) continue; var sg = seite(l, [xx, yy], true); if (sg > 0) plus++; else if (sg < 0) minus++; }
+      if (!plus && !minus) return 0;
+      return plus < minus ? 1 : -1;
     });
     var xs = ring.map(function (p) { return p[0]; }), ys = ring.map(function (p) { return p[1]; });
     var R = { x0: Math.min.apply(null, xs), y0: Math.min.apply(null, ys), h: 0.5 };
     R.nx = Math.ceil((Math.max.apply(null, xs) - R.x0) / R.h) + 1; R.ny = Math.ceil((Math.max.apply(null, ys) - R.y0) / R.h) + 1;
-    R.m = new Uint8Array(R.nx * R.ny); var anz = 0;
+    var ohneLinien = false, anz = 0;
+    function fuellen() {
+      R.m = new Uint8Array(R.nx * R.ny); anz = 0;
     for (var j = 0; j < R.ny; j++) for (var i = 0; i < R.nx; i++) {
       var p = [R.x0 + i * R.h, R.y0 + j * R.h];
       if (!innen(ring, p[0], p[1])) continue;
       var ok = kanten.every(function (e) { return distSeg(p, e.a, e.b) >= e.d - 0.01; });
-      if (ok) ok = linien.every(function (l, li) { return !verbot[li] || seite(l, p) !== verbot[li]; });
+      if (ok && !ohneLinien) ok = linien.every(function (l, li) { return !verbot[li] || seite(l, p, true) !== verbot[li]; });
+      if (ok && a.bauRinge) ok = a.bauRinge.some(function (rg) { return innen(rg, p[0], p[1]); });   // nur im Teil der Parzelle mit Wohnbauzone
       if (ok) { R.m[j * R.nx + i] = 1; anz++; }
     }
+    }
+    fuellen();
+    if (anz * R.h * R.h < 80 && linien.length) { ohneLinien = true; fuellen(); R.baulinienIgnoriert = true; }   // Baulinien nicht eindeutig zuordenbar
     R.flaeche = anz * R.h * R.h; R.kanten = kanten; R.c = c;
     R.frei = function (x, y) { var i = Math.round((x - R.x0) / R.h), j = Math.round((y - R.y0) / R.h); return i >= 0 && j >= 0 && i < R.nx && j < R.ny && R.m[j * R.nx + i] === 1; };
     R.passt = function (p) {                // Rechteck liegt vollständig im zulässigen Raster (Rand dicht, Inneres grob)
@@ -459,8 +505,8 @@
   function generieren(a, k, R) {
     var z = a.zone || {}; if (!R || !k.gf || R.flaeche < 80) return [];
     var Lmax = z.laenge || 40, gap = 2 * (z.ga_k || 5);
-    var dach = /Giebeldächer|nur Giebel/i.test((a.gem || {}).dach || "") ? "sattel" : (z.attika || z.dg ? "attika" : "flach");
-    var zellen = R.zellen(), kand = [];
+    var dach = z.dachform === "sattel" || /Giebeldächer|nur Giebel/i.test((a.gem || {}).dach || "") ? "sattel" : (z.attika || z.dg ? "attika" : "flach");
+    var zellen = R.zellen(), kand = [], punktOk = !z.tiefe_max || z.tiefe_max >= PUNKT;
     function maxLaenge(c, T, ang, Lmin, Lcap) { for (var L = Lcap; L >= Lmin; L -= 2) { var p = { c: c, L: L, T: T, ang: ang }; if (R.passt(p)) return p; } return null; }
     for (var deg = -60; deg <= 90; deg += 15) {
       var ang = deg * Math.PI / 180, riegel = [];
@@ -486,11 +532,11 @@
         // Riegel + Punkthaus südlich
         zellen.forEach(function (c) {
           var p = { c: c, L: PUNKT, T: PUNKT, ang: ang };
-          if (c[1] < r.c[1] && R.passt(p) && abstandTeile(r, p) >= gap) kand.push({ typ: "kombi", teile: [r, p] });
+          if (punktOk && c[1] < r.c[1] && R.passt(p) && abstandTeile(r, p) >= gap) kand.push({ typ: "kombi", teile: [r, p] });
         });
       });
       // Punkthäuser: 1–3 mit Gebäudeabstand
-      var punkte = zellen.map(function (c) { return { c: c, L: PUNKT, T: PUNKT, ang: ang }; }).filter(R.passt);
+      var punkte = punktOk ? zellen.map(function (c) { return { c: c, L: PUNKT, T: PUNKT, ang: ang }; }).filter(R.passt) : [];
       punkte.sort(function (x, y) { return y.c[1] - x.c[1]; });
       if (punkte.length) {
         var gew = [punkte[0]];
@@ -1075,7 +1121,7 @@
         [[t("Zone", "Zone"), a.zoneTxt || "–"], [t("Dichte", "Density"), k.dichte || "–"], [t("Geschosse", "Storeys"), z.vg ? z.vg + " VG" + (z.dg != null ? " + " + z.dg + " DG" : "") + (z.attika ? " / Attika" : "") : t("frei im Rahmen der Höhen", "free within height limits")],
          [t("Fassadenhöhe", "Facade height"), z.fh ? zahl(z.fh, 1) + " m" : (z.gh ? zahl(z.gh, 1) + " m (" + t("Gebäudehöhe", "building height") + ")" : "–")], [t("Gebäudelänge", "Building length"), z.laenge ? "max. " + z.laenge + " m" : "–"],
          [t("Grenzabstand", "Boundary distance"), (z.ga_k ? zahl(z.ga_k, 1) + " m" : "–") + (z.ga_g ? " / " + t("gross ", "large ") + zahl(z.ga_g, 1) + " m" : "")], [t("Geschossfläche max.", "Max. floor area"), k.gf ? "ca. " + zahl(k.gf) + " m²" : "–"],
-         [t("Zulässiges Baufeld", "Permitted envelope"), aktuellR ? "ca. " + zahl(aktuellR.flaeche) + " m²" : "–"], [t("Grundlage", "Basis"), "BZO " + (g.name || "") + (g.artikel ? ", " + g.artikel : "") + " · " + (g.stand || "")]].forEach(function (r) { yl += zeileKV(L, yl, B, r[0], r[1]); });
+         [t("Zulässiges Baufeld", "Permitted envelope"), aktuellR ? "ca. " + zahl(aktuellR.flaeche) + " m²" : "–"], [t("Grundlage", "Basis"), "BZO " + (g.name || "") + ((z.artikel || g.artikel) ? ", " + (z.artikel || g.artikel) : "") + " · " + (g.stand || "")]].forEach(function (r) { yl += zeileKV(L, yl, B, r[0], r[1]); });
         yl += 4; yl = abschnitt(L, yl, t("ÖREB-Kataster", "PLR cadastre"));
         var AMP = { gruen: [108, 192, 139], gelb: [226, 176, 74], rot: [229, 72, 77], info: [143, 183, 214] };
         a.eintraege.slice(0, 9).forEach(function (e) {
@@ -1129,7 +1175,7 @@
         y3 += 5; y3 = abschnitt(M, y3, t("Quellen", "Sources"));
         [t("Amtliche Vermessung: geodienste.ch (AV-WFS), swisstopo / geo.admin.ch – live abgefragt", "Official survey: geodienste.ch, swisstopo – live"),
          t("ÖREB-Kataster Kanton Zürich: maps.zh.ch/oereb – Auszug vom ", "PLR cadastre Canton of Zurich – extract of ") + (a.datum ? new Date(a.datum).toLocaleDateString("de-CH") : "") + " (" + t("offizieller Auszug: ", "official extract: ") + a.pdf + ")",
-         t("Bau- und Zonenordnung: ", "Building code: ") + (g.name || "") + ", " + (g.artikel || "") + " – " + (g.stand || "") + " – " + (g.quelle || ""),
+         t("Bau- und Zonenordnung: ", "Building code: ") + (g.name || "") + ", " + (z.artikel || g.artikel || "") + " – " + (g.stand || "") + " – " + (g.quelle || ""),
          t("Gebäude- und Wohnungsregister (GWR, BFS) für Höhen der Nachbarbauten; swissALTI3D / swissBUILDINGS3D (swisstopo)", "Federal building register; swisstopo 3D data"),
          t("Wohnungsflächen: Wohnungs-Bewertungs-System WBS 2015, Bundesamt für Wohnungswesen (Mindestwerte)", "Unit sizes: WBS 2015, Federal Office for Housing")].forEach(function (x) {
           doc.setFontSize(7.8); doc.setTextColor(70, 66, 60); var tx = doc.splitTextToSize(x, W - 2 * M); doc.text(tx, M, y3); y3 += tx.length * 3.6 + 1.5; });
@@ -1231,13 +1277,15 @@
     var box = root.querySelector(".pz-vol"); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true;
     box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Strassen und Nachbarbauten werden geladen, Varianten werden gerechnet …", "Loading streets and neighbours, computing options …") + "</p></div>"; box.hidden = false;
     if (!k.ring) return;
+    if (k.keinWohnen) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("In dieser Zone sind keine Wohnungen vorgesehen – deshalb kein Wohnungs-Volumen. Für eine Umzonung oder Sondernutzung ist eine Abklärung mit der Gemeinde nötig.", "No housing in this zone.") + "</p></div>"; return; }
     umgebung(k.ring).then(function (umg) {
       var R = raster(a, k, umg); aktuellR = R; aktuellUmg = umg; rwAktualisieren(null);
+      if (window.APB_DEBUG) window.APB_DEBUG.R = R;
       if (letzteParzelle) zeichneParzelle(a, k);          // mit Strassenseite neu zeichnen
       var vs = generieren(a, k, R);
-      if (!vs.length) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("Für diese Parzelle konnten keine Volumen erzeugt werden (Zone nicht erfasst oder Baufeld zu klein).", "No massing options could be generated for this plot.") + "</p></div>"; return; }
+      if (!vs.length) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + (R && R.flaeche < 260 ? t("Das zulässige Baufeld ist mit ca. ", "The permitted envelope of approx. ") + zahl(R.flaeche) + t(" m² zu klein für ein Wohnvolumen mit 13 m Tiefe und mind. 14 m Länge (typisch: Anbau, Aufstockung oder Ersatzbau auf dem bestehenden Fussabdruck prüfen).", " m² is too small for a residential volume.") : t("Für diese Parzelle konnten keine Volumen erzeugt werden (Zone nicht erfasst oder Baufeld zu schmal).", "No massing options could be generated for this plot.")) + "</p></div>"; return; }
       var sk = R.kanten.filter(function (e) { return e.strasse; }).length;
-      box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Varianten nach Punktzahl der Setzung sortiert (0–100)", "Options sorted by siting score (0–100)") + iKnopf(INFO.score) + "</p><p class=\"muted small\">" + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + VORZONE + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p><ul class="pz-var">' + vs.map(function (v, i) {
+      box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Varianten nach Punktzahl der Setzung sortiert (0–100)", "Options sorted by siting score (0–100)") + iKnopf(INFO.score) + "</p><p class=\"muted small\">" + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + ((a.zone || {}).vorzone != null ? a.zone.vorzone : VORZONE) + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p>' + (R.baulinienIgnoriert ? '<p class="pz-hint warn">' + t("Die Baulinien konnten nicht eindeutig einer Strassenseite zugeordnet werden – das Baufeld ist ohne sie gerechnet. Baulinien im ÖREB-Auszug prüfen.", "Building lines could not be assigned; envelope computed without them.") + "</p>" : "") + '<ul class="pz-var">' + vs.map(function (v, i) {
         return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + ' <i>' + t("Punkte", "points") + "</i></span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
       }).join("") + '</ul><div class="pz-why"></div><button type="button" class="btn pz-go">' + t("Dieses Volumen entwerfen", "Refine this massing") + '<span class="arr"></span></button></div>';
       var gew = vs[0];

@@ -227,6 +227,114 @@
     "fh_flach": 15.7,
     "gewerbe": true,
     "az_bonus": 0.2
+   },
+   "K3/4": {
+    "vorzone": 0,
+    "vg": 3,
+    "dg": 2,
+    "ug": 1,
+    "laenge": 40,
+    "ga_k": 3.5,
+    "fh": 11.4,
+    "gf_modus": "baufeld",
+    "dachform": "sattel",
+    "wohnanteil_min": 0.4,
+    "hinweis": "Werte südlich der Zürich-/Florastrasse. Nördlich: 4 Vollgeschosse, Gebäudelänge 60 m, Fassadenhöhe 14.7 m, Wohnanteil min. 30 %. Gebiet «Kern Uster Süd»: Gestaltungsplanpflicht (Art. 14a). Kernzone: keine Ausnützungsziffer – massgebend sind Geschosse, Gebäudelänge, Grenzabstand und Fassadenhöhe. Gestaltungsvorschriften (Art. 6 ff.): First parallel zur längeren Fassade, Dachaufbauten begrenzt, hochrechteckige Fenster; Kernzonenplan beachten.",
+    "artikel": "Art. 13–14a"
+   },
+   "K3": {
+    "vorzone": 0,
+    "vg": 3,
+    "dg": 2,
+    "ug": 1,
+    "laenge": 35,
+    "ga_k": 3.5,
+    "fh": 11.4,
+    "gf_modus": "baufeld",
+    "dachform": "sattel",
+    "hinweis": "Kernzone: keine Ausnützungsziffer – massgebend sind Geschosse, Gebäudelänge, Grenzabstand und Fassadenhöhe. Gestaltungsvorschriften (Art. 6 ff.): First parallel zur längeren Fassade, Dachaufbauten begrenzt, hochrechteckige Fenster; Kernzonenplan beachten.",
+    "artikel": "Art. 15–17"
+   },
+   "D2": {
+    "vorzone": 3,
+    "vg": 2,
+    "dg": 2,
+    "ug": 1,
+    "laenge": 30,
+    "laenge_min": 15,
+    "tiefe_min": 10,
+    "tiefe_max": 14,
+    "ga_k": 3.5,
+    "fh": 8.1,
+    "gf_modus": "baufeld",
+    "dachform": "sattel",
+    "hinweis": "Dorfzone (Nänikon, Werrikon, Winikon, Freudwil, Wermatswil, Nossikon, Sulzbach, Riedikon): Gebäudebreite 10–14 m, Länge 15–30 m, Satteldach mit First parallel zur Längsfassade, Dachaufbauten max. 1/4 (Freudwil/Winikon 1/6) der Fassadenlänge, Terrainveränderung max. 1.0 m. Kernzone: keine Ausnützungsziffer – massgebend sind Geschosse, Gebäudelänge, Grenzabstand und Fassadenhöhe. Gestaltungsvorschriften (Art. 6 ff.): First parallel zur längeren Fassade, Dachaufbauten begrenzt, hochrechteckige Fenster; Kernzonenplan beachten.",
+    "artikel": "Art. 18–25"
+   },
+   "Z3": {
+    "vorzone": 0,
+    "az": 1.0,
+    "vg": 3,
+    "dg": 2,
+    "attika": 1,
+    "ug": 1,
+    "fh": 13.5,
+    "fh_flach": 14.5,
+    "ga_k": 3.5,
+    "wohnanteil_min": 0.2,
+    "hinweis": "Zentrumszone: Wohnanteil mind. 20 %, keine Wohnungen im Untergeschoss; Abstände nach kantonalem Recht (§ 265 PBG), Baufluchten möglich.",
+    "artikel": "Art. 26–28"
+   },
+   "Z5": {
+    "vorzone": 0,
+    "az": 1.5,
+    "vg": 5,
+    "dg": 2,
+    "attika": 1,
+    "ug": 1,
+    "fh": 21.5,
+    "fh_flach": 22.5,
+    "ga_k": 3.5,
+    "wohnanteil_min": 0.2,
+    "hinweis": "Zentrumszone: Wohnanteil mind. 20 %, keine Wohnungen im Untergeschoss; seitlicher Grenzbau bis 20 m Bautiefe ohne Zustimmung der Nachbarn; Abstände nach kantonalem Recht (§ 265 PBG).",
+    "artikel": "Art. 26–28"
+   },
+   "G2": {
+    "wohnen": false,
+    "hinweis": "Arbeitsplatzzone (Art. 34 ff.): für Gewerbe und Industrie bestimmt – Wohnungen sind nicht vorgesehen (höchstens betriebsnotwendiges Wohnen).",
+    "artikel": "Art. 34"
+   },
+   "G3": {
+    "wohnen": false,
+    "hinweis": "Arbeitsplatzzone (Art. 34 ff.): für Gewerbe und Industrie bestimmt – Wohnungen sind nicht vorgesehen (höchstens betriebsnotwendiges Wohnen).",
+    "artikel": "Art. 34"
+   },
+   "I4": {
+    "wohnen": false,
+    "hinweis": "Arbeitsplatzzone (Art. 34 ff.): für Gewerbe und Industrie bestimmt – Wohnungen sind nicht vorgesehen (höchstens betriebsnotwendiges Wohnen).",
+    "artikel": "Art. 34"
+   },
+   "I5": {
+    "wohnen": false,
+    "hinweis": "Arbeitsplatzzone (Art. 34 ff.): für Gewerbe und Industrie bestimmt – Wohnungen sind nicht vorgesehen (höchstens betriebsnotwendiges Wohnen).",
+    "artikel": "Art. 34"
+   },
+   "Oe": {
+    "wohnen": false,
+    "vg": 5,
+    "fh": 18.0,
+    "hinweis": "Zone für öffentliche Bauten und Anlagen (Art. 38): für öffentliche Zwecke (Schulen, Verwaltung usw.) – keine privaten Wohnbauten.",
+    "artikel": "Art. 38"
+   },
+   "E1": {
+    "wohnen": false,
+    "hinweis": "Erholungszone: keine Wohnbauten.",
+    "artikel": "Art. 39"
+   },
+   "E2": {
+    "wohnen": false,
+    "hinweis": "Erholungszone: keine Wohnbauten.",
+    "artikel": "Art. 39"
    }
   }
  },
