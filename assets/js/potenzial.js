@@ -487,12 +487,14 @@
     if (!k.baufeldModus && k.gf) { var aG = Math.floor((k.gf - gfE) / fp + 1e-6); if (aG < add) add = aG; if (aG <= 0) grenzen.push([aG, t("die Ausnützung ist mit heute ca. ", "the density is used up with approx. ") + zahl(gfE) + t(" m² von ", " m² of ") + zahl(k.gf) + t(" m² ausgeschöpft", " m²")]); }
     add = Math.max(0, add);
     var teil = obb(h.ring), abstandOk = R ? R.passt(teil) : true;
-    var dgA = (z.attika || z.dg) ? 0.6 : 0, nurDach = !add && dgA && (!k.gf || k.baufeldModus || k.gf - gfE >= fp * dgA);
+    var steil = z.dachform === "sattel", dgA = steil ? (z.dg ? 0.55 : 0) : ((z.attika || z.dg) ? 0.6 : 0);
+    var nurDach = !add && dgA && nE <= vgZ && (!k.gf || k.baufeldModus || k.gf - gfE >= fp * dgA);
+    if (!add && dgA && nE > vgZ) grenzen.push([0, t("der Bestand hat bereits mehr Geschosse (", "the building already has more storeys (") + nE + t(", inkl. Dach-/Untergeschosse) als zulässig", ") than permitted")]);
     var res = { moeglich: add > 0 || nurDach, add: add, nurDach: nurDach, grenzen: grenzen.filter(function (g) { return g[0] <= 0; }).map(function (g) { return g[1]; }), gfE: gfE, abstandOk: abstandOk, h: h };
     if (res.moeglich) {
-      var v = { typ: "aufstockung", name: nurDach ? t("Dachaufbau (Attika)", "Roof extension (attic)") : t("Aufstockung +", "Extension +") + add + t(" Geschoss" + (add > 1 ? "e" : ""), " storey" + (add > 1 ? "s" : "")),
-        teile: [teil], bestandN: nE, n: nE + add, dach: dgA ? "attika" : "flach", fest: true, score: null };
-      v.fuss = teil.L * teil.T; v.dg = (z.attika || z.dg) && (!k.gf || k.baufeldModus || k.gf - gfE - add * fp >= fp * dgA) ? dgA : 0;
+      var v = { typ: "aufstockung", name: nurDach ? (steil ? t("Dachgeschoss ausbauen (Steildach)", "Attic conversion (pitched roof)") : t("Dachaufbau (Attika)", "Roof extension (attic)")) : t("Aufstockung +", "Extension +") + add + t(" Geschoss" + (add > 1 ? "e" : ""), " storey" + (add > 1 ? "s" : "")),
+        teile: [teil], bestandN: nE, n: nE + add, dach: steil ? "sattel" : (dgA ? "attika" : "flach"), fest: true, score: null };
+      v.fuss = teil.L * teil.T; v.dg = dgA && (!k.gf || k.baufeldModus || k.gf - gfE - add * fp >= fp * dgA) ? dgA : 0;
       v.gf = gfE + v.fuss * (add + v.dg); v.neuGF = v.fuss * (add + v.dg); v.aus = k.gf && !k.baufeldModus ? Math.min(1.2, v.gf / k.gf) : 1;
       res.v = v;
     }
@@ -502,23 +504,24 @@
     if (!b.length) return "";
     var gfE = b.reduce(function (s2, x) { return s2 + (x.gf || 0); }, 0), whgE = b.reduce(function (s2, x) { return s2 + (x.wohnungen || 0); }, 0), best = vs && vs[0];
     var zeilen = b.slice(0, 4).map(function (x) {
-      return "<li><b>" + esc(GKLAS[x.klasse] || t("Gebäude", "Building")) + "</b> · " + zahl(x.flaeche) + " m² " + t("Grundfläche", "footprint") + (x.geschosse ? " · " + x.geschosse + " " + t("Geschosse", "storeys") : "") + (x.jahr ? " · " + t("Baujahr ", "built ") + x.jahr : "") + (x.wohnungen ? " · " + x.wohnungen + " " + t("Wohnungen", "apartments") : "") + "</li>";
+      return "<li><b>" + esc(GKLAS[x.klasse] || t("Gebäude", "Building")) + "</b> · " + zahl(x.flaeche) + " m² " + t("Grundfläche", "footprint") + (x.geschosse ? " · " + x.geschosse + " " + (x.geschosse === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) : "") + (x.jahr ? " · " + t("Baujahr ", "built ") + x.jahr : "") + (x.wohnungen ? " · " + x.wohnungen + " " + (x.wohnungen === 1 ? t("Wohnung", "apartment") : t("Wohnungen", "apartments")) : "") + "</li>";
     }).join("");
-    var vergleich = best && gfE ? '<p class="pz-best-vgl">' + t("Heute ca. ", "Today approx. ") + "<b>" + zahl(gfE) + " m²</b>" + (whgE ? " · " + whgE + " " + t("Whg.", "units") : "") + " → " + t("Ersatzneubau bis ca. ", "replacement up to approx. ") + "<b>" + zahl(best.gf) + " m²</b> (× " + (best.gf / gfE).toFixed(1).replace(".0", "") + ")</p>" : "";
-    return '<div class="pz-bestand"><h5>' + t("Bestand auf der Parzelle", "Existing buildings") + " " + marke("amt") + "</h5><ul>" + zeilen + "</ul>" + vergleich +
+    var vergleich = best && gfE ? '<p class="pz-best-vgl">' + t("Heute ca. ", "Today approx. ") + "<b>" + zahl(gfE) + " m²</b>" + (whgE ? " · " + whgE + " " + t("Whg.", "units") : "") + " → " + t("Ersatzneubau bis ca. ", "replacement up to approx. ") + "<b>" + zahl(best.gf) + " m²</b> (× " + (best.gf / gfE).toFixed(1).replace(".0", "") + ")</p>" + (best.gf < gfE * 0.95 ? '<p class="pz-hint warn small">' + t("Der Bestand ist grösser, als die Zone heute zulässt (Fläche aus dem Gebäuderegister, inkl. Dach-/Untergeschosse). Er geniesst Bestandesgarantie (§ 357 PBG). Ein Ersatzneubau nach Regelbauweise wäre kleiner – lohnend allenfalls mit Arealüberbauung oder Gestaltungsplan, oder als Umbau/Sanierung.", "The existing building exceeds today's zoning; it enjoys protection of existing rights. A replacement would be smaller.") + "</p>" : "") : (gfE ? '<p class="pz-best-vgl">' + t("Heute ca. ", "Today approx. ") + "<b>" + zahl(gfE) + " m²</b> · " + t("zulässig ca. ", "permitted approx. ") + "<b>" + zahl(k.gf) + " m²</b></p>" : "");
+    var schutz = (a.zone || {}).dachform === "sattel" || /^(K|D|Z)\d/.test(a.zoneKey || "") ? '<p class="pz-hint warn small">' + t("Kern-/Dorfzone: Abbruch, Aufstockung und Umbau unterliegen strengen Gestaltungsvorschriften (Kernzonenplan, Dachform, Fenster). Schutzwürdige Bauten (Inventar) dürfen oft nicht abgebrochen werden – vorab mit der Gemeinde klären.", "Core/village zone: strict design rules; protected buildings may not be demolished.") + "</p>" : "";
+    return '<div class="pz-bestand"><h5>' + t("Bestand auf der Parzelle", "Existing buildings") + " " + marke("amt") + "</h5><ul>" + zeilen + "</ul>" + vergleich + schutz +
       '<div class="pz-modus" role="group" aria-label="' + t("Vorgehen", "Approach") + '"><button type="button" data-m="ersatz" aria-pressed="true">' + t("Ersatzneubau", "Replacement") + '</button><button type="button" data-m="auf" aria-pressed="false">' + t("Aufstockung prüfen", "Check extension") + '</button></div><div class="pz-auf"></div></div>';
   }
   function aufstockungAnzeigen(a, k, R, b, box, ersatzZeigen) {
-    var r = aufstockungPruefen(a, k, R, b); r.ersatzGF = (aufstockungAnzeigen.vs || [])[0] ? aufstockungAnzeigen.vs[0].gf : 0; var ziel = box.querySelector(".pz-auf"), liste = box.querySelector(".pz-var"), why = box.querySelector(".pz-why"), go = box.querySelector(".pz-go");
+    var r = aufstockungPruefen(a, k, R, b); if (r.v) r.v.abstandOk = r.abstandOk; r.ersatzGF = (aufstockungAnzeigen.vs || [])[0] ? aufstockungAnzeigen.vs[0].gf : 0; var ziel = box.querySelector(".pz-auf"), liste = box.querySelector(".pz-var"), why = box.querySelector(".pz-why"), go = box.querySelector(".pz-go");
     if (!r.moeglich) {
       ziel.innerHTML = '<div class="pz-hint warn"><b>' + t("Aufstockung nicht möglich", "Extension not possible") + "</b><br>" + esc(r.grenzen.join("; ") || t("die Zonenvorschriften lassen kein weiteres Geschoss zu", "zoning allows no further storey")) + ".<br>" +
-        (liste ? t("Sie können aber einen Ersatzneubau umsetzen – die Varianten oben zeigen bis zu ca. ", "A replacement building is possible – up to approx. ") + zahl(r.ersatzGF || k.gf || 0) + t(" m² Geschossfläche.", " m² floor area.") : t("Auch ein Ersatzneubau ist auf dieser Parzelle nur eingeschränkt möglich.", "Replacement is limited on this plot.")) +
-        '</div><button type="button" class="btn ghost pz-zu-ersatz">' + t("Zum Ersatzneubau", "Show replacement") + "</button>";
-      ziel.querySelector(".pz-zu-ersatz").addEventListener("click", ersatzZeigen);
+        (liste ? (r.ersatzGF && r.ersatzGF < r.gfE * 0.95 ? t("Der Bestand nutzt mehr Fläche, als heute zulässig wäre (Bestandesgarantie § 357 PBG). Ein Ersatzneubau wäre mit ca. ", "The existing building uses more than permitted today. A replacement would be smaller with approx. ") + zahl(r.ersatzGF) + t(" m² kleiner – sinnvoll sind eher Umbau und Sanierung im Bestand.", " m².") : t("Sie können aber einen Ersatzneubau umsetzen – die Varianten zeigen bis zu ca. ", "A replacement building is possible – up to approx. ") + zahl(r.ersatzGF || k.gf || 0) + t(" m² Geschossfläche.", " m² floor area.")) : t("Auch ein Ersatzneubau ist auf dieser Parzelle nur eingeschränkt möglich.", "Replacement is limited on this plot.")) +
+        "</div>" + (liste ? '<button type="button" class="btn ghost pz-zu-ersatz">' + t("Zum Ersatzneubau", "Show replacement") + "</button>" : "");
+      if (liste) ziel.querySelector(".pz-zu-ersatz").addEventListener("click", ersatzZeigen);
       return;
     }
     var v = r.v;
-    ziel.innerHTML = '<div class="pz-hint"><b>' + esc(v.name) + t(" möglich", " possible") + "</b><br>" + t("Bestand ", "Existing ") + v.bestandN + t(" Geschosse (grau) + neu ", " storeys (grey) + new ") + (v.n - v.bestandN) + (v.dg ? " + Attika" : "") + " · " + t("neue Geschossfläche ca. ", "new floor area approx. ") + zahl(v.neuGF) + " m² · " + t("total ca. ", "total approx. ") + zahl(v.gf) + " m²" +
+    ziel.innerHTML = '<div class="pz-hint"><b>' + esc(v.name) + t(" möglich", " possible") + "</b><br>" + t("Bestand ", "Existing ") + v.bestandN + (v.bestandN === 1 ? t(" Geschoss", " storey") : t(" Geschosse", " storeys")) + t(" (grau)", " (grey)") + (v.n > v.bestandN ? " + " + (v.n - v.bestandN) + t(" neue", " new") : "") + (v.dg ? (v.dach === "sattel" ? " + DG" : " + Attika") : "") + " · " + t("neue Geschossfläche ca. ", "new floor area approx. ") + zahl(v.neuGF) + " m² · " + t("total ca. ", "total approx. ") + zahl(v.gf) + " m²" +
       (r.abstandOk ? "" : '<br><span class="pz-warnung">' + t("Der Bestand liegt teilweise im Grenzabstand: Aufstockung nur mit Ausnahmebewilligung bzw. im Rahmen der Bestandesgarantie (§ 357 PBG).", "The building partly lies within the boundary distance: extension only with an exception (§ 357 PBG).") + "</span>") +
       '<br><small>' + t("Annahmen: Statik und Erschliessung erlauben die Aufstockung; Grundfläche vereinfacht als umschliessendes Rechteck; Geschosszahl gemäss Gebäuderegister.", "Assumptions: structure allows extension; simplified footprint; storeys from the federal register.") + "</small></div>" +
       '<button type="button" class="btn pz-auf-go">' + t("Weiter → Wohnungsmix der neuen Geschosse", "Next → unit mix of new storeys") + '<span class="arr"></span></button>';
@@ -579,6 +582,15 @@
     var dach = z.dachform === "sattel" || /Giebeldächer|nur Giebel/i.test((a.gem || {}).dach || "") ? "sattel" : (z.attika || z.dg ? "attika" : "flach");
     var zellen = R.zellen(), kand = [], punktOk = !z.tiefe_max || z.tiefe_max >= PUNKT;
     function maxLaenge(c, T, ang, Lmin, Lcap) { for (var L = Lcap; L >= Lmin; L -= 2) { var p = { c: c, L: L, T: T, ang: ang }; if (R.passt(p)) return p; } return null; }
+    var villa = [];
+    if (k.gf < 1400) {
+      var nV = Math.max(1, Math.min(z.vg || 99, Math.floor((k.hoehe || GH * 3) / GH))), dgV = (dach === "attika" && (z.attika || z.dg)) ? 0.6 : (dach === "sattel" && z.dg ? 0.55 : 0);
+      var zielF = Math.min(PUNKT * PUNKT, k.gf / (nV + dgV));
+      for (var f = 1; f >= 0.55; f -= 0.075) {                 // vom Ziel-Fussabdruck schrittweise kleiner
+        var T0 = Math.max(9, Math.min(13, Math.sqrt(zielF * f / 1.25))), L0 = Math.max(T0, Math.min(T0 * 1.6, zielF * f / T0));
+        if (L0 * T0 >= 80) villa.push([Math.round(L0 * 2) / 2, Math.round(T0 * 2) / 2]);
+      }
+    }
     for (var deg = -60; deg <= 90; deg += 15) {
       var ang = deg * Math.PI / 180, riegel = [];
       zellen.forEach(function (c) { var p = maxLaenge(c, TIEFE, ang, 14, Lmax); if (p) riegel.push(p); });
@@ -615,8 +627,12 @@
         kand.push({ typ: "punkt", teile: gew.slice(0, 1) });
         if (gew.length > 1) kand.push({ typ: "punkt", teile: gew });
       }
+      // Kleines MFH / Stadtvilla: kompaktes Volumen nach Geschossfläche bemessen (z. B. EFH-Parzelle -> 3–4 Wohnungen)
+      if (villa.length) zellen.forEach(function (c) {
+        for (var vi = 0; vi < villa.length; vi++) { var p = { c: c, L: villa[vi][0], T: villa[vi][1], ang: ang }; if (R.passt(p)) { kand.push({ typ: "villa", teile: [p] }); break; } }
+      });
     }
-    var NAMEN = { zeile: t("Zeile / Riegel", "Row / slab"), punkt: t("Punkthaus", "Point block"), winkel: t("Winkel", "L-shape"), hof: t("Hof / U-Form", "Courtyard / U"), kombi: t("Riegel + Punkt", "Slab + point") };
+    var NAMEN = { zeile: t("Zeile / Riegel", "Row / slab"), punkt: t("Punkthaus", "Point block"), winkel: t("Winkel", "L-shape"), hof: t("Hof / U-Form", "Courtyard / U"), kombi: t("Riegel + Punkt", "Slab + point"), villa: t("Kleines MFH / Stadtvilla", "Small apartment house") };
     var beste = {};
     kand.forEach(function (v) { v.dach = dach; v.name = NAMEN[v.typ]; bewerten(v, a, k, R); if (v.ok && (!beste[v.typ] || v.score > beste[v.typ].score)) beste[v.typ] = v; });
     return Object.keys(beste).map(function (x) { return beste[x]; }).sort(function (x, y) { return y.score - x.score; }).slice(0, 5);
@@ -667,10 +683,10 @@
           mix.teile[ti].forEach(function (st) { st.felder.forEach(function (f) {
             add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(f.r)), height: zOf(st.g) + 0.12, extrudedHeight: zOf(st.g) + GH - 0.12, material: C.Color.fromCssColorString(PAL[f.typ]).withAlpha(P ? 1 : 0.96), outline: true, outlineColor: P ? C.Color.fromCssColorString("#2f2d29").withAlpha(0.75) : C.Color.WHITE.withAlpha(0.9) } });
           }); });
-        } else add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: b0 + (v.bestandN || 0) * GH, extrudedHeight: b0 + H, material: WEISS } });
+        } else if (v.n > (v.bestandN || 0)) add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: b0 + (v.bestandN || 0) * GH, extrudedHeight: b0 + H, material: WEISS } });
         if (v.bestandN) add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(r)), height: b0, extrudedHeight: b0 + v.bestandN * GH - (P && X ? 0.1 : 0), material: BESTAND, outline: P, outlineColor: C.Color.fromCssColorString("#2f2d29").withAlpha(0.75) } });
         // Geschossbänder (in der Präsentation: nur Kanten)
-        for (var g = 1; g <= (P ? 0 : v.n); g++) {
+        for (var g = (v.bestandN || 0) + 1; g <= (P ? 0 : v.n); g++) {
           var gr = r.map(function (q) { return [cz[0] + (q[0] - cz[0]) * 1.004, cz[1] + (q[1] - cz[1]) * 1.004]; });
           add({ polygon: { hierarchy: C.Cartesian3.fromDegreesArray(llArr(gr)), height: b0 + g * GH - 0.28, extrudedHeight: b0 + g * GH, material: BAND } });
         }
@@ -680,7 +696,7 @@
           var n = aussenNormale(sd[0], sd[1], cz), Ls = Math.hypot(sd[1][0] - sd[0][0], sd[1][1] - sd[0][1]), e = [(sd[1][0] - sd[0][0]) / Ls, (sd[1][1] - sd[0][1]) / Ls];
           var sued = n[1] < -0.5, schritt = sued ? 3.0 : 3.4, anz = Math.floor((Ls - 1.6) / schritt);
           var start = (Ls - (anz - 1) * schritt) / 2;
-          for (var g2 = 0; g2 < v.n; g2++) {
+          for (var g2 = v.bestandN || 0; g2 < v.n; g2++) {
             for (var w = 0; w < anz; w++) {
               var m = start + w * schritt, wb = sued ? 1.9 : 1.3, z1 = b0 + g2 * GH + (sued ? 0.15 : 0.95), z2 = b0 + g2 * GH + 2.35;
               if (g2 === 0 && !mix && strasseKanten.length && w === Math.floor(anz / 2) && isStrassenSeite(sd, n)) { z1 = b0 + 0.05; z2 = b0 + 2.6; wb = 2.2; }
@@ -834,7 +850,7 @@
       if (mix && mix.teile[ti]) mix.teile[ti].forEach(function (st) { st.felder.forEach(function (f) {
         prismen.push({ pts: f.r.map(L), z0: st.g * GH + st.g * X, z1: (st.g + 1) * GH + st.g * X - 0.05, farbe: PAL[f.typ], kante: "rgba(35,33,30,.8)", grp: ti, lvl: st.g, aussen: ecken(p).map(L) });
       }); });
-      else prismen.push({ pts: ecken(p).map(L), z0: (v.bestandN || 0) * GH, z1: v.n * GH, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)", grp: ti, lvl: 0 });
+      else if (v.n > (v.bestandN || 0)) prismen.push({ pts: ecken(p).map(L), z0: (v.bestandN || 0) * GH, z1: v.n * GH, farbe: "#fbfaf7", kante: "rgba(35,33,30,.8)", grp: ti, lvl: 0 });
       if (v.bestandN) prismen.push({ pts: ecken(p).map(L), z0: 0, z1: v.bestandN * GH - (X ? 0.05 : 0), farbe: "#b8b3aa", kante: "rgba(35,33,30,.8)", grp: ti, lvl: -1 });
       var z0 = v.n * GH + v.n * X;
       if (v.dach === "attika" && v.dg) {
@@ -1051,8 +1067,8 @@
     axoAnzeigen(v, m);
     if (!leg) { leg = el('<div class="pz-legende" aria-live="polite"></div>'); host.appendChild(leg); }
     var nwf = NWF[standard];
-    leg.innerHTML = '<span class="eyebrow">' + t("Potenzialstudie", "Potential study") + '</span><b>' + esc(aktuell.re.MunicipalityName) + " · " + t("Parzelle ", "Plot ") + esc(aktuell.re.Number) + "</b><small>" + esc(aktuell.zoneKey || aktuell.zoneTxt) + " · " + esc(v.name) + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + "</small>" +
-      "<ul>" + Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return '<li><i style="background:' + PRAES_FARBE[x] + '"></i>' + x + " Zi. <span>" + m.zaehl[x] + " × " + nwf[x] + " m²</span></li>"; }).join("") + '<li><i style="background:' + PRAES_FARBE.kern + '"></i>' + t("Erschliessung", "Circulation") + "</li>" + (v.bestandN ? '<li><i style="background:#b8b3aa"></i>' + t("Bestand", "Existing") + " <span>" + v.bestandN + " " + t("Geschosse", "storeys") + "</span></li>" : "") + "</ul>" +
+    leg.innerHTML = '<span class="eyebrow">' + t("Potenzialstudie", "Potential study") + '</span><b>' + esc(aktuell.re.MunicipalityName) + " · " + t("Parzelle ", "Plot ") + esc(aktuell.re.Number) + "</b><small>" + esc(aktuell.zoneKey || aktuell.zoneTxt) + " · " + esc(v.name) + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + "</small>" +
+      "<ul>" + Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return '<li><i style="background:' + PRAES_FARBE[x] + '"></i>' + x + " Zi. <span>" + m.zaehl[x] + " × " + nwf[x] + " m²</span></li>"; }).join("") + (m.teile.some(function (tt) { return tt.some(function (st) { return st.felder.some(function (f) { return f.typ === "kern"; }); }); }) ? '<li><i style="background:' + PRAES_FARBE.kern + '"></i>' + t("Erschliessung", "Circulation") + "</li>" : "") + (v.bestandN ? '<li><i style="background:#b8b3aa"></i>' + t("Bestand", "Existing") + " <span>" + v.bestandN + " " + (v.bestandN === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + "</span></li>" : "") + "</ul>" +
       "<small>" + m.total + " " + t("Wohnungen", "apartments") + " · NWF " + zahl(m.nwf) + " m² · GF " + zahl(v.gf) + " m²</small>";
   }
   function renderMix(v) {
@@ -1096,7 +1112,7 @@
     d.className = "pz-dlg"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-labelledby", "pz-dlg-t");
     d.innerHTML = '<form class="pz-dlg-in" novalidate><button type="button" class="pz-dlg-x" aria-label="' + t("Schliessen", "Close") + '">×</button>' +
       '<span class="eyebrow">' + t("Anfrage an apb architekten", "Enquiry to apb architekten") + '</span><h3 id="pz-dlg-t">' + esc(a.re.MunicipalityName) + " · " + t("Parzelle ", "Plot ") + esc(a.re.Number) + "</h3>" +
-      '<p class="muted small">' + esc(v.name) + " · " + v.n + " " + t("Geschosse", "storeys") + " · GF " + zahl(v.gf) + " m² · " + m.total + " " + t("Wohnungen", "apartments") + "</p>" +
+      '<p class="muted small">' + esc(v.name) + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + " · GF " + zahl(v.gf) + " m² · " + m.total + " " + t("Wohnungen", "apartments") + "</p>" +
       '<fieldset class="pz-wahl"><legend>' + t("Ihr Anliegen", "Your request") + "</legend>" +
       [["gespraech", t("Gespräch vereinbaren", "Arrange a meeting")], ["rueckruf", t("Rückruf", "Call back")], ["pruefen", t("Entwurf prüfen lassen", "Have the draft reviewed")]].map(function (o, i) { return '<label><input type="radio" name="anliegen" value="' + o[1] + '"' + (i ? "" : " checked") + "> " + o[1] + "</label>"; }).join("") + "</fieldset>" +
       '<label class="pz-f"><span>' + t("Name", "Name") + ' *</span><input name="name" required autocomplete="name"></label>' +
@@ -1122,7 +1138,7 @@
       var mixTxt = Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return m.zaehl[x] + " × " + x + " Zi. (" + nwf[x] + " m²)"; }).join(", ");
       var body = [t("Guten Tag", "Hello"), "", t("Anliegen: ", "Request: ") + anl, "",
         t("Parzelle: ", "Plot: ") + a.re.MunicipalityName + " " + a.re.Number + " (EGRID " + a.re.EGRID + ")", t("Zone: ", "Zone: ") + (a.zoneTxt || ""), t("Grundstücksfläche: ", "Plot area: ") + zahl(a.re.LandRegistryArea) + " m²",
-        t("Entwurf: ", "Draft: ") + v.name + ", " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + ", GF " + zahl(v.gf) + " m² (" + Math.round(v.aus * 100) + " %)",
+        t("Entwurf: ", "Draft: ") + v.name + ", " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + ", GF " + zahl(v.gf) + " m² (" + Math.round(v.aus * 100) + " %)",
         t("Wohnungsmix (", "Unit mix (") + standard + "): " + mixTxt + " – " + m.total + " " + t("Wohnungen", "apartments"), "",
         f.msg.value.trim() ? t("Nachricht: ", "Message: ") + f.msg.value.trim() + "\n" : "",
         t("Terminwunsch: ", "Preferred date: ") + (f.termin.value.trim() || "–"),
@@ -1184,10 +1200,10 @@
         doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.setTextColor.apply(doc, DUNKEL);
         doc.text(re.MunicipalityName + " · " + t("Parzelle ", "Plot ") + re.Number, M, 42);
         doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor.apply(doc, GRAU);
-        doc.text(doc.splitTextToSize((a.zoneTxt || "") + " · " + v.name + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : t("Dachgeschoss", "attic")) : ""), W - 2 * M), M, 49);
+        doc.text(doc.splitTextToSize((a.zoneTxt || "") + " · " + v.name + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : t("Dachgeschoss", "attic")) : ""), W - 2 * M), M, 49);
         var hb = bild(bilder.axo, gr[0], M, 56, W - 2 * M, 165);
         var y = 56 + hb + 8, kw = (W - 2 * M - 9) / 4;
-        [[zahl(re.LandRegistryArea) + " m²", t("Grundstücksfläche", "Plot area")], [zahl(v.gf) + " m²", t("Geschossfläche", "Floor area")], [String(m.total), t("Wohnungen", "Apartments")], [Math.round(v.aus * 100) + " %", t("der zulässigen Ausnützung", "of permitted density")]].forEach(function (kz, i) {
+        [[zahl(re.LandRegistryArea) + " m²", t("Grundstücksfläche", "Plot area")], [zahl(v.gf) + " m²", t("Geschossfläche", "Floor area")], [String(m.total), v.bestandN ? t("neue Wohnungen", "new apartments") : t("Wohnungen", "Apartments")], [Math.round(v.aus * 100) + " %", t("der zulässigen Ausnützung", "of permitted density")]].forEach(function (kz, i) {
           var x = M + i * (kw + 3);
           doc.setFillColor(246, 244, 240); doc.rect(x, y, kw, 22, "F");
           doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor.apply(doc, DUNKEL); doc.text(kz[0], x + 4, y + 10);
@@ -1238,8 +1254,8 @@
         doc.setFont("helvetica", "bold"); doc.text("Total", Rx, yr); doc.text(String(m.total), Rx + B * 0.45, yr, { align: "right" }); doc.text(zahl(m.nwf) + " m²", Rx + B, yr, { align: "right" }); yr += 6;
         doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRAU);
         doc.text(doc.splitTextToSize("NWF/GF " + Math.round(m.nwf / v.gf * 100) + " % · " + t("Wohnungen durchgesteckt (Wohnen Süd, Schlafen Nord). Flächen nach Ausbaustandard, Mindestwerte gemäss WBS (BWO).", "Through-units; areas by standard, minima per WBS (BWO)."), B), Rx, yr); yr += 12;
-        yr = abschnitt(Rx, yr, t("Setzung", "Siting"));
-        var gr2 = [[v.strasse > 0.7, t("Adresse zur Strasse, Vorplatz und Zugang", "Address to the street, forecourt and access")], [v.nord > 0.55, t("Volumen im Norden, Aussenraum im Süden", "Building to the north, garden to the south")], [v.ow > 0.7, t("Hauptfassaden nach Süden", "Main facades facing south")], [v.rand > 0.5, t("Luft zu den Nachbarn über den Mindestabstand", "Space to neighbours beyond minimum")]];
+        yr = abschnitt(Rx, yr, v.bestandN ? t("Aufstockung – zu klären", "Extension – to be clarified") : t("Setzung", "Siting"));
+        var gr2 = v.bestandN ? [[!!v.abstandOk, v.abstandOk ? t("Bestand hält die heutigen Grenzabstände ein", "Existing building meets today's distances") : t("Bestand im Grenzabstand: Bestandesgarantie § 357 PBG", "Within boundary distance: § 357 PBG")], [false, t("Tragwerk und Fundation für Zusatzlast prüfen", "Check structure for extra load")], [false, t("Erschliessung: Treppenhaus verlängern, Lift (hindernisfrei)", "Access: extend stair, lift")], [false, t("Brandschutz und Erdbebensicherheit des Bestands", "Fire safety and seismic safety")]] : [[v.strasse > 0.7, t("Adresse zur Strasse, Vorplatz und Zugang", "Address to the street, forecourt and access")], [v.nord > 0.55, t("Volumen im Norden, Aussenraum im Süden", "Building to the north, garden to the south")], [v.ow > 0.7, t("Hauptfassaden nach Süden", "Main facades facing south")], [v.rand > 0.5, t("Luft zu den Nachbarn über den Mindestabstand", "Space to neighbours beyond minimum")]];
         gr2.forEach(function (x) { doc.setFontSize(8.3); doc.setTextColor.apply(doc, x[0] ? [70, 140, 95] : [190, 140, 40]); doc.text(x[0] ? "+" : "–", Rx, yr); doc.setTextColor.apply(doc, DUNKEL); doc.text(doc.splitTextToSize(x[1], B - 5), Rx + 4, yr); yr += 5; });
         fuss(2);
 
@@ -1286,7 +1302,7 @@
         [abstOk, t("Abstände zwischen den Baukörpern", "Distances between volumes")]];
       box.querySelector(".pz-chk").innerHTML = chk.map(function (c) { return '<li class="' + (c[0] ? "" : "m") + '">' + esc(c[1]) + "</li>"; }).join("");
       rwAktualisieren(v);
-      box.querySelector(".pz-edit-kz").textContent = "GF " + zahl(v.gf) + " m² · " + v.n + " " + t("Geschosse", "storeys") + " · Score " + v.score;
+      box.querySelector(".pz-edit-kz").textContent = "GF " + zahl(v.gf) + " m² · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + " · Score " + v.score;
       zeigeVolumen(v, null);
     }
     function anliegend(p, q) { return abstandTeile(p, q) < 0.6; }
@@ -1371,10 +1387,10 @@
       var vs = generieren(a, k, R), bestand = bestandListe(k, umg); aktuellBestand = bestand;
       vs.forEach(function (v) { if (bestand.length) v.ersatz = true; });
       var kopf = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + "</h4>" + bestandHTML(a, k, bestand, vs);
-      var leer = '<p class="pz-hint warn">' + (R && R.flaeche < 260 ? t("Das zulässige Baufeld ist mit ca. ", "The permitted envelope of approx. ") + zahl(R.flaeche) + t(" m² zu klein für einen Neubau mit 13 m Tiefe und mind. 14 m Länge.", " m² is too small for a new building.") + (bestand.length ? t(" Prüfen Sie die Aufstockung des Bestands.", " Check extending the existing building.") : "") : t("Für diese Parzelle konnten keine Neubau-Volumen erzeugt werden (Baufeld zu schmal).", "No massing options could be generated for this plot.")) + "</p>";
+      var leer = '<p class="pz-hint warn">' + (R && R.flaeche < 260 ? t("Das zulässige Baufeld ist mit ca. ", "The permitted envelope of approx. ") + zahl(R.flaeche) + t(" m² zu klein für einen sinnvollen Neubau (Grenz- und Strassenabstände).", " m² is too small for a new building.") + (bestand.length ? t(" Prüfen Sie die Aufstockung des Bestands.", " Check extending the existing building.") : "") : t("Im Baufeld (ca. ", "The permitted envelope (approx. ") + zahl(R.flaeche) + t(" m²) hat kein Neubau nach Regelbauweise Platz – es ist zu schmal oder zu verwinkelt", " m²) is too narrow for a new building") + ((a.zone || {}).tiefe_min ? t(" (Gebäudebreite mind. ", " (min. width ") + a.zone.tiefe_min + " m)" : "") + ". " + t("Mögliche Wege: ", "Options: ") + (bestand.length ? t("Umbau/Aufstockung des Bestands, ", "converting/extending the existing building, ") : "") + t("Näherbaurecht mit den Nachbarn, Zusammenlegung mit einer Nachbarparzelle oder Gestaltungsplan.", "agreement with neighbours, merging plots or a design plan.")) + "</p>";
       var sk = R.kanten.filter(function (e) { return e.strasse; }).length;
       var liste = vs.length ? '<div class="pz-ersatz"><p class="muted small">' + (bestand.length ? t("Ersatzneubau – der Bestand wird abgebrochen. ", "Replacement – existing buildings are demolished. ") : "") + t("Varianten nach Punktzahl der Setzung sortiert (0–100)", "Options sorted by siting score (0–100)") + iKnopf(INFO.score) + "</p><p class=\"muted small\">" + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + ((a.zone || {}).vorzone != null ? a.zone.vorzone : VORZONE) + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p>' + (R.baulinienIgnoriert ? '<p class="pz-hint warn">' + t("Die Baulinien konnten nicht eindeutig einer Strassenseite zugeordnet werden – das Baufeld ist ohne sie gerechnet. Baulinien im ÖREB-Auszug prüfen.", "Building lines could not be assigned; envelope computed without them.") + "</p>" : "") + '<ul class="pz-var">' + vs.map(function (v, i) {
-        return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + ' <i>' + t("Punkte", "points") + "</i></span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + t("Geschosse", "storeys") + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
+        return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + ' <i>' + t("Punkte", "points") + "</i></span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
       }).join("") + '</ul><div class="pz-why"></div><button type="button" class="btn pz-go">' + t("Dieses Volumen entwerfen", "Refine this massing") + '<span class="arr"></span></button></div>' : leer;
       box.innerHTML = kopf + liste + "</div>";
       var gew = vs[0]; aufstockungAnzeigen.vs = vs;
