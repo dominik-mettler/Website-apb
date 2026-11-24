@@ -1514,3 +1514,16 @@ html.pz-on .pz { border: 0; padding: 0; }
 .pz-wahl label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; cursor: pointer; }
 .pz-wahl label:has(input:checked) { border-color: var(--accent); background: rgba(241,93,48,.12); }
 .pz-wahl input { accent-color: var(--accent); }
+
+/* Potenzial: Bestand (Ersatzneubau / Aufstockung) */
+.pz-bestand { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 6px 0 14px; background: var(--stone); }
+.pz-bestand h5 { margin: 0 0 6px; font-size: 13px; letter-spacing: .02em; display: flex; gap: 8px; align-items: center; }
+.pz-bestand ul { margin: 0 0 8px; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+.pz-best-vgl { margin: 0 0 10px; font-size: 13px; }
+.pz-best-vgl b { color: var(--ink); }
+.pz-modus { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pz-modus button { padding: 9px 6px; border-radius: 8px; background: var(--paper, #fff); border: 1px solid var(--line); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.pz-modus button[aria-pressed="true"] { border-color: var(--accent); background: rgba(241,93,48,.1); font-weight: 600; }
+.pz-auf:not(:empty) { margin-top: 10px; }
+.pz-auf .btn { margin-top: 8px; }
+.pz-warnung { color: #b4381c; font-weight: 600; }

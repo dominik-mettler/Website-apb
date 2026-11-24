@@ -63,6 +63,19 @@ Im Tool als **Auswahl Ausbaustandard** (Nettowohnfläche m², Startwerte **[A]**
 - **Kennwerte** **[A/F]**: Geschossfläche → Hauptnutzfläche ~ 0.75–0.80 (Spänner), 0.70–0.75 (Laubengang), 0.72–0.78 (Punkthaus); Aussenbereich min. 3–6 m² nach WBS **[Q]**, Standard mittel 8–12 m² Balkon.
 - **Darstellung**: Jede Wohnung wird als farbiger Teilkörper im Volumen gezeigt (Farbe nach Typ). Die Wohnungen liegen entlang der Südfassade, Kern und Erschliessung an der Nordseite.
 
+## 3a. Bebaute Parzellen: Ersatzneubau oder Aufstockung
+Steht auf der Parzelle schon ein Gebäude (amtliche Vermessung, Grundfläche ≥ 25 m²), zeigt das Tool den Bestand mit Daten aus dem eidg. Gebäude- und Wohnungsregister (GWR): Gebäudeart, Grundfläche, Geschosse, Baujahr, Wohnungen **[Q]**. Dann gibt es zwei Wege:
+
+- **Ersatzneubau** (Standard): Der Bestand wird abgebrochen (gestrichelter Umriss in der 3D-Ansicht), der Generator setzt den Neubau frei ins Baufeld. Vergleich «heute ca. X m² → Ersatzneubau bis ca. Y m²».
+- **Aufstockung prüfen**: Zusätzliche Geschosse = Minimum aus
+  1. zulässige Vollgeschosse minus bestehende Geschosse,
+  2. (Höhe − Bestand × 3.0 m) ÷ 3.0 m,
+  3. (zulässige Geschossfläche − Bestandesfläche) ÷ Grundfläche (entfällt in Zonen mit Baufeld statt Ziffer).
+
+  Reicht es für kein Vollgeschoss, aber ist ein Attikageschoss zulässig, wird ein Dachaufbau geprüft. Geht beides nicht, erscheint der Hinweis «Aufstockung nicht möglich – Ersatzneubau möglich» mit dem Grund **[Q/A]**.
+- Liegt der Bestand im heutigen Grenzabstand, ist eine Aufstockung nur im Rahmen der Bestandesgarantie bzw. mit Ausnahmebewilligung möglich (§ 357 PBG) – das Tool warnt **[Q]**.
+- Annahmen **[A]**: Grundfläche als umschliessendes Rechteck; Geschosszahl aus GWR (zählt teils Dach-/Untergeschosse mit); Statik, Erdbeben, Erschliessung (Lift) und Brandschutz nicht geprüft.
+
 ## 4. Offene Punkte
 - Seegräben: BZO-PDF nicht abrufbar → nachtragen.
 - Wetzikon: nur der Entwurf 2025 ist erfasst → geltende BZO prüfen.
