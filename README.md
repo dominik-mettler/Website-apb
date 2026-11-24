@@ -91,3 +91,4 @@ Jede freigegebene Version steht in `versions.txt` (Name + Commit) und bleibt dau
 | v31 – Pläne im Original, kein Zuschnitt | https://dominik-mettler.github.io/Website-apb/v31/ |
 | v32 – 3D Modell-Look mit Projektvolumen, Fachplaner ergänzt | https://dominik-mettler.github.io/Website-apb/v32/ |
 | v33 – Potenzial-Tool: Generator, Entwerfen, Axo-Präsentation, PDF, Anfrage | https://dominik-mettler.github.io/Website-apb/v33/ |
+| v34 – Potenzial: bebaute Parzellen (Ersatzneubau oder Aufstockung), alle Uster-Zonen | https://dominik-mettler.github.io/Website-apb/v34/ |
