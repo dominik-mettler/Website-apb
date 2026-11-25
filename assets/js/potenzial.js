@@ -274,11 +274,11 @@
     var werte = "";
     if (z && k.keinWohnen) { werte += '<p class="pz-hint warn">' + esc(z.hinweis || t("In dieser Zone sind keine Wohnungen vorgesehen.", "No housing in this zone.")) + "</p>"; } else if (z) {
       werte += zeile(t("Dichte", "Density"), esc(k.dichte), (z.artikel || g.artikel) ? esc(g.name + ", BZO " + (z.artikel || g.artikel)) : "", (z.az ? INFO.az : z.bmz ? INFO.bmz : INFO.uez), "bzo");
-      werte += zeile(t("Geschosse", "Storeys"), z.vg ? z.vg + " VG" + (z.dg != null ? " + " + z.dg + " DG" : "") + (z.attika ? " / Attika" : "") : (t("frei im Rahmen der Höhen", "free within height limits")), INFO.geschosse, "bzo");
-      werte += zeile(t("Fassadenhöhe", "Facade height"), z.fh ? zahl(z.fh, 1) + " m" + (z.fh_giebel ? " · " + t("giebelseitig", "gable") + " " + zahl(z.fh_giebel, 1) + " m" : "") : (z.gh ? t("Gebäudehöhe ", "Building height ") + zahl(z.gh, 1) + " m" : ""), INFO.fh, "bzo");
-      werte += zeile(t("Gebäudelänge", "Building length"), z.laenge ? "max. " + z.laenge + " m" : "", INFO.laenge, "bzo");
+      werte += zeile(t("Geschosse", "Storeys"), z.vg ? z.vg + " VG" + (z.dg != null ? " + " + z.dg + " DG" : "") + (z.attika ? " / Attika" : "") : (t("frei im Rahmen der Höhen", "free within height limits")), "", INFO.geschosse, "bzo");
+      werte += zeile(t("Fassadenhöhe", "Facade height"), z.fh ? zahl(z.fh, 1) + " m" + (z.fh_giebel ? " · " + t("giebelseitig", "gable") + " " + zahl(z.fh_giebel, 1) + " m" : "") : (z.gh ? t("Gebäudehöhe ", "Building height ") + zahl(z.gh, 1) + " m" : ""), "", INFO.fh, "bzo");
+      werte += zeile(t("Gebäudelänge", "Building length"), z.laenge ? "max. " + z.laenge + " m" : "", "", INFO.laenge, "bzo");
       werte += zeile(t("Grenzabstand", "Boundary distance"), (z.ga_k ? (z.ga_g ? t("klein ", "small ") : t("Grundabstand ", "basic ")) + zahl(z.ga_k, 1) + " m" + (z.ga_max ? " (max. " + zahl(z.ga_max, 1) + " m)" : "") : "") + (z.ga_g ? " · " + t("gross ", "large ") + zahl(z.ga_g, 1) + " m" : ""), g.grosser_abstand ? esc(g.grosser_abstand) : "", INFO.abstand, "bzo");
-      werte += zeile(t("Grünflächenziffer", "Green space ratio"), z.gfz_gruen ? "min. " + Math.round(z.gfz_gruen * 100) + " %" : "", INFO.gruen, "bzo");
+      werte += zeile(t("Grünflächenziffer", "Green space ratio"), z.gfz_gruen ? "min. " + Math.round(z.gfz_gruen * 100) + " %" : "", "", INFO.gruen, "bzo");
       werte += '<div class="pz-sep"></div>';
       werte += zeile(t("Geschossfläche max.", "Max. floor area"), k.gf ? "ca. " + zahl(k.gf) + " m²" : "", k.bm ? t("Baumasse ", "Building volume ") + zahl(k.bm) + " m³ ÷ " + GH + " m" : "", INFO.gf, "calc");
       werte += zeile(t("Baufeld", "Building envelope"), k.bfA ? "ca. " + zahl(k.bfA) + " m²" : t("nicht berechenbar", "not computable"), k.fuss && k.bfA ? (k.fuss <= k.bfA ? t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² " + t("passt", "fits") : t("Fussabdruck ", "Footprint ") + zahl(k.fuss) + " m² > " + t("Baufeld – Höhe/Länge begrenzt", "envelope – limited by height/length")) : "", INFO.baufeld, "calc");
