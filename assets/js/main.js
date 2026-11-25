@@ -32,7 +32,7 @@
     var y = window.scrollY;
     var threshold = document.body.classList.contains("on-dark") ? window.innerHeight * 0.75 : 10;
     header.classList.toggle("is-solid", y > threshold);
-    var hide = y > 400 && y > lastY + 4 && !document.body.classList.contains("menu-open");
+    var hide = y > 400 && y > lastY + 4 && !document.body.classList.contains("menu-open") && !document.documentElement.classList.contains("pz-on");   // im Potenzial-Tool bleibt die Kopfzeile (3D klebt darunter)
     if (y < lastY - 4 || y < 400) hide = false;
     if (Math.abs(y - lastY) > 4) {
       header.classList.toggle("is-hidden", hide);

@@ -111,6 +111,9 @@
         animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false, requestRenderMode: true, maximumRenderTimeChange: Infinity
       });
       var sc = viewer.scene;
+      // Handy: Speicher sparen (sonst lädt iOS/Android die Seite beim Navigieren neu)
+      var MOBIL = (function () { try { return matchMedia("(max-width: 900px), (pointer: coarse)").matches; } catch (e) { return false; } })();
+      if (MOBIL) { sc.globe.tileCacheSize = 40; sc.globe.maximumScreenSpaceError = 3; }
       var PAPIER = Cesium.Color.fromCssColorString("#e4e1da");
       sc.globe.baseColor = PAPIER;
       sc.globe.depthTestAgainstTerrain = true;
@@ -199,7 +202,7 @@
       }
       terrainReady = Cesium.CesiumTerrainProvider.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.terrain.3d/v1/", { requestVertexNormals: true });
       terrainReady.then(function (t) { if (viewer) { viewer.terrainProvider = t; sc.requestRender(); } }).catch(function () {});
-      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json", { maximumScreenSpaceError: 4, shadows: Cesium.ShadowMode.DISABLED }).then(function (ts) {
+      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json", { maximumScreenSpaceError: MOBIL ? 12 : 4, cacheBytes: MOBIL ? 80 * 1024 * 1024 : 512 * 1024 * 1024, maximumCacheOverflowBytes: MOBIL ? 32 * 1024 * 1024 : 512 * 1024 * 1024, shadows: Cesium.ShadowMode.DISABLED }).then(function (ts) {
         if (!viewer) return;
         tileset = ts; sc.primitives.add(ts);
         ts.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.REPLACE;
@@ -209,7 +212,7 @@
         sc.requestRender();
       }).catch(function () { var l = box && box.querySelector(".m3d-load"); if (l) l.innerHTML = "3D-Gebäude konnten nicht geladen werden."; });
       // Bäume (swissTLM3D Vegetation): als ruhige, grüngraue Kugeln/Kegel
-      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.vegetation.3d/v1/tileset.json", { maximumScreenSpaceError: 8, shadows: Cesium.ShadowMode.DISABLED }).then(function (ts) {
+      Cesium.Cesium3DTileset.fromUrl("https://3d.geo.admin.ch/ch.swisstopo.vegetation.3d/v1/tileset.json", { maximumScreenSpaceError: MOBIL ? 24 : 8, cacheBytes: MOBIL ? 24 * 1024 * 1024 : 256 * 1024 * 1024, maximumCacheOverflowBytes: MOBIL ? 8 * 1024 * 1024 : 256 * 1024 * 1024, shadows: Cesium.ShadowMode.DISABLED }).then(function (ts) {
         if (!viewer) return;
         trees = ts; sc.primitives.add(ts);
         ts.colorBlendMode = Cesium.Cesium3DTileColorBlendMode.MIX; ts.colorBlendAmount = 0.75;

@@ -1439,9 +1439,17 @@ html.pz-on .pz { border: 0; padding: 0; }
 .pz-tab tfoot td { font-weight: 600; }
 @media (max-width: 900px) {
   html.pz-on body { overflow: auto; }
+  html.pz-on, html.pz-on body { overscroll-behavior-y: none; }   /* kein «Ziehen zum Neuladen» beim Navigieren im 3D */
   .pz-voll { position: static; display: flex; flex-direction: column-reverse; margin-top: var(--head); }
-  .pz-karte { height: 62vh; }
-  .pz-side { border-right: 0; overflow: visible; }
+  /* 3D bleibt beim Scrollen oben sichtbar – Änderungen im Entwurf/Wohnungsmix sieht man sofort */
+  .pz-karte { position: sticky; top: var(--head); z-index: 30; height: 44vh; height: 44svh; border-bottom: 1px solid var(--line-2); box-shadow: 0 8px 18px rgba(0,0,0,.25); }
+  .pz-karte canvas, .pz-axo { touch-action: none; }
+  .pz-side { border-right: 0; overflow: visible; padding: 18px 16px 28px; }
+  /* Legende: kompakt unten links statt grosser Kasten über dem Modell */
+  .pz-karte .pz-legende { top: auto; bottom: 8px; left: 8px; width: auto; max-width: calc(100% - 16px); padding: 7px 10px; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .pz-karte .pz-legende .eyebrow, .pz-karte .pz-legende small, .pz-karte .pz-legende ul { display: none; }
+  .pz-karte .pz-legende b { font-size: 12.5px; margin: 0; }
+  .pz-side .pz-sek, .pz-edit, .pz-mix, .pz-res { scroll-margin-top: calc(var(--head) + 44svh + 12px); }
 }
 .pz-move { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 14px; }
 .pz-move button { padding: 9px 0; border-radius: 8px; background: var(--stone); border: 1px solid var(--line); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }

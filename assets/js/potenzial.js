@@ -1055,7 +1055,11 @@
     gwrLaden(aktuellUmg || { gebaeude: [] }).then(function () { if (axoZustand) malen(); });
   }
   function axoAus() { axoZustand = null; if (axoCv) axoCv.hidden = true; }
-  function axoBild(v, m, opt, w, h) { var cv = document.createElement("canvas"); cv.width = w; cv.height = h; zeichneAxo(cv, v, m, opt); return cv.toDataURL("image/png"); }
+  var MOBIL = (function () { try { return matchMedia("(max-width: 900px), (pointer: coarse)").matches; } catch (e) { return false; } })();
+  function axoBild(v, m, opt, w, h) {        // Handy: kleiner und als JPEG (Speicher – sonst lädt iOS die Seite neu)
+    var f = MOBIL ? 0.55 : 1, cv = document.createElement("canvas"); cv.width = Math.round(w * f); cv.height = Math.round(h * f); zeichneAxo(cv, v, m, opt);
+    var u = MOBIL ? cv.toDataURL("image/jpeg", 0.9) : cv.toDataURL("image/png"); cv.width = cv.height = 1; return u;
+  }
 
   /* ---------- Präsentation: Volumen freigestellt als Axonometrie ---------- */
   var praesAn = false, explo = false, blick = 225;
@@ -1203,7 +1207,7 @@
           doc.setTextColor.apply(doc, GRAU); doc.text(titel.toUpperCase(), W - M, 17.5, { align: "right" });
           doc.setFont("helvetica", "normal"); doc.text(datum, W - M, 22, { align: "right" });
         }
-        function bild(u, gr2, x, y, w, hmax) { var h = w * gr2[1] / gr2[0]; if (h > hmax) { h = hmax; } doc.addImage(u, "PNG", x, y, w, h, undefined, "FAST"); return h; }
+        function bild(u, gr2, x, y, w, hmax) { var h = w * gr2[1] / gr2[0]; if (h > hmax) { h = hmax; } doc.addImage(u, /^data:image\/jpeg/.test(u) ? "JPEG" : "PNG", x, y, w, h, undefined, "FAST"); return h; }
         function zeileKV(x, y, w, l, val) {
           doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor.apply(doc, GRAU); doc.text(String(l), x, y);
           doc.setTextColor.apply(doc, DUNKEL); var tx = doc.splitTextToSize(String(val), w * 0.58); doc.text(tx, x + w * 0.42, y);
@@ -1441,6 +1445,7 @@
   function waehle(treffer) {
     root.querySelector(".pz-liste").innerHTML = "";
     root.querySelector(".pz-q").value = treffer.label;
+    try { sessionStorage.setItem("apb-pz-letzte", JSON.stringify({ lat: treffer.lat, lon: treffer.lon, label: treffer.label })); } catch (e) {}
     meldung(t("Parzelle und ÖREB-Kataster werden abgefragt …", "Querying plot and PLR cadastre …"));
     praesentation(false); gwrHoehen = null; gwrAttr = null; aktuellBestand = [];
     root.querySelector(".pz-res").hidden = true; root.querySelector(".pz-vol").hidden = true; root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true;
@@ -1468,6 +1473,8 @@
   form.addEventListener("submit", function (e) { e.preventDefault(); var b = liste.querySelector("button"); if (b) b.click(); });
   root.querySelector(".pz-std").addEventListener("change", function (e) { standard = e.target.value; if (aktuell) { praesentation(false); aktuell.k = kennwerte(aktuell); render(aktuell, aktuell.k); } });
   // 3D starten, sobald eingeloggt
-  if (document.documentElement.classList.contains("pz-on")) karte();
-  document.addEventListener("pz-login", function () { karte(); });
+  // Letzte Parzelle wiederherstellen (z. B. wenn das Handy die Seite neu geladen hat)
+  function wiederherstellen() { if (aktuell) return; try { var l = JSON.parse(sessionStorage.getItem("apb-pz-letzte") || "null"); if (l && l.lat) waehle(l); } catch (e) {} }
+  if (document.documentElement.classList.contains("pz-on")) { karte(); wiederherstellen(); }
+  document.addEventListener("pz-login", function () { karte(); wiederherstellen(); });
 })();
