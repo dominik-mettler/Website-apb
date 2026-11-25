@@ -1473,6 +1473,8 @@ html.pz-on .pz { border: 0; padding: 0; }
 .pz-i { display: inline-grid; place-items: center; width: 17px; height: 17px; margin-left: 6px; border-radius: 50%; border: 1px solid var(--line); color: var(--ink-2); font: italic 600 11px/1 Georgia, serif; cursor: pointer; vertical-align: 1px; background: transparent; }
 .pz-i:hover, .pz-i[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
 .pz-info { display: block; grid-column: 1 / -1; margin: 8px 0 4px; padding: 10px 12px; background: var(--stone); border-radius: 6px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); font-weight: 400; font-style: normal; }
+.pz-info[hidden] { display: none !important; }
+[class*="pz-"][hidden], .pz-voll [hidden], .pz-dlg [hidden] { display: none !important; }
 .pz-kv > span { display: flex; flex-wrap: wrap; align-items: baseline; }
 .pz-ampel b .pz-info { font-weight: 400; }
 /* Potenzial – Quellen, Rechenweg, Hinweis */
