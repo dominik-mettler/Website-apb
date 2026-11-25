@@ -636,6 +636,8 @@
     var NAMEN = { zeile: t("Zeile / Riegel", "Row / slab"), punkt: t("Punkthaus", "Point block"), winkel: t("Winkel", "L-shape"), hof: t("Hof / U-Form", "Courtyard / U"), kombi: t("Riegel + Punkt", "Slab + point"), villa: t("Kleines MFH / Stadtvilla", "Small apartment house") };
     var beste = {};
     kand.forEach(function (v) { v.dach = dach; v.name = NAMEN[v.typ]; bewerten(v, a, k, R); if (v.ok && (!beste[v.typ] || v.score > beste[v.typ].score)) beste[v.typ] = v; });
+    // Stadtvilla nur, wo sonst nichts Sinnvolles passt (kleine Parzellen) – sonst verdrängt sie effizientere Typen
+    if (beste.villa && Object.keys(beste).length > 1 && k.gf >= 600) delete beste.villa;
     return Object.keys(beste).map(function (x) { return beste[x]; }).sort(function (x, y) { return y.score - x.score; }).slice(0, 5);
   }
   function gruende(v) {
