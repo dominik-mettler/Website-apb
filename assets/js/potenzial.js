@@ -516,7 +516,8 @@
     if (!r.moeglich) {
       ziel.innerHTML = '<div class="pz-hint warn"><b>' + t("Aufstockung nicht möglich", "Extension not possible") + "</b><br>" + esc(r.grenzen.join("; ") || t("die Zonenvorschriften lassen kein weiteres Geschoss zu", "zoning allows no further storey")) + ".<br>" +
         (liste ? (r.ersatzGF && r.ersatzGF < r.gfE * 0.95 ? t("Der Bestand nutzt mehr Fläche, als heute zulässig wäre (Bestandesgarantie § 357 PBG). Ein Ersatzneubau wäre mit ca. ", "The existing building uses more than permitted today. A replacement would be smaller with approx. ") + zahl(r.ersatzGF) + t(" m² kleiner – sinnvoll sind eher Umbau und Sanierung im Bestand.", " m².") : t("Sie können aber einen Ersatzneubau umsetzen – die Varianten zeigen bis zu ca. ", "A replacement building is possible – up to approx. ") + zahl(r.ersatzGF || k.gf || 0) + t(" m² Geschossfläche.", " m² floor area.")) : t("Auch ein Ersatzneubau ist auf dieser Parzelle nur eingeschränkt möglich.", "Replacement is limited on this plot.")) +
-        "</div>" + (liste ? '<button type="button" class="btn ghost pz-zu-ersatz">' + t("Zum Ersatzneubau", "Show replacement") + "</button>" : "");
+        "</div>" + (liste ? '<button type="button" class="btn ghost pz-zu-ersatz">' + t("Zum Ersatzneubau", "Show replacement") + "</button>" : "") + (liste && r.ersatzGF && r.ersatzGF < r.gfE * 0.95 ? keineLoesungHTML() : "");
+      keineLoesungVerbinden(ziel);
       if (liste) ziel.querySelector(".pz-zu-ersatz").addEventListener("click", ersatzZeigen);
       return;
     }
@@ -1107,14 +1108,27 @@
   }
 
   /* ---------- Anfrage an apb (statische Seite: E-Mail-Programm mit vorausgefüllter Nachricht + PDF) ---------- */
-  function anfrageDialog(v, m) {
+  function keineLoesungHTML() {               // Box unter «geht nicht»-Erklärungen: persönliche Prüfung anfragen
+    return '<div class="pz-anfrage-box pz-keine"><b>' + t("Das Tool findet gerade keine Lösung – wir schon?", "The tool finds no solution – we might.") + "</b><p>" + t("Viele Parzellen lassen sich mit Erfahrung trotzdem entwickeln: mit Näherbaurecht, Ausnahmen, Gestaltungsplan, Zusammenlegung oder einem klugen Umbau. Stellen Sie uns eine Anfrage – wir prüfen Ihre Parzelle persönlich.", "Many plots can still be developed with experience. Send us an enquiry – we will review your plot personally.") + '</p><button type="button" class="btn pz-anfrage-keine">' + t("Persönlich prüfen lassen / Erstgespräch vereinbaren", "Request a personal review / first meeting") + '<span class="arr"></span></button></div>';
+  }
+  function keineLoesungVerbinden(box) {
+    Array.prototype.forEach.call(box.querySelectorAll(".pz-anfrage-keine"), function (b) {
+      if (b._pz) return; b._pz = 1;
+      b.addEventListener("click", function () {
+        var sek = b.closest(".pz-sek") || box, hs = [].map.call(sek.querySelectorAll(".pz-hint.warn, .pz-auf .pz-hint"), function (x) { return x.innerText.replace(/\s+/g, " ").trim(); });
+        anfrageDialog(null, null, { grund: hs.join("\n") });
+      });
+    });
+  }
+  function anfrageDialog(v, m, opt) {
+    opt = opt || {};
     var a = aktuell, d = document.createElement("div");
     d.className = "pz-dlg"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-labelledby", "pz-dlg-t");
     d.innerHTML = '<form class="pz-dlg-in" novalidate><button type="button" class="pz-dlg-x" aria-label="' + t("Schliessen", "Close") + '">×</button>' +
       '<span class="eyebrow">' + t("Anfrage an apb architekten", "Enquiry to apb architekten") + '</span><h3 id="pz-dlg-t">' + esc(a.re.MunicipalityName) + " · " + t("Parzelle ", "Plot ") + esc(a.re.Number) + "</h3>" +
-      '<p class="muted small">' + esc(v.name) + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + " · GF " + zahl(v.gf) + " m² · " + m.total + " " + t("Wohnungen", "apartments") + "</p>" +
+      (v ? '<p class="muted small">' + esc(v.name) + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + " · GF " + zahl(v.gf) + " m² · " + m.total + " " + t("Wohnungen", "apartments") + "</p>" : '<p class="muted small">' + esc(a.zoneTxt || "") + " · " + zahl(a.re.LandRegistryArea) + " m² · " + t("Das Tool hat keine Lösung gefunden – wir prüfen die Parzelle persönlich.", "No automatic solution – we will review the plot personally.") + "</p>") +
       '<fieldset class="pz-wahl"><legend>' + t("Ihr Anliegen", "Your request") + "</legend>" +
-      [["gespraech", t("Gespräch vereinbaren", "Arrange a meeting")], ["rueckruf", t("Rückruf", "Call back")], ["pruefen", t("Entwurf prüfen lassen", "Have the draft reviewed")]].map(function (o, i) { return '<label><input type="radio" name="anliegen" value="' + o[1] + '"' + (i ? "" : " checked") + "> " + o[1] + "</label>"; }).join("") + "</fieldset>" +
+      (v ? [["gespraech", t("Gespräch vereinbaren", "Arrange a meeting")], ["rueckruf", t("Rückruf", "Call back")], ["pruefen", t("Entwurf prüfen lassen", "Have the draft reviewed")]] : [["pruefen", t("Parzelle persönlich prüfen", "Personal review of the plot")], ["gespraech", t("Erstgespräch vereinbaren", "Arrange a first meeting")], ["rueckruf", t("Rückruf", "Call back")]]).map(function (o, i) { return '<label><input type="radio" name="anliegen" value="' + o[1] + '"' + (i ? "" : " checked") + "> " + o[1] + "</label>"; }).join("") + "</fieldset>" +
       '<label class="pz-f"><span>' + t("Name", "Name") + ' *</span><input name="name" required autocomplete="name"></label>' +
       '<label class="pz-f"><span>' + t("E-Mail", "Email") + ' *</span><input name="mail" type="email" required autocomplete="email"></label>' +
       '<label class="pz-f"><span>' + t("Telefon", "Phone") + '</span><input name="tel" type="tel" autocomplete="tel"></label>' +
@@ -1123,7 +1137,7 @@
       '<label class="pz-f"><span>' + t("Nachricht", "Message") + '</span><textarea name="msg" rows="3"></textarea></label>' +
       '<p class="pz-err" role="alert" hidden></p>' +
       '<button type="submit" class="btn">' + t("E-Mail vorbereiten", "Prepare email") + '<span class="arr"></span></button>' +
-      '<p class="muted small">' + t("Ihr E-Mail-Programm öffnet sich mit allen Angaben an info@apb-architekten.ch. Gleichzeitig wird die Potenzialstudie als PDF heruntergeladen – bitte hängen Sie sie der E-Mail an. Lieber direkt? +41 44 944 60 80.", "Your email program opens with all details; the PDF is downloaded – please attach it.") + "</p></form>";
+      '<p class="muted small">' + (v ? t("Ihr E-Mail-Programm öffnet sich mit allen Angaben an info@apb-architekten.ch. Gleichzeitig wird die Potenzialstudie als PDF heruntergeladen – bitte hängen Sie sie der E-Mail an. Lieber direkt? +41 44 944 60 80.", "Your email program opens with all details; the PDF is downloaded – please attach it.") : t("Ihr E-Mail-Programm öffnet sich mit allen Angaben zur Parzelle an info@apb-architekten.ch. Lieber direkt? +41 44 944 60 80.", "Your email program opens with all plot details. Prefer to call? +41 44 944 60 80.")) + "</p></form>";
     document.body.appendChild(d);
     var f = d.querySelector("form"), zu = function () { d.remove(); document.removeEventListener("keydown", esc2); }, esc2 = function (e) { if (e.key === "Escape") zu(); };
     document.addEventListener("keydown", esc2);
@@ -1135,20 +1149,21 @@
       var err = f.querySelector(".pz-err");
       if (!f.name.value.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.mail.value.trim())) { err.textContent = t("Bitte Name und eine gültige E-Mail-Adresse angeben.", "Please enter your name and a valid email address."); err.hidden = false; return; }
       var anl = f.querySelector("input[name=anliegen]:checked").value, nwf = NWF[standard];
-      var mixTxt = Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return m.zaehl[x] + " × " + x + " Zi. (" + nwf[x] + " m²)"; }).join(", ");
+      var mixTxt = !m ? "" : Object.keys(m.zaehl).filter(function (x) { return m.zaehl[x]; }).map(function (x) { return m.zaehl[x] + " × " + x + " Zi. (" + nwf[x] + " m²)"; }).join(", ");
       var body = [t("Guten Tag", "Hello"), "", t("Anliegen: ", "Request: ") + anl, "",
         t("Parzelle: ", "Plot: ") + a.re.MunicipalityName + " " + a.re.Number + " (EGRID " + a.re.EGRID + ")", t("Zone: ", "Zone: ") + (a.zoneTxt || ""), t("Grundstücksfläche: ", "Plot area: ") + zahl(a.re.LandRegistryArea) + " m²",
-        t("Entwurf: ", "Draft: ") + v.name + ", " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + ", GF " + zahl(v.gf) + " m² (" + Math.round(v.aus * 100) + " %)",
-        t("Wohnungsmix (", "Unit mix (") + standard + "): " + mixTxt + " – " + m.total + " " + t("Wohnungen", "apartments"), "",
+        v ? t("Entwurf: ", "Draft: ") + v.name + ", " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + ", GF " + zahl(v.gf) + " m² (" + Math.round(v.aus * 100) + " %)" : t("Ergebnis des Tools: keine automatische Lösung", "Tool result: no automatic solution"),
+        v ? t("Wohnungsmix (", "Unit mix (") + standard + "): " + mixTxt + " – " + m.total + " " + t("Wohnungen", "apartments") : (opt.grund ? t("Begründung des Tools: ", "Reason: ") + opt.grund : ""),
+        !v && aktuellBestand.length ? t("Bestand: ", "Existing: ") + aktuellBestand.map(function (x) { return (GKLAS[x.klasse] || t("Gebäude", "Building")) + ", " + zahl(x.flaeche) + " m²" + (x.geschosse ? ", " + x.geschosse + " G." : "") + (x.jahr ? ", " + x.jahr : ""); }).join("; ") : "", "",
         f.msg.value.trim() ? t("Nachricht: ", "Message: ") + f.msg.value.trim() + "\n" : "",
         t("Terminwunsch: ", "Preferred date: ") + (f.termin.value.trim() || "–"),
         "", f.name.value.trim() + " (" + f.rolle.value + ")", f.mail.value.trim() + (f.tel.value.trim() ? " · " + f.tel.value.trim() : ""), "",
-        t("(Potenzialstudie als PDF im Anhang)", "(Potential study PDF attached)")].join("\n");
-      var subj = t("Potenzialstudie ", "Potential study ") + a.re.MunicipalityName + " " + a.re.Number + " – " + anl;
+        v ? t("(Potenzialstudie als PDF im Anhang)", "(Potential study PDF attached)") : ""].join("\n");
+      var subj = (v ? t("Potenzialstudie ", "Potential study ") : t("Parzelle prüfen ", "Plot review ")) + a.re.MunicipalityName + " " + a.re.Number + " – " + anl;
       var knopf = f.querySelector("button[type=submit]");
-      pdfErstellen(v, m, knopf).then(function () {
+      (v ? pdfErstellen(v, m, knopf) : Promise.resolve()).then(function () {
         window.location.href = "mailto:info@apb-architekten.ch?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
-        f.innerHTML = '<span class="eyebrow">' + t("Fast geschafft", "Almost done") + '</span><h3>' + t("Ihr E-Mail-Programm ist geöffnet.", "Your email program is open.") + "</h3><p>" + t("Bitte hängen Sie das soeben heruntergeladene PDF an und senden Sie die E-Mail ab. Wir melden uns in der Regel innerhalb von zwei Arbeitstagen.", "Please attach the downloaded PDF and send the email.") + '</p><button type="button" class="btn pz-dlg-ok">' + t("Schliessen", "Close") + "</button>";
+        f.innerHTML = '<span class="eyebrow">' + t("Fast geschafft", "Almost done") + '</span><h3>' + t("Ihr E-Mail-Programm ist geöffnet.", "Your email program is open.") + "</h3><p>" + (v ? t("Bitte hängen Sie das soeben heruntergeladene PDF an und senden Sie die E-Mail ab. Wir melden uns in der Regel innerhalb von zwei Arbeitstagen.", "Please attach the downloaded PDF and send the email.") : t("Bitte senden Sie die E-Mail ab. Wir prüfen Ihre Parzelle und melden uns in der Regel innerhalb von zwei Arbeitstagen.", "Please send the email. We usually reply within two working days.")) + '</p><button type="button" class="btn pz-dlg-ok">' + t("Schliessen", "Close") + "</button>";
         f.querySelector(".pz-dlg-ok").addEventListener("click", zu);
       });
     });
@@ -1379,7 +1394,7 @@
     var box = root.querySelector(".pz-vol"); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true;
     box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="muted small">' + t("Strassen, Nachbarbauten und Bestand werden geladen, Varianten werden gerechnet …", "Loading streets, neighbours and existing buildings, computing options …") + "</p></div>"; box.hidden = false;
     if (!k.ring) return;
-    if (k.keinWohnen) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("In dieser Zone sind keine Wohnungen vorgesehen – deshalb kein Wohnungs-Volumen. Für eine Umzonung oder Sondernutzung ist eine Abklärung mit der Gemeinde nötig.", "No housing in this zone.") + "</p></div>"; return; }
+    if (k.keinWohnen) { box.innerHTML = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + '</h4><p class="pz-hint warn">' + t("In dieser Zone sind keine Wohnungen vorgesehen – deshalb kein Wohnungs-Volumen. Für eine Umzonung oder Sondernutzung ist eine Abklärung mit der Gemeinde nötig.", "No housing in this zone.") + "</p>" + keineLoesungHTML() + "</div>"; keineLoesungVerbinden(box); return; }
     umgebung(k.ring).then(function (umg) { return gwrLaden(umg).then(function () { return umg; }); }).then(function (umg) {
       var R = raster(a, k, umg); aktuellR = R; aktuellUmg = umg; rwAktualisieren(null);
       if (window.APB_DEBUG) window.APB_DEBUG.R = R;
@@ -1387,12 +1402,12 @@
       var vs = generieren(a, k, R), bestand = bestandListe(k, umg); aktuellBestand = bestand;
       vs.forEach(function (v) { if (bestand.length) v.ersatz = true; });
       var kopf = '<div class="pz-sek"><h4>' + t("2 · Volumen", "2 · Massing") + "</h4>" + bestandHTML(a, k, bestand, vs);
-      var leer = '<p class="pz-hint warn">' + (R && R.flaeche < 260 ? t("Das zulässige Baufeld ist mit ca. ", "The permitted envelope of approx. ") + zahl(R.flaeche) + t(" m² zu klein für einen sinnvollen Neubau (Grenz- und Strassenabstände).", " m² is too small for a new building.") + (bestand.length ? t(" Prüfen Sie die Aufstockung des Bestands.", " Check extending the existing building.") : "") : t("Im Baufeld (ca. ", "The permitted envelope (approx. ") + zahl(R.flaeche) + t(" m²) hat kein Neubau nach Regelbauweise Platz – es ist zu schmal oder zu verwinkelt", " m²) is too narrow for a new building") + ((a.zone || {}).tiefe_min ? t(" (Gebäudebreite mind. ", " (min. width ") + a.zone.tiefe_min + " m)" : "") + ". " + t("Mögliche Wege: ", "Options: ") + (bestand.length ? t("Umbau/Aufstockung des Bestands, ", "converting/extending the existing building, ") : "") + t("Näherbaurecht mit den Nachbarn, Zusammenlegung mit einer Nachbarparzelle oder Gestaltungsplan.", "agreement with neighbours, merging plots or a design plan.")) + "</p>";
+      var leer = '<p class="pz-hint warn">' + (R && R.flaeche < 260 ? t("Das zulässige Baufeld ist mit ca. ", "The permitted envelope of approx. ") + zahl(R.flaeche) + t(" m² zu klein für einen sinnvollen Neubau (Grenz- und Strassenabstände).", " m² is too small for a new building.") + (bestand.length ? t(" Prüfen Sie die Aufstockung des Bestands.", " Check extending the existing building.") : "") : t("Im Baufeld (ca. ", "The permitted envelope (approx. ") + zahl(R.flaeche) + t(" m²) hat kein Neubau nach Regelbauweise Platz – es ist zu schmal oder zu verwinkelt", " m²) is too narrow for a new building") + ((a.zone || {}).tiefe_min ? t(" (Gebäudebreite mind. ", " (min. width ") + a.zone.tiefe_min + " m)" : "") + ". " + t("Mögliche Wege: ", "Options: ") + (bestand.length ? t("Umbau/Aufstockung des Bestands, ", "converting/extending the existing building, ") : "") + t("Näherbaurecht mit den Nachbarn, Zusammenlegung mit einer Nachbarparzelle oder Gestaltungsplan.", "agreement with neighbours, merging plots or a design plan.")) + "</p>" + keineLoesungHTML();
       var sk = R.kanten.filter(function (e) { return e.strasse; }).length;
       var liste = vs.length ? '<div class="pz-ersatz"><p class="muted small">' + (bestand.length ? t("Ersatzneubau – der Bestand wird abgebrochen. ", "Replacement – existing buildings are demolished. ") : "") + t("Varianten nach Punktzahl der Setzung sortiert (0–100)", "Options sorted by siting score (0–100)") + iKnopf(INFO.score) + "</p><p class=\"muted small\">" + t("Zulässiges Baufeld ca. ", "Permitted envelope approx. ") + zahl(R.flaeche) + " m² · " + (sk ? t("Strassenseite erkannt – Vorzone ", "Street side detected – forecourt ") + ((a.zone || {}).vorzone != null ? a.zone.vorzone : VORZONE) + " m" : t("keine Strasse direkt angrenzend", "no adjacent street")) + '</p>' + (R.baulinienIgnoriert ? '<p class="pz-hint warn">' + t("Die Baulinien konnten nicht eindeutig einer Strassenseite zugeordnet werden – das Baufeld ist ohne sie gerechnet. Baulinien im ÖREB-Auszug prüfen.", "Building lines could not be assigned; envelope computed without them.") + "</p>" : "") + '<ul class="pz-var">' + vs.map(function (v, i) {
         return '<li><button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '"><b>' + esc(v.name) + '</b><span class="sc">' + v.score + ' <i>' + t("Punkte", "points") + "</i></span><small>" + v.teile.length + " " + t("Baukörper", "volumes") + " · " + v.n + " " + (v.n === 1 ? t("Geschoss", "storey") : t("Geschosse", "storeys")) + (v.dg ? " + " + (v.dach === "attika" ? "Attika" : "DG") : "") + " · GF " + zahl(v.gf) + " m² · " + Math.round(v.aus * 100) + " %</small><span class=\"bar\"><i style=\"width:" + v.score + '%"></i></span></button></li>';
       }).join("") + '</ul><div class="pz-why"></div><button type="button" class="btn pz-go">' + t("Dieses Volumen entwerfen", "Refine this massing") + '<span class="arr"></span></button></div>' : leer;
-      box.innerHTML = kopf + liste + "</div>";
+      box.innerHTML = kopf + liste + "</div>"; keineLoesungVerbinden(box);
       var gew = vs[0]; aufstockungAnzeigen.vs = vs;
       function waehleV(i) { gew = vs[i]; rwAktualisieren(gew); Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.setAttribute("aria-pressed", +b.dataset.i === i); }); box.querySelector(".pz-why").innerHTML = gruende(gew); root.querySelector(".pz-mix").hidden = true; root.querySelector(".pz-edit").hidden = true; zeigeVolumen(gew, null); }
       Array.prototype.forEach.call(box.querySelectorAll(".pz-var button"), function (b) { b.addEventListener("click", function () { waehleV(+b.dataset.i); }); });
