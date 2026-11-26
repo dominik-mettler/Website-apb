@@ -1,0 +1,7 @@
+{
+  "_hinweis": "Nachweise pro Projekt (Projekt-ID wie in content/basis.json). Nur geprüfte Angaben eintragen, Kosten nur mit Einverständnis der Bauherrschaft. 'facts' erscheint in der Faktenliste der Projektseite, 'quellen' als Links unter «Nachweise» (z. B. Projektseite der Gemeinde, Wettbewerbsbericht, Presseartikel). Wird von tools/projekte_einbauen.py übernommen.",
+  "_beispiel": {
+    "facts": [["Kosteneinhaltung", "Bauabrechnung 3 % unter Kostenvoranschlag"], ["Auszeichnung", "Auszeichnung guter Bauten Kanton Zürich 2024"]],
+    "quellen": [["Gemeinde Musterdorf: Projektseite", "https://www.musterdorf.ch/projekt"], ["Wettbewerbsbericht (PDF)", "https://www.musterdorf.ch/bericht.pdf"]]
+  }
+}

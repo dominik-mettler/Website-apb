@@ -601,6 +601,7 @@
       (areal.length ? '<p class="p-areal rv" style="--d:.15s">Teil der <b>' + esc(p.areal) + '</b> <span>– ebenfalls auf diesem Areal:</span> ' + areal.map(function (q) { return '<a href="' + url(q) + '">' + esc(q.name) + "</a>"; }).join(", ") + "</p>" : "") +
       '<div class="p-cats rv" style="--d:.2s">' + p.cats.map(function (c) { return '<a class="chip" href="projekte.html#thema=' + c + '">' + catLabel[c] + "</a>"; }).join("") + "</div></div>" +
       '<aside class="facts rv"><dl>' + p.facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" +
+        (p.quellen && p.quellen.length ? '<div class="p-quellen"><span class="eyebrow">' + (D.lang === "en" ? "Sources" : "Nachweise") + '</span><ul>' + p.quellen.map(function (q) { return '<li><a href="' + esc(q[1]) + '" target="_blank" rel="noopener">' + esc(q[0]) + " ↗</a></li>"; }).join("") + "</ul></div>" : "") +
       '<div class="mini-map map" id="mini-map" aria-label="Standort auf der Karte"></div><button type="button" class="btn-3d" id="p3d"><span aria-hidden="true">3D</span>Umgebung in 3D ansehen<i aria-hidden="true">→</i></button></aside></div>' +
       (gal ? '<div class="gallery' + (n > 4 ? " lead-wide" : "") + '">' + gal + "</div>" : "") + "</div>" +
       (p.desc && p.desc.length ? '<section class="section tight p-desc"><div class="wrap"><div class="section-head"><h2 class="h2 rv">Projektbeschrieb</h2></div><div class="p-desc-grid">' +

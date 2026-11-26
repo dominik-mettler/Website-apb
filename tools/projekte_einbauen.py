@@ -165,6 +165,15 @@ for p in D['projects']:
     if v: p['mio'] = v
     if p.get('year') is None: p['year'] = jahr(dict(p['facts']).get('Fertigstellung'))
 
+# Nachweise (content/nachweise.json): Kosteneinhaltung, Auszeichnungen, Links auf fremde Quellen
+NW = {k: v for k, v in json.load(open(os.path.join(R, 'content/nachweise.json'), encoding='utf-8')).items() if not k.startswith('_')}
+for p in D['projects']:
+    n = NW.get(p['id'])
+    if not n: continue
+    fx = dict(p['facts'])
+    for k, v in n.get('facts', []): fx[k] = v
+    p['facts'] = [[k, fx[k]] for k in fx]
+    if n.get('quellen'): p['quellen'] = [[t, u] for t, u in n['quellen'] if u.startswith('https://')]
 for p in D['projects']:   # Original-Referenzblatt (tools/referenzblaetter.py)
     if os.path.exists(os.path.join(R, 'assets/ref', p['id'] + '.pdf')): p['ref'] = 'assets/ref/' + p['id'] + '.pdf'
 def _slug(t):

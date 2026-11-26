@@ -211,7 +211,8 @@ import hashlib
 daten(); i18n()
 DATA_V = hashlib.md5(open(os.path.join(R, 'assets/js/data-en.js'), 'rb').read()).hexdigest()[:8]
 I18N_V = hashlib.md5(open(os.path.join(R, 'assets/js/i18n-en.js'), 'rb').read()).hexdigest()[:8]
-AUSNAHMEN = {'praesentation.html'}   # interne Präsentation bleibt deutsch
+AUSNAHMEN = {'praesentation.html',   # interne Präsentation bleibt deutsch
+             'schulbau.html', 'wohnungsbau.html', 'oeffentliche-bauten.html', 'umbau-sanierung.html'}   # Themenseiten macht tools/seo.py (DE + EN)
 for fn in sorted(os.listdir(R)):
     if not fn.endswith('.html') or fn in AUSNAHMEN or re.match(r'projekt-[\d-]+-', fn): continue   # Projektseiten macht tools/seo.py
     if 'http-equiv="refresh"' in open(os.path.join(R, fn), encoding='utf-8').read(): continue
