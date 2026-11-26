@@ -33,7 +33,7 @@ FOOTER = '''<footer class="site-footer">
       <div class="col"><h2 class="f-h">Atelier</h2>apb architekten ag<br>Seestrasse 110a<br>8610 Uster</div>
       <div class="col"><h2 class="f-h">Kontakt</h2><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
       <div class="col"><h2 class="f-h">Schwerpunkte</h2><a href="schulbau.html">Schulbau</a><br><a href="wohnungsbau.html">Wohnungsbau</a><br><a href="oeffentliche-bauten.html">Öffentliche Bauten</a><br><a href="umbau-sanierung.html">Umbau und Sanierung</a></div>
-      <div class="col"><h2 class="f-h">Navigation</h2><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a><br><a href="potenzial.html">Potenzial (Login)</a></div>
+      <div class="col"><h2 class="f-h">Navigation</h2><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a><br><a href="potenzial.html">Potenzial (Login)</a><br><a href="cms.html">CMS (Login)</a></div>
     </div>
     <div class="giant" aria-hidden="true"><img src="assets/img/logo-light.svg" alt="" width="729" height="126" loading="lazy"></div>
     <div class="bottom"><span>© <span data-year>2026</span> apb architekten ag · Mitglied SIA · MINERGIE®-Fachpartner</span><span><a href="impressum.html">Impressum &amp; Datenschutz</a></span></div>
@@ -85,7 +85,7 @@ def page(fn, cur, title, desc, body, pg, dark=False, leaflet=False, extra_head='
 {extra_head}
 <script>try{{if(sessionStorage.getItem('apb-pt')){{document.documentElement.classList.add('pt-in');sessionStorage.removeItem('apb-pt')}}{'' if not intro else ''}}}catch(e){{}}</script>
 {INTRO_HEAD if intro else ''}
-{'<link rel="preload" as="image" href="assets/img/p2/333-kff/01.webp" media="(min-width: 900px)" fetchpriority="high"><link rel="preload" as="image" href="assets/img/p2/333-kff/01-s.webp" media="(max-width: 899px)" fetchpriority="high">' if intro and HOME_VARIANT == 'A' else ''}
+{HERO_PRELOAD if intro and HOME_VARIANT == 'A' else ''}
 </head>
 <body data-page="{pg}"{' class="on-dark"' if dark else ''}>
 {INTRO if intro else ''}<div class="pt" aria-hidden="true" hidden><div class="pt-mark">{MARK}</div></div>
@@ -154,6 +154,20 @@ HERO_C = """<section class="mo" aria-label="Projekte">
   </div></div>
 </section>"""
 HERO = {'A': HERO_A, 'B': HERO_B, 'C': HERO_C}[HOME_VARIANT]
+# CMS (assets/data/cms.json): Startbilder der Startseite und Reihenfolge der Blöcke
+CMS = json.load(open(os.path.join(OUT, 'assets/data/cms.json'), encoding='utf-8')) if os.path.exists(os.path.join(OUT, 'assets/data/cms.json')) else {}
+_hero_ids = (CMS.get('startseite') or {}).get('hero')
+if _hero_ids: HERO = re.sub(r'data-slides="[^"]*"', 'data-slides="%s"' % ','.join(_hero_ids), HERO, count=1)
+def _hero_bild(klein):
+    pid = (_hero_ids or ['333-kff'])[0]
+    try:
+        _s = open(os.path.join(OUT, 'assets/js/data.js'), encoding='utf-8').read(); _d = json.loads(_s[_s.index('{'):_s.rindex('}') + 1])
+        _p = next(x for x in _d['projects'] if x['id'] == pid)
+        if _p.get('files'): return _p['files'][0] + ('-s.webp' if klein else '.jpg')
+        return (_p.get('base') or 'assets/img/projects/%s/' % pid) + ('01-s.webp' if klein else '01.webp')
+    except Exception:
+        return 'assets/img/p2/333-kff/' + ('01-s.webp' if klein else '01.webp')
+HERO_PRELOAD = '<link rel="preload" as="image" href="%s" media="(min-width: 900px)" fetchpriority="high"><link rel="preload" as="image" href="%s" media="(max-width: 899px)" fetchpriority="high">' % (_hero_bild(False), _hero_bild(True))
 
 # ---------------------------------------------------------------- AKTUELL (Daten)
 _aj = {}; exec(open(os.path.join(OUT, 'content/aktuell.py')).read(), _aj); AKTUELL = _aj['AKTUELL']
@@ -279,6 +293,25 @@ home = f'''
 ''' + cta('Wir freuen uns<br>auf Ihr Projekt.')
 
 page('index.html', '', 'apb architekten ag – Architektur, Planung und Beratung in Uster', 'apb architekten ag in Uster: Architektur, Planung, Bauleitung und Beratung für private und öffentliche Bauherren im Kanton Zürich – seit 1996.', home, 'home', dark=True, leaflet=True, intro=True)
+# Startseiten-Blöcke aus dem CMS: Reihenfolge ändern / ausblenden (Startbild und Kontakt bleiben fest)
+BLOECKE = [('hero', 'class="hero"'), ('intro', 'seit 1996</span>'), ('jubilaeum', 'id="jubilaeum"'), ('auswahl', 'id="rail"'), ('aktuell', '>Aktuell</span>'),
+           ('themen', '>Themen</span>'), ('leistungen', '>Leistungen</span>'), ('karte', 'Im Kanton Zürich verwurzelt'), ('karriere', '>Karriere</span>'), ('kontakt', 'class="wrap cta"')]
+_bs = (CMS.get('seiten') or {}).get('index.html') or {}
+if _bs.get('reihenfolge') or _bs.get('aus'):
+    _f = os.path.join(OUT, 'index.html'); _doc = open(_f, encoding='utf-8').read()
+    _m = re.search(r'(<main id="main">)(.*)(</main>)', _doc, re.S)
+    _teile = [t for t in re.split(r'(?=<section)', _m.group(2)) if t.strip()]
+    _kenn = {}
+    for t in _teile:
+        k = next((k for k, mk in BLOECKE if mk in t and k not in _kenn), None)
+        if k: _kenn[k] = t
+    if len(_kenn) == len(_teile):     # nur umbauen, wenn jeder Block eindeutig erkannt wurde
+        _mitte = [k for k in (_bs.get('reihenfolge') or []) if k in _kenn and k not in ('hero', 'kontakt')]
+        _mitte += [k for k, _ in BLOECKE if k in _kenn and k not in _mitte and k not in ('hero', 'kontakt')]
+        _mitte = [k for k in _mitte if k not in (_bs.get('aus') or [])]
+        _neu = '\n'.join(_kenn[k] for k in ['hero'] + _mitte + ['kontakt'] if k in _kenn)
+        open(_f, 'w', encoding='utf-8').write(_doc[:_m.start(2)] + '\n' + _neu + '\n' + _doc[_m.end(2):])
+    else: print('WARNUNG: Startseiten-Blöcke nicht eindeutig erkannt – Reihenfolge aus dem CMS nicht angewendet')
 
 # ---------------------------------------------------------------- PROJEKTE
 icons = {
@@ -778,6 +811,41 @@ potenzial = """
 </script>
 """
 potenzial += '<script src="' + V('assets/js/potenzial.js') + '" defer></script>\n'
+# ---------- CMS (Testversion): Projekte, Medien, Startseite bearbeiten -> assets/data/cms.json via GitHub ----------
+_hero_std = re.search(r'data-slides="([^"]*)"', HERO).group(1)
+cms_body = """
+<div class="cms-wrap" data-cms>
+  <section class="page-hero cms-login-hero"><div class="wrap">
+    <span class="eyebrow">Intern · Inhalte bearbeiten</span>
+    <h1 class="display" data-split>CMS</h1>
+    <form class="pz-login" data-cms-login autocomplete="on" novalidate>
+      <h2 class="pz-h">Anmelden</h2>
+      <p class="muted">Projekte, Bilder, Pläne und Startseite bearbeiten. Testversion – Zugangsdaten erhalten Sie von apb architekten.</p>
+      <label class="pz-f"><span>Benutzername</span><input name="u" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+      <label class="pz-f"><span>Passwort</span><input name="p" type="password" autocomplete="current-password" required></label>
+      <p class="pz-err" role="alert" hidden>Benutzername oder Passwort stimmt nicht.</p>
+      <button class="btn" type="submit">Anmelden<span class="arr"></span></button>
+    </form>
+  </div></section>
+  <div class="cms" data-cms-app data-hero-std="__HERO__" hidden></div>
+</div>
+<script>
+(function(){
+  var H="76ca705cf50bdf7e8fadd4c47ebe6ee61c84d5c7ef99a57abb565d18ad04ef8d",K="apb-cms";
+  var box=document.querySelector("[data-cms]"),f=box.querySelector("[data-cms-login]"),app=box.querySelector("[data-cms-app]"),hero=box.querySelector(".cms-login-hero"),err=f.querySelector(".pz-err");
+  function zeig(an){hero.hidden=an;app.hidden=!an;document.documentElement.classList.toggle("cms-on",an);if(an)document.dispatchEvent(new Event("cms-login"));}
+  try{if(sessionStorage.getItem(K)===H)zeig(true)}catch(e){}
+  async function hash(t){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+  f.addEventListener("submit",async function(e){e.preventDefault();
+    var h=await hash(f.u.value.trim().toLowerCase()+":"+f.p.value);
+    if(h===H){err.hidden=true;try{sessionStorage.setItem(K,H)}catch(x){}f.reset();zeig(true)}
+    else{err.hidden=false;f.p.value="";f.p.focus();f.classList.remove("pz-shake");void f.offsetWidth;f.classList.add("pz-shake")}});
+  document.addEventListener("cms-logout",function(){try{sessionStorage.removeItem(K);sessionStorage.removeItem("apb-cms-token")}catch(x){}zeig(false);location.reload()});
+})();
+</script>
+""".replace('__HERO__', _hero_std) + '<script src="' + V('assets/js/cms.js') + '" defer></script>\n'
+page('cms.html', 'cms.html', 'CMS · apb architekten', 'Interner Bereich: Inhalte der Website bearbeiten.', cms_body, 'cms', extra_head='<meta name="robots" content="noindex, nofollow">')
+
 page('potenzial.html', 'potenzial.html', 'Potenzial – Machbarkeit & Areal-Check · apb architekten', 'Interner Bereich der apb architekten ag: Machbarkeitsstudien und Potenzialanalysen für Grundstücke.', potenzial, 'potenzial', extra_head='' if PREVIEW else '<meta name="robots" content="noindex, nofollow">')
 
 # ---------------------------------------------------------------- IMPRESSUM
@@ -844,7 +912,7 @@ for _path, _target in REDIRECTS.items():
 ''')
 print('redirects', len(REDIRECTS))
 
-CSP = """default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wmts.geo.admin.ch https://3d.geo.admin.ch; connect-src 'self' https://wmts.geo.admin.ch https://3d.geo.admin.ch https://api3.geo.admin.ch https://maps.zh.ch; worker-src 'self' blob:; font-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"""
+CSP = """default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://wmts.geo.admin.ch https://3d.geo.admin.ch; connect-src 'self' https://api.github.com https://wmts.geo.admin.ch https://3d.geo.admin.ch https://api3.geo.admin.ch https://maps.zh.ch; worker-src 'self' blob:; font-src 'self' data:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'"""
 # 301-Weiterleitungen der alten Adressen für den Live-Server (Apache .htaccess); erhält das Google-Ranking
 with open(os.path.join(OUT, '.htaccess'), 'w') as _h:
     _h.write('''# Sicherheit (getestet: Karten, 3D-Ansicht, Video, alle Seiten laufen mit diesen Regeln)

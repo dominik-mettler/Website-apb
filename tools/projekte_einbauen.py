@@ -90,7 +90,7 @@ for pid in sorted(os.listdir(C)):
     for i, f in enumerate(sel['fotos'], 1):
         n = '%02d' % i; target = f'{out}/{n}.jpg'
         srcf = os.path.join(src, f['datei'])
-        if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(srcf):
+        if not os.path.exists(target) or (not os.environ.get('APB_CI') and os.path.getmtime(target) < os.path.getmtime(srcf)):
             im = Image.open(srcf).convert('RGB')
             save(im, target, 1600, q=80); save(im, f'{out}/{n}-s.jpg', 800, q=76); save(im, f'{out}/{n}-s.webp', 800, 'WEBP', 76)
             if i == 1: save(im, f'{out}/{n}.webp', 1600, 'WEBP', 78)
@@ -100,7 +100,7 @@ for pid in sorted(os.listdir(C)):
     for k, f in enumerate(sel['plaene'], 1):
         target = f'{out}/plan-%02d.webp' % k; orig = os.path.join(src, f['datei'])
         # Pläne werden nie zugeschnitten: Original 1:1, die einheitliche Darstellung regelt das Layout (CSS)
-        if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(orig) or os.path.getmtime(target) < os.path.getmtime(__file__):
+        if not os.path.exists(target) or (not os.environ.get('APB_CI') and (os.path.getmtime(target) < os.path.getmtime(orig) or os.path.getmtime(target) < os.path.getmtime(__file__))):
             im = Image.open(orig).convert('L')
             save(im, target, 2400, 'WEBP', 90); save(im, f'{out}/plan-%02d-s.webp' % k, 1200, 'WEBP', 88)
         plans.append(f['unterschrift'])
@@ -142,6 +142,68 @@ VIDEO = {'310-gws': {'src': 'assets/video/310-gws-bauablauf.mp4', 'poster': 'ass
                      'text': 'Film der Baustellen-Webcam, 2016 – 2017'}}
 for pid, v in VIDEO.items():
     if pid in byid: byid[pid]['video'] = v
+
+# 5c: Änderungen aus dem CMS (assets/data/cms.json, geschrieben von cms.html) – haben Vorrang vor allem anderen
+CMS = json.load(open(os.path.join(R, 'assets/data/cms.json'), encoding='utf-8')) if os.path.exists(os.path.join(R, 'assets/data/cms.json')) else {}
+def _dims(stem):
+    for ext in ('.jpg', '.webp'):
+        f = os.path.join(R, stem + ext)
+        if os.path.exists(f): return list(Image.open(f).size)
+    return [1600, 1067]
+def _varianten(stem, plan=False):
+    """Hochgeladenes Original aus dem CMS (<stem>-orig.jpg/png) -> Web-Grössen wie bei allen anderen Bildern."""
+    orig = next((os.path.join(R, stem + '-orig' + e) for e in ('.jpg', '.png', '.webp') if os.path.exists(os.path.join(R, stem + '-orig' + e))), None)
+    if not orig: return
+    if plan:
+        if os.path.exists(os.path.join(R, stem + '.webp')): return
+        im = Image.open(orig).convert('L')
+        save(im, os.path.join(R, stem + '.webp'), 2400, 'WEBP', 90); save(im, os.path.join(R, stem + '-s.webp'), 1200, 'WEBP', 88)
+    else:
+        if os.path.exists(os.path.join(R, stem + '.jpg')): return
+        im = Image.open(orig).convert('RGB')
+        save(im, os.path.join(R, stem + '.jpg'), 1600, q=80); save(im, os.path.join(R, stem + '-s.jpg'), 800, q=76)
+        save(im, os.path.join(R, stem + '-s.webp'), 800, 'WEBP', 76); save(im, os.path.join(R, stem + '.webp'), 1600, 'WEBP', 78)
+def _cms_anwenden(p, c):
+    for k in ('name', 'ort', 'sub', 'text', 'status', 'areal'):
+        if k in c: p[k] = c[k]
+    if 'year' in c: p['year'] = c['year'] or None
+    if 'cats' in c: p['cats'] = c['cats']
+    if 'sel' in c: p['sel'] = bool(c['sel'])
+    if 'facts' in c: p['facts'] = [list(x) for x in c['facts'] if x[0] and x[1]]
+    if 'desc' in c: p['desc'] = [list(x) for x in c['desc'] if x[1]]
+    if 'geo' in c and c['geo']: p['geo'] = c['geo']; p['geoExakt'] = True
+    if 'quellen' in c: p['quellen'] = [list(x) for x in c['quellen'] if str(x[1]).startswith('https://')]
+    if 'en' in c: p['cms_en'] = c['en']
+    if 'bilder' in c:                     # Reihenfolge, Bildunterschriften, ausgeblendete und neue Bilder
+        b = [x for x in c['bilder'] if x.get('src') and not x.get('aus')]
+        for x in b: _varianten(x['src'])
+        p['files'] = [x['src'] for x in b]; p['img'] = [_dims(x['src']) for x in b]
+        p['cap'] = {str(i + 1): x['cap'] for i, x in enumerate(b) if x.get('cap')}
+        p.pop('base', None) if not b else None
+    if 'plaene' in c:
+        b = [x for x in c['plaene'] if x.get('src') and not x.get('aus')]
+        for x in b: _varianten(x['src'], True)
+        p['planfiles'] = [x['src'] for x in b]; p['plans'] = [x.get('cap', '') for x in b]
+for pid, c in (CMS.get('neu') or {}).items():
+    if pid in byid: continue
+    p = {'id': pid, 'nr': c.get('nr') or pid.split('-')[0], 'name': c.get('name', pid), 'ort': c.get('ort', ''), 'sub': c.get('sub', ''), 'text': c.get('text', ''),
+         'facts': [], 'year': None, 'status': 'Realisiert', 'cats': [], 'neu': True}
+    D['projects'].append(p); byid[pid] = p
+    _cms_anwenden(p, c)
+for pid, c in (CMS.get('projekte') or {}).items():
+    if pid in byid: _cms_anwenden(byid[pid], c)
+_aus = {pid for pid, c in list((CMS.get('projekte') or {}).items()) + list((CMS.get('neu') or {}).items()) if c.get('versteckt')}
+D['projects'] = [p for p in D['projects'] if p['id'] not in _aus]
+if (CMS.get('startseite') or {}).get('leiste'): D['rail'] = CMS['startseite']['leiste']
+for p in D['projects']:                   # Versionskennung, wenn die Bildliste aus dem CMS kommt
+    if p.get('files'):
+        import hashlib as _hl
+        _x = _hl.md5()
+        for st in p['files']:
+            for suf in ('.jpg', '-s.webp'):
+                fp = os.path.join(R, st + suf)
+                if os.path.exists(fp): _x.update(str(os.path.getsize(fp)).encode() + open(fp, 'rb').read(4096))
+        p['fv'] = _x.hexdigest()[:8]
 
 # 6: Merkmale
 def mio(p):

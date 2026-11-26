@@ -6,6 +6,40 @@
 
   var D = window.APB || { projects: [], cats: [] };
   var ROOT = window.APB_ROOT || "";
+  /* ---------- CMS-Vorschau (?cms=1): Entwurf aus dem CMS anzeigen, bevor er veröffentlicht ist ---------- */
+  var CMSV = /[?&]cms=1\b/.test(location.search) ? (function () { try { return JSON.parse(localStorage.getItem("apb-cms-entwurf") || "null"); } catch (e) { return null; } })() : null;
+  if (CMSV) {
+    try { if (window.parent && window.parent !== window && window.parent.APB_BLOB) window.APB_BLOB = window.parent.APB_BLOB; else if (window.opener && window.opener.APB_BLOB) window.APB_BLOB = window.opener.APB_BLOB; } catch (e) {}
+    var anw = function (p, c) {
+      ["name", "ort", "sub", "text", "status", "areal"].forEach(function (k) { if (k in c) p[k] = c[k]; });
+      if ("year" in c) p.year = c.year || null; if ("cats" in c) p.cats = c.cats; if ("sel" in c) p.sel = !!c.sel;
+      if ("facts" in c) p.facts = c.facts.filter(function (x) { return x[0] && x[1]; });
+      if ("desc" in c) p.desc = c.desc.filter(function (x) { return x[1]; });
+      if (c.geo) { p.geo = c.geo; p.geoExakt = true; }
+      if ("quellen" in c) p.quellen = c.quellen;
+      if (c.bilder) { var b = c.bilder.filter(function (x) { return x.src && !x.aus; }); p.files = b.map(function (x) { return x.src; }); p.img = b.map(function (x) { return x.dim || [1600, 1067]; }); p.cap = {}; b.forEach(function (x, i) { if (x.cap) p.cap[i + 1] = x.cap; }); p.fv = ""; }
+      if (c.plaene) { var q = c.plaene.filter(function (x) { return x.src && !x.aus; }); p.planfiles = q.map(function (x) { return x.src; }); p.plans = q.map(function (x) { return x.cap || ""; }); p.pv = ""; }
+    };
+    var ids = {}; D.projects.forEach(function (p) { ids[p.id] = p; });
+    Object.keys(CMSV.neu || {}).forEach(function (id) { if (ids[id]) return; var c = CMSV.neu[id]; var p = { id: id, nr: c.nr || id.split("-")[0], name: c.name || id, ort: c.ort || "", sub: "", text: "", facts: [], cats: [], status: "Realisiert", img: [], url: "projekt.html?p=" + id }; D.projects.unshift(p); ids[id] = p; anw(p, c); });
+    Object.keys(CMSV.projekte || {}).forEach(function (id) { if (ids[id]) anw(ids[id], CMSV.projekte[id]); });
+    D.projects = D.projects.filter(function (p) { var c = (CMSV.projekte || {})[p.id] || (CMSV.neu || {})[p.id]; return !(c && c.versteckt); });
+    D.projects.forEach(function (p) { p.url = "projekt.html?p=" + p.id + "&cms=1"; });
+    var st = CMSV.startseite || {}; if (st.leiste) D.rail = st.leiste;
+    var hz = document.querySelector(".hero[data-slides]"); if (hz && st.hero && st.hero.length) hz.setAttribute("data-slides", st.hero.join(","));
+    var bl = (CMSV.seiten || {})["index.html"], mainEl = document.getElementById("main");
+    if (bl && mainEl && document.body.getAttribute("data-page") === "home") {
+      var MK = [["hero", ".hero"], ["intro", null], ["jubilaeum", "#jubilaeum"], ["auswahl", "#rail"], ["aktuell", null], ["themen", null], ["leistungen", null], ["karte", null], ["karriere", null], ["kontakt", ".cta"]];
+      var secs = Array.prototype.slice.call(mainEl.children).filter(function (e) { return e.tagName === "SECTION"; });
+      if (secs.length === MK.length) {
+        var map = {}; secs.forEach(function (e, i) { map[MK[i][0]] = e; });
+        var mitte = (bl.reihenfolge || []).filter(function (k) { return map[k] && k !== "hero" && k !== "kontakt"; });
+        MK.forEach(function (m) { if (mitte.indexOf(m[0]) < 0 && m[0] !== "hero" && m[0] !== "kontakt") mitte.push(m[0]); });
+        mitte.forEach(function (k) { mainEl.insertBefore(map[k], map.kontakt); if ((bl.aus || []).indexOf(k) > -1) map[k].hidden = true; });
+      }
+    }
+    var badge = document.createElement("div"); badge.className = "cms-vorschau-badge"; badge.textContent = "Vorschau · Entwurf aus dem CMS – noch nicht veröffentlicht"; document.body.appendChild(badge);
+  }
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -17,8 +51,8 @@
   D.projects.forEach(function (p) { byId[p.id] = p; });
 
   /* ---------- helpers ---------- */
-  function img(p, i, small) { var n = i || 1, b = (p.base || ROOT + "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg") + (p.fv ? "?v=" + p.fv : ""); }
-  function plan(p, k, small) { return (p.base || "") + "plan-" + String(k).padStart(2, "0") + (small ? "-s" : "") + ".webp" + (p.pv ? "?v=" + p.pv : ""); }
+  function img(p, i, small) { var n = i || 1; if (p.files && p.files[n - 1] && window.APB_BLOB && window.APB_BLOB[p.files[n - 1]]) return window.APB_BLOB[p.files[n - 1]]; if (p.files && p.files[n - 1]) return (/^(https?:|\.\.\/)/.test(p.files[n - 1]) ? "" : ROOT) + p.files[n - 1] + (small ? "-s.webp" : ".jpg") + (p.fv ? "?v=" + p.fv : ""); var b = (p.base || ROOT + "assets/img/projects/" + p.id + "/") + String(n).padStart(2, "0"); return b + (small ? "-s.webp" : n === 1 ? ".webp" : ".jpg") + (p.fv ? "?v=" + p.fv : ""); }
+  function plan(p, k, small) { if (p.planfiles && p.planfiles[k - 1] && window.APB_BLOB && window.APB_BLOB[p.planfiles[k - 1]]) return window.APB_BLOB[p.planfiles[k - 1]]; if (p.planfiles && p.planfiles[k - 1]) return p.planfiles[k - 1] + (small ? "-s" : "") + ".webp" + (p.pv ? "?v=" + p.pv : ""); return (p.base || "") + "plan-" + String(k).padStart(2, "0") + (small ? "-s" : "") + ".webp" + (p.pv ? "?v=" + p.pv : ""); }
   function url(p) { return p.url || "projekt.html?p=" + encodeURIComponent(p.id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function yearOf(p) { return p.year || (p.status === "Nicht realisiert" ? "Projekt" : "–"); }
@@ -297,7 +331,7 @@
     /* selection rail */
     var rail = $("#rail");
     if (rail) {
-      var order = ["319-sag", "333-kff", "310-gws", "292-mlw", "313-gbw", "318-epu", "263-piu"];
+      var order = D.rail || ["319-sag", "333-kff", "310-gws", "292-mlw", "313-gbw", "318-epu", "263-piu"];
       var sel = order.map(function (id) { return byId[id]; }).filter(Boolean);
       rail.innerHTML = sel.map(function (p) {
         return '<div class="rail-item">' + card(p) + "</div>";

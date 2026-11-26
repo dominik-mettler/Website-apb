@@ -28,6 +28,9 @@ ORG = BASE + '#org'
 
 def abs_url(lang, fn): return BASE + ('en/' if lang == 'en' else '') + fn
 def bild(p, i=1, gross=True):
+    if p.get('files') and len(p['files']) >= i:
+        f = p['files'][i - 1].replace('../', '')
+        return BASE + f + ('.jpg' if gross else '-s.webp')
     b = p.get('base') or 'assets/img/projects/%s/' % p['id']
     b = b.replace('../', '')
     return BASE + b + '%02d.jpg' % i if gross else BASE + b + '%02d-s.webp' % i

@@ -1,0 +1,8 @@
+{
+  "_hinweis": "Änderungen aus dem CMS (cms.html). Wird beim Bau von tools/projekte_einbauen.py und tools/build.py übernommen. Nicht von Hand bearbeiten, solange das CMS genutzt wird.",
+  "version": 1,
+  "projekte": {},
+  "neu": {},
+  "startseite": {},
+  "seiten": {}
+}

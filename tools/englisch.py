@@ -165,7 +165,8 @@ def daten():
     s = open(os.path.join(R, 'assets/js/data.js'), encoding='utf-8').read()
     D = json.loads(s[s.index('{'):s.rindex('}') + 1])
     for p in D['projects']:
-        e = P.PROJEKTE.get(p['id'], {})
+        e = dict(P.PROJEKTE.get(p['id'], {}))
+        if p.get('cms_en'): e.update({k: v for k, v in p.pop('cms_en').items() if v})   # englische Texte aus dem CMS
         wo = 'projekt ' + p['id']
         if p.get('areal'): p['areal'] = P.AREAL.get(p['areal'], p['areal']) if p['areal'] in P.AREAL else fehlend.setdefault(p['areal'], set()).add(wo + ' areal') or p['areal']
         for k in ('name', 'sub', 'text'):
@@ -211,12 +212,14 @@ import hashlib
 daten(); i18n()
 DATA_V = hashlib.md5(open(os.path.join(R, 'assets/js/data-en.js'), 'rb').read()).hexdigest()[:8]
 I18N_V = hashlib.md5(open(os.path.join(R, 'assets/js/i18n-en.js'), 'rb').read()).hexdigest()[:8]
-AUSNAHMEN = {'praesentation.html',   # interne Präsentation bleibt deutsch
+AUSNAHMEN = {'praesentation.html', 'cms.html',   # interne Präsentation bleibt deutsch
              'schulbau.html', 'wohnungsbau.html', 'oeffentliche-bauten.html', 'umbau-sanierung.html'}   # Themenseiten macht tools/seo.py (DE + EN)
 for fn in sorted(os.listdir(R)):
     if not fn.endswith('.html') or fn in AUSNAHMEN or re.match(r'projekt-[\d-]+-', fn): continue   # Projektseiten macht tools/seo.py
     if 'http-equiv="refresh"' in open(os.path.join(R, fn), encoding='utf-8').read(): continue
     seite(fn)
+# Das CMS gibt es nur deutsch: englische Adresse leitet weiter
+open(os.path.join(R, 'en', 'cms.html'), 'w', encoding='utf-8').write('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=../cms.html"><title>CMS</title></head><body><a href="../cms.html">CMS</a></body></html>\n')
 with open(os.path.join(R, 'content/en/fehlend.txt'), 'w', encoding='utf-8') as f:
     for k, v in sorted(fehlend.items()):
         f.write(repr(k) + '  # ' + ', '.join(sorted(v))[:120] + '\n')
