@@ -32,3 +32,4 @@ v31        ae8d486  Variante A + Pläne im Original (kein Zuschnitt)
 v32        0c61075  Variante A + 3D Modell-Look mit Projektvolumen, Fachplaner ergänzt
 v33        914b510  Variante A + Potenzial-Tool (Generator, Entwerfen, Axo-Präsentation, PDF, Anfrage)
 v34        b89fffa  Variante A + Potenzial: bebaute Parzellen (Ersatzneubau / Aufstockung), alle Uster-Zonen
+v36        fa4c78a  Variante A + CMS-Testversion (Projekte, Medien, Zuschnitt, Startseite, Veröffentlichen)
