@@ -6,6 +6,10 @@ SEITEN = {
 
 # ------------------------------------------------------------------ Potenzial (interner Bereich)
 'Potenzial': 'Potential',
+'Schwerpunkt – alle Schulhäuser und Kindergärten mit Fakten': 'Focus – all schools and kindergartens with facts',
+'Schwerpunkt – Mehrfamilienhäuser und Siedlungen': 'Focus – apartment buildings and estates',
+'Schwerpunkt – Verwaltung, Kirchen, Pflege, Sport': 'Focus – administration, churches, care, sports',
+'Schwerpunkt – Umbauten, Sanierungen, Erweiterungen': 'Focus – conversions, refurbishments, extensions',
 'Schwerpunkte': 'Focus areas', 'Realisierte Projekte mit Fakten': 'Completed projects with facts',
 'Schulbau': 'School buildings', 'Schulhäuser und Kindergärten': 'schools and kindergartens',
 'Wohnungsbau': 'Housing', 'Mehrfamilienhäuser und Siedlungen': 'apartment buildings and estates',

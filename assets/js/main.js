@@ -401,6 +401,22 @@
       fcost.addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; state.cost = state.cost === b.dataset.cost ? "" : b.dataset.cost; render(); });
       $("#freset").addEventListener("click", function () { state.tags = []; state.cost = ""; state.cat = "alle"; state.q = ""; state.mit = ""; $("#q").value = ""; render(); });
     }
+
+  // Suchbegriffe tolerant machen: Endungen weg («schule» findet «Schulhaus»), Fachbegriffe ↔ Kategorien/Abkürzungen
+  var SYN = [[/^(schul|school|kindergart|hort|bildung|lern|educat)/, ["lernen", "learning", "schul", "kindergarten"]],
+    [/^(wohn|mfh|mehrfamil|efh|einfamil|siedlung|apartment|housing|residen)/, ["wohnen", "living", "wohn", "mfh", "mehrfamilienhaus", "efh", "einfamilienhaus", "siedlung"]],
+    [/^(kirch|pfarr|church|glaub)/, ["glauben", "faith", "kirch", "pfarr"]], [/^(bahnhof|station|reis)/, ["reisen", "travel", "bahnhof"]],
+    [/^(pfleg|spital|hospiz|alters|care|hospice)/, ["pflegen", "care", "pfleg", "hospiz", "alters"]], [/^(turn|sport|gym)/, ["turnen", "sport", "turn"]],
+    [/^(gemeindehaus|verwalt|administr|leit)/, ["verwalten", "administration", "gemeindehaus", "verwaltung"]], [/^(laden|shop|einkauf|kauf|retail)/, ["kaufen", "shop", "laden"]],
+    [/^(gewerb|arbeit|werkstatt|industr|office)/, ["arbeiten", "work", "gewerb", "werkstatt", "büro"]],
+    [/^(umbau|sanier|erweiter|aufstock|renov|refurb|conversion)/, ["umbau", "sanierung", "erweiterung", "aufstockung", "refurbish", "conversion"]]];
+  function suchFormen(w) {
+    w = String(w).toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/é|è/g, "e").replace(/ß/g, "ss");
+    var st = w.length > 4 ? w.replace(/(en|er|es|e|n|s)$/, "") : w, out = [w, st];
+    SYN.forEach(function (s) { if (s[0].test(st)) out = out.concat(s[1]); });
+    return out.map(function (x) { return x.replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u"); });
+  }
+  function suchTreffer(hay, w) { hay = hay.replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/é|è/g, "e").replace(/ß/g, "ss"); return suchFormen(w).some(function (f) { return f && hay.indexOf(f) > -1; }); }
     function match(p) {
       if (state.mit && !(p.team || []).some(function (t) { return (t[2] || []).indexOf(state.mit) > -1; })) return false;
       if (state.cat === "auswahl" && !p.sel) return false;
@@ -409,7 +425,7 @@
       if (state.cat !== "alle" && state.cat !== "auswahl" && p.cats.indexOf(state.cat) < 0) return false;
       if (state.q) {
         var hay = (p.name + " " + p.ort + " " + p.sub + " " + p.text + " " + p.facts.map(function (f) { return f[1]; }).join(" ") + " " + p.cats.map(function (c) { return catLabel[c]; }).join(" ") + " " + (p.team || []).map(function (t) { return t[1] + " " + (t[2] || []).map(function (k) { return (D.beteiligte || {})[k] ? D.beteiligte[k].n : ""; }).join(" "); }).join(" ")).toLowerCase();
-        return state.q.toLowerCase().split(/\s+/).every(function (w) { return hay.indexOf(w) > -1; });
+        return state.q.toLowerCase().split(/\s+/).filter(Boolean).every(function (w) { return suchTreffer(hay, w); });
       }
       return true;
     }

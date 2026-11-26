@@ -32,6 +32,7 @@ FOOTER = '''<footer class="site-footer">
       <p class="claim">Präzision.<br>Flexibilität.<br>Professionalität.</p>
       <div class="col"><h2 class="f-h">Atelier</h2>apb architekten ag<br>Seestrasse 110a<br>8610 Uster</div>
       <div class="col"><h2 class="f-h">Kontakt</h2><a href="tel:+41449446080">+41 (0)44 944 60 80</a><br>Fax +41 (0)44 944 60 81<br><a href="mailto:info@apb-architekten.ch">info@apb-architekten.ch</a></div>
+      <div class="col"><h2 class="f-h">Schwerpunkte</h2><a href="schulbau.html">Schulbau</a><br><a href="wohnungsbau.html">Wohnungsbau</a><br><a href="oeffentliche-bauten.html">Öffentliche Bauten</a><br><a href="umbau-sanierung.html">Umbau und Sanierung</a></div>
       <div class="col"><h2 class="f-h">Navigation</h2><a href="projekte.html">Projekte</a><br><a href="leistungen.html">Leistungen</a><br><a href="buero.html">Büro &amp; Team</a><br><a href="karriere.html">Karriere</a><br><a href="kontakt.html">Kontakt</a><br><a href="potenzial.html">Potenzial (Login)</a></div>
     </div>
     <div class="giant" aria-hidden="true"><img src="assets/img/logo-light.svg" alt="" width="729" height="126" loading="lazy"></div>

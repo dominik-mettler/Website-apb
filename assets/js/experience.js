@@ -202,7 +202,27 @@
 
 
   /* ---------- Globale Suche ---------- */
+
+  // Suchbegriffe tolerant machen: Endungen weg («schule» findet «Schulhaus»), Fachbegriffe ↔ Kategorien/Abkürzungen
+  var SYN = [[/^(schul|school|kindergart|hort|bildung|lern|educat)/, ["lernen", "learning", "schul", "kindergarten"]],
+    [/^(wohn|mfh|mehrfamil|efh|einfamil|siedlung|apartment|housing|residen)/, ["wohnen", "living", "wohn", "mfh", "mehrfamilienhaus", "efh", "einfamilienhaus", "siedlung"]],
+    [/^(kirch|pfarr|church|glaub)/, ["glauben", "faith", "kirch", "pfarr"]], [/^(bahnhof|station|reis)/, ["reisen", "travel", "bahnhof"]],
+    [/^(pfleg|spital|hospiz|alters|care|hospice)/, ["pflegen", "care", "pfleg", "hospiz", "alters"]], [/^(turn|sport|gym)/, ["turnen", "sport", "turn"]],
+    [/^(gemeindehaus|verwalt|administr|leit)/, ["verwalten", "administration", "gemeindehaus", "verwaltung"]], [/^(laden|shop|einkauf|kauf|retail)/, ["kaufen", "shop", "laden"]],
+    [/^(gewerb|arbeit|werkstatt|industr|office)/, ["arbeiten", "work", "gewerb", "werkstatt", "büro"]],
+    [/^(umbau|sanier|erweiter|aufstock|renov|refurb|conversion)/, ["umbau", "sanierung", "erweiterung", "aufstockung", "refurbish", "conversion"]]];
+  function suchFormen(w) {
+    w = String(w).toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/é|è/g, "e").replace(/ß/g, "ss");
+    var st = w.length > 4 ? w.replace(/(en|er|es|e|n|s)$/, "") : w, out = [w, st];
+    SYN.forEach(function (s) { if (s[0].test(st)) out = out.concat(s[1]); });
+    return out.map(function (x) { return x.replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u"); });
+  }
+  function suchTreffer(hay, w) { hay = hay.replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/é|è/g, "e").replace(/ß/g, "ss"); return suchFormen(w).some(function (f) { return f && hay.indexOf(f) > -1; }); }
   var PAGES = [
+    ["Schulbau", "Schwerpunkt – alle Schulhäuser und Kindergärten mit Fakten", "schulbau.html", "schule schulhaus schulanlage kindergarten hort bildung lernen school kindergarten education"],
+    ["Wohnungsbau", "Schwerpunkt – Mehrfamilienhäuser und Siedlungen", "wohnungsbau.html", "wohnen wohnung mfh mehrfamilienhaus siedlung efh housing apartment residential"],
+    ["Öffentliche Bauten", "Schwerpunkt – Verwaltung, Kirchen, Pflege, Sport", "oeffentliche-bauten.html", "gemeinde gemeindehaus verwaltung kirche pflege hospiz sport turnhalle public municipal church care"],
+    ["Umbau und Sanierung", "Schwerpunkt – Umbauten, Sanierungen, Erweiterungen", "umbau-sanierung.html", "umbau sanierung erweiterung aufstockung renovation bestand refurbishment conversion extension"],
     ["Projekte", "Alle Projekte – Raster, Liste, Karte, Zeitachse", "projekte.html", "architektur übersicht projects architecture overview grid list map timeline"],
     ["Wettbewerbe & Auswahlverfahren", "Projekte", "projekt.html?p=wettbewerbe", "wettbewerb planerwahl rang modell competition selection model"],
     ["Planung", "Leistungen", "leistungen.html#planung", "firmenphilosophie planen bauen philosophy planning design build"],
@@ -258,7 +278,7 @@
       if (!w.length) { pr = PI.filter(function (x) { return x.p.sel; }); gr = GI.slice(0, 6); }
       else {
         var score = function (x) { var s = 0; w.forEach(function (t) { if (x.nm.indexOf(t) === 0) s += 6; else if (x.nm.indexOf(" " + t) > -1) s += 4; else if (x.nm.indexOf(t) > -1) s += 3; else s += 1; }); return s; };
-        var ok = function (x) { return w.every(function (t) { return x.hay.indexOf(t) > -1; }); };
+        var ok = function (x) { return w.every(function (t) { return suchTreffer(x.hay, t); }); };
         pr = PI.filter(ok).sort(function (a, b) { return score(b) - score(a) || (b.p.year || 0) - (a.p.year || 0); });
         gr = GI.filter(ok).sort(function (a, b) { return score(b) - score(a); });
       }
