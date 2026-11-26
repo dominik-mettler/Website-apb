@@ -174,6 +174,7 @@ def _cms_anwenden(p, c):
     if 'geo' in c and c['geo']: p['geo'] = c['geo']; p['geoExakt'] = True
     if 'quellen' in c: p['quellen'] = [list(x) for x in c['quellen'] if str(x[1]).startswith('https://')]
     if 'en' in c: p['cms_en'] = c['en']
+    if 'desc' in c and c.get('_desc_orig') is not None: p['cms_desc_orig'] = c['_desc_orig']
     if 'bilder' in c:                     # Reihenfolge, Bildunterschriften, ausgeblendete und neue Bilder
         b = [x for x in c['bilder'] if x.get('src') and not x.get('aus')]
         for x in b: _varianten(x['src'])

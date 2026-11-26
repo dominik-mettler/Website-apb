@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
       PUB = Object.assign({ projekte: {}, neu: {}, startseite: {}, seiten: {} }, j);
       var lokal = null; try { lokal = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
       DRAFT = lokal || clone(PUB);
+      if (lokal) enUebernehmen(PUB, DRAFT);
       ["projekte", "neu", "startseite", "seiten"].forEach(function (k) { if (!DRAFT[k]) DRAFT[k] = {}; });
     });
   }
@@ -57,7 +58,11 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
     if (k === "geo") return p.geo || null;
     return p[k];
   }
-  function setze(id, k, v) { ov(id, true)[k] = v; speichern(); }
+  function setze(id, k, v) {
+    var o = ov(id, true);
+    if (k === "desc" && !("desc" in o) && !istNeu(id)) o._desc_orig = clone((byId[id] || {}).desc || []);   // für die Übersetzung: was war schon geprüft?
+    o[k] = v; speichern();
+  }
   function alleIds() {
     var ids = Object.keys(DRAFT.neu || {}).concat(D.projects.map(function (p) { return p.id; }));
     return ids.filter(function (x, i) { return ids.indexOf(x) === i; });
@@ -186,9 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
       sek("Nachweise (Links auf fremde Quellen)", '<p class="cms-hilfe">Z. B. Projektseite der Gemeinde, Wettbewerbsbericht, Presseartikel. Nur https-Adressen.</p><ul class="cms-zeilen" data-liste="quellen"></ul><button type="button" class="cms-btn ghost" data-plus="quellen">+ Quelle</button>') +
       sek("Standort", '<div class="cms-grid">' + feld("Adresse suchen", '<div class="cms-reihe"><input class="cms-in" data-geo-q placeholder="Strasse Nr, Ort" value="' + esc((wert(id, "facts") || []).filter(function (f) { return f[0] === "Adresse"; }).map(function (f) { return f[1]; })[0] || "") + '"><button type="button" class="cms-btn ghost" data-geo-such>Suchen</button></div><ul class="cms-geo-tr"></ul>', 2) +
         feld("Koordinaten", '<span class="cms-geo">' + (geo ? geo[0].toFixed(5) + ", " + geo[1].toFixed(5) : "noch keine") + "</span>", 2) + "</div>") +
-      sek("Englisch (optional)", '<p class="cms-hilfe">Leer lassen = deutscher Text erscheint auch auf der englischen Seite.</p><div class="cms-grid">' +
-        feld("Name", '<input class="cms-in" data-en="name" value="' + esc(en.name || "") + '">') + feld("Untertitel", '<input class="cms-in" data-en="sub" value="' + esc(en.sub || "") + '">') +
-        feld("Kurztext", '<textarea class="cms-in" rows="3" data-en="text">' + esc(en.text || "") + "</textarea>", 2) + "</div>");
+      sek("Englisch", enHTML(id, en));
     // Grunddaten
     $$("[data-k]", box).forEach(function (inp) {
       inp.addEventListener("change", function () {
@@ -200,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
       });
     });
     $$(".cms-chip", box).forEach(function (b) { b.addEventListener("click", function () { var c = (wert(id, "cats") || []).slice(), i = c.indexOf(b.dataset.cat); if (i > -1) c.splice(i, 1); else c.push(b.dataset.cat); setze(id, "cats", c); b.setAttribute("aria-pressed", i < 0); }); });
-    $$("[data-en]", box).forEach(function (inp) { inp.addEventListener("change", function () { var e = Object.assign({}, wert(id, "en")); e[inp.dataset.en] = inp.value; setze(id, "en", e); }); });
+    $$("[data-en]", box).forEach(function (inp) { inp.addEventListener("change", function () { var e = clone(wert(id, "en") || {}); e[inp.dataset.en] = inp.value; e._bearbeitet = true; setze(id, "en", e); }); });
     var vw = $("[data-verwerfen]", box); if (vw) vw.addEventListener("click", function () {
       if (!confirm("Alle nicht veröffentlichten Änderungen an diesem Projekt verwerfen?")) return;
       var pub = (PUB.projekte || {})[id], pubN = (PUB.neu || {})[id];
@@ -217,6 +220,34 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
       drop.addEventListener("drop", function (e) { e.preventDefault(); drop.classList.remove("ueber"); hochladen(id, inp.dataset.upload, Array.prototype.slice.call(e.dataTransfer.files).filter(function (f) { return /^image\//.test(f.type); })); });
     });
     $("[data-geo-such]", box).addEventListener("click", function () { geoSuche(id, box); });
+  }
+  // Englisch: wird beim Veröffentlichen automatisch übersetzt (tools/cms_uebersetzen.py) und hier zur Kontrolle gezeigt
+  function enHTML(id, en) {
+    var q = en._quelle || {}, zeilen = [];
+    function z(schl, de, gross) {
+      var neu = !en[schl] || q[schl] !== de;
+      zeilen.push('<div class="cms-en-z"><small>' + esc(de) + '</small>' + (neu ? '<span class="cms-en-offen">' + (en[schl] ? "Deutsch geändert – wird beim Veröffentlichen neu übersetzt" : "wird beim Veröffentlichen übersetzt") + "</span>" :
+        (gross ? '<textarea class="cms-in" rows="3" data-en="' + schl + '">' + esc(en[schl]) + "</textarea>" : '<input class="cms-in" data-en="' + schl + '" value="' + esc(en[schl]) + '">')) + "</div>");
+    }
+    var o = ov(id), bez = { name: "Name", sub: "Untertitel", text: "Kurztext" };
+    ["name", "sub", "text"].forEach(function (f) { if (f in o && o[f]) z(f, o[f], f === "text"); });
+    // Listen: nur Einträge mit maschineller Übersetzung zeigen – alles andere hat schon geprüftes Englisch
+    function zl(schl, de, gross) { if (de && en[schl]) z(schl, de, gross); }
+    (o.desc || []).forEach(function (d, k) { zl("desc." + k + ".0", d[0]); zl("desc." + k + ".1", d[1], true); });
+    (o.facts || []).forEach(function (d, k) { zl("facts." + k + ".0", d[0]); zl("facts." + k + ".1", d[1]); });
+    (o.bilder || []).forEach(function (b, k) { zl("cap." + k, b.cap); });
+    void bez;
+    return '<p class="cms-hilfe">Englisch entsteht automatisch beim Veröffentlichen (DeepL mit eurem Glossar) und erscheint danach hier. Wenn etwas komisch klingt: hier korrigieren und nochmals veröffentlichen – die Korrektur bleibt, bis sich der deutsche Text ändert. Texte, die nicht im CMS geändert wurden, haben schon ihre geprüfte Übersetzung.</p>' +
+      (zeilen.length ? '<div class="cms-en">' + zeilen.join("") + "</div>" : '<p class="cms-hilfe">Noch keine im CMS geänderten Texte.</p>');
+  }
+  // Englisch, das der Server inzwischen erzeugt hat, in den Entwurf übernehmen (ausser es wurde hier von Hand bearbeitet)
+  function enUebernehmen(quelle, ziel) {
+    ["projekte", "neu"].forEach(function (g) {
+      Object.keys((quelle || {})[g] || {}).forEach(function (id) {
+        var s = quelle[g][id].en, t = (ziel[g] || {})[id]; if (!s || !t) return;
+        if (!t.en || !t.en._bearbeitet) t.en = clone(s);
+      });
+    });
   }
   function sek(t, h) { return '<section class="cms-sek"><h3>' + t + "</h3>" + h + "</section>"; }
   function feld(l, h, breit) { return '<label class="cms-feld' + (breit ? " breit" : "") + '"><span>' + l + "</span>" + h + "</label>"; }
@@ -499,7 +530,11 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
     var aus = clone(DRAFT); aus._hinweis = PUB._hinweis || "Änderungen aus dem CMS (cms.html)."; aus.version = 1; aus.stand = new Date().toISOString();
     knopf.disabled = true; log.innerHTML = ""; l("Verbinde mit GitHub …");
     var basis, baum;
-    gh("/git/ref/heads/" + encodeURIComponent(REPO.branch)).then(function (r) { basis = r.object.sha; return gh("/git/commits/" + basis); })
+    // zuerst den aktuellen Stand holen: inzwischen automatisch erzeugtes Englisch nicht überschreiben
+    gh("/contents/assets/data/cms.json?ref=" + encodeURIComponent(REPO.branch)).then(function (j) {
+      try { enUebernehmen(JSON.parse(decodeURIComponent(escape(atob(String(j.content || "").replace(/\s/g, ""))))), aus); } catch (e) {}
+    }, function () {})
+      .then(function () { return gh("/git/ref/heads/" + encodeURIComponent(REPO.branch)); }).then(function (r) { basis = r.object.sha; return gh("/git/commits/" + basis); })
       .then(function (c) { baum = c.tree.sha; l(dateien.length ? dateien.length + " Bild(er) hochladen …" : "Änderungen vorbereiten …");
         return dateien.reduce(function (pr, pfad) { return pr.then(function (acc) { return b64(UPL[pfad]).then(function (d) { return gh("/git/blobs", { method: "POST", body: { content: d, encoding: "base64" } }); }).then(function (bl) { acc.push({ path: pfad, mode: "100644", type: "blob", sha: bl.sha }); l("✓ " + pfad.split("/").pop()); return acc; }); }); }, Promise.resolve([])); })
       .then(function (eintraege) { return gh("/git/blobs", { method: "POST", body: { content: utf8b64(JSON.stringify(aus, null, 1)), encoding: "base64" } }).then(function (bl) { eintraege.push({ path: "assets/data/cms.json", mode: "100644", type: "blob", sha: bl.sha }); return gh("/git/trees", { method: "POST", body: { base_tree: baum, tree: eintraege } }); }); })
@@ -507,7 +542,7 @@ document.addEventListener("DOMContentLoaded", function () {   // erst nach data.
       .then(function (c) { return gh("/git/refs/heads/" + encodeURIComponent(REPO.branch), { method: "PATCH", body: { sha: c.sha } }).then(function () { return c; }); })
       .then(function (c) {
         PUB = clone(aus); DRAFT = clone(aus); UPL = {}; speichern();
-        l("Veröffentlicht (Commit " + c.sha.slice(0, 7) + "). GitHub baut die Seite jetzt neu – in rund 3 Minuten ist alles online.");
+        l("Veröffentlicht (Commit " + c.sha.slice(0, 7) + "). GitHub baut die Seite jetzt neu und übersetzt neue Texte ins Englische – in rund 3 Minuten ist alles online. Das Englisch erscheint danach im CMS (Seite neu laden) und kann dort korrigiert werden.");
         log.insertAdjacentHTML("beforeend", '<p><a href="https://github.com/' + REPO.owner + "/" + REPO.name + '/actions" target="_blank" rel="noopener">Fortschritt auf GitHub ansehen ↗</a></p>');
         meldung("Veröffentlicht. Die Seite ist in rund 3 Minuten aktualisiert.");
       })

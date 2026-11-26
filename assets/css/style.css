@@ -1685,3 +1685,8 @@ li.aus .cms-thumb img { opacity: .3; filter: grayscale(1); }
   .cms-dlg-in.medium { grid-template-columns: 1fr; } .cms-bar { flex-wrap: wrap; } .cms-tabs { overflow-x: auto; }
 }
 .cms[hidden], .cms-login-hero[hidden] { display: none !important; }   /* erst nach dem Login zeigen (sonst deckt das CMS das Login-Formular ab) */
+.cms-en { display: grid; gap: 10px; }
+.cms-en-z { display: grid; grid-template-columns: minmax(160px, 1fr) 1.4fr; gap: 12px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--line-2); }
+.cms-en-z small { color: var(--ink-2); font-size: 13px; line-height: 1.45; padding-top: 8px; }
+.cms-en-offen { color: var(--mute); font-size: 13px; font-style: italic; padding-top: 8px; }
+@media (max-width: 900px) { .cms-en-z { grid-template-columns: 1fr; } }

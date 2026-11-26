@@ -166,24 +166,41 @@ def daten():
     D = json.loads(s[s.index('{'):s.rindex('}') + 1])
     for p in D['projects']:
         e = dict(P.PROJEKTE.get(p['id'], {}))
-        if p.get('cms_en'): e.update({k: v for k, v in p.pop('cms_en').items() if v})   # englische Texte aus dem CMS
+        ce = p.pop('cms_en', None) or {}
+        # Englisch aus dem CMS (automatisch übersetzt oder von Hand korrigiert): Zuordnung über den deutschen Text
+        TM = {de: ce[k] for k, de in (ce.get('_quelle') or {}).items() if ce.get(k)}
+        e.update({k: ce[k] for k in ('name', 'sub', 'text') if ce.get(k)})
         wo = 'projekt ' + p['id']
         if p.get('areal'): p['areal'] = P.AREAL.get(p['areal'], p['areal']) if p['areal'] in P.AREAL else fehlend.setdefault(p['areal'], set()).add(wo + ' areal') or p['areal']
         for k in ('name', 'sub', 'text'):
             if e.get(k): p[k] = e[k]
             elif p.get(k): fehlend.setdefault(norm(p[k]), set()).add(wo + ' ' + k) if not F.gleich(p[k]) else None
+        do = p.pop('cms_desc_orig', None)
+        if p.get('desc') and do is not None:   # Beschrieb im CMS bearbeitet: unveränderte Abschnitte geprüft, neue/geänderte maschinell
+            alt = e.get('desc') if e.get('desc') and len(e['desc']) == len(do) else None
+            def _ab(x):
+                i = next((i for i, z in enumerate(do) if z[1] == x[1]), None)
+                if alt and i is not None: return alt[i]
+                return [TM.get(x[0], x[0]) if x[0] else '', TM.get(x[1], x[1])]
+            e['desc'] = [_ab(x) for x in p['desc']]
         if p.get('desc'):
             if e.get('desc') and len(e['desc']) == len(p['desc']): p['desc'] = e['desc']
             else: fehlend.setdefault('DESC ' + p['id'], set()).add(wo)
         if p.get('cap'):
             ec = e.get('cap', {})
             for k, v in list(p['cap'].items()):
-                n = ec.get(k) or F.cap(v)
+                n = ec.get(k) or F.cap(v) or TM.get(v)
                 if n: p['cap'][k] = n
                 else: fehlend.setdefault(v, set()).add(wo + ' cap')
         if p.get('plans'):
             p['plans'] = [F.plan(x) or fehlend.setdefault(x, set()).add(wo + ' plan') or x for x in p['plans']]
-        p['facts'] = [F.fakt(a, b, fehlend, wo) for a, b in p['facts']]
+        def _fk(a, b):   # geprüfte Übersetzung (content/en/fakten.py) zuerst, sonst die aus dem CMS
+            f = {}; k, n = F.fakt(a, b, f, wo)
+            if a not in F.SCHLUESSEL and a in TM: k = TM[a]
+            if b in TM and (any(x == b or x.startswith(b + '  →') for x in f) or (n == b and a != 'Adresse' and b not in getattr(F, 'BAUHERR', {}))): n = TM[b]
+            elif f: [fehlend.setdefault(x, set()).update(y) for x, y in f.items() if not (x == a and a in TM)]
+            return [k, n]
+        p['facts'] = [_fk(a, b) for a, b in p['facts']]
         if p.get('team'):
             p['team'] = [[F.rolle(t[0], fehlend, wo), F.wert(t[1])] + t[2:] for t in p['team']]
         if p.get('status'): p['status'] = F.STATUS.get(p['status'], p['status'])
