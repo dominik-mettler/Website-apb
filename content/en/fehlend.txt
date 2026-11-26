@@ -1,9 +1,0 @@
-'Mehrfamilienhäuser und Siedlungen'  # leistungen.html
-'Realisierte Projekte mit Fakten'  # leistungen.html
-'Schulbau'  # leistungen.html
-'Schulhäuser und Kindergärten'  # leistungen.html
-'Schwerpunkte'  # leistungen.html
-'Umbauten, Sanierungen, Erweiterungen und Aufstockungen'  # leistungen.html
-'Verwaltung, Kirchen, Pflege und Sport'  # leistungen.html
-'Wohnungsbau'  # leistungen.html
-'Öffentliche Bauten'  # leistungen.html

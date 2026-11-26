@@ -6,6 +6,11 @@ SEITEN = {
 
 # ------------------------------------------------------------------ Potenzial (interner Bereich)
 'Potenzial': 'Potential',
+'Schwerpunkte': 'Focus areas', 'Realisierte Projekte mit Fakten': 'Completed projects with facts',
+'Schulbau': 'School buildings', 'Schulhäuser und Kindergärten': 'schools and kindergartens',
+'Wohnungsbau': 'Housing', 'Mehrfamilienhäuser und Siedlungen': 'apartment buildings and estates',
+'Öffentliche Bauten': 'Public buildings', 'Verwaltung, Kirchen, Pflege und Sport': 'administration, churches, care and sports',
+'Umbauten, Sanierungen, Erweiterungen und Aufstockungen': 'conversions, refurbishments, extensions and storey additions',
 'Der Ausbaustandard bestimmt die Wohnungsgrössen pro Typ (einfach – mittel – gehoben, z. B. 3.5 Zimmer 70 / 82 / 100 m²). Volumen und zulässige Geschossfläche ändern sich nicht – bei gleicher Fläche gibt es mit «einfach» mehr und kleinere, mit «gehoben» weniger und grössere Wohnungen. Er wirkt auf die Wohnungsschätzung, den Wohnungsmix und das PDF. Werte vorläufig, Kalibrierung mit apb-Studien folgt.': 'The fit-out standard sets the apartment sizes per type (basic – standard – high-end, e.g. 3.5 rooms 70 / 82 / 100 m²). Massing and permitted floor area stay the same – for the same area, “basic” gives more, smaller units and “high-end” fewer, larger ones. It affects the apartment estimate, the unit mix and the PDF. Provisional values, to be calibrated with apb studies.',
 'Erklärung': 'Explanation',
 'i': 'i',
