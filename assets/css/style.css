@@ -1684,3 +1684,4 @@ li.aus .cms-thumb img { opacity: .3; filter: grayscale(1); }
   .cms-zeilen li, .cms-zeilen.gross li { grid-template-columns: 1fr; } .cms-griff { display: none; }
   .cms-dlg-in.medium { grid-template-columns: 1fr; } .cms-bar { flex-wrap: wrap; } .cms-tabs { overflow-x: auto; }
 }
+.cms[hidden], .cms-login-hero[hidden] { display: none !important; }   /* erst nach dem Login zeigen (sonst deckt das CMS das Login-Formular ab) */
